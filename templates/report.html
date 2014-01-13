@@ -93,7 +93,7 @@
 			var desc = [];
 
 			desc[0] = {};
-			desc[0].classURI = 'http://test1/class';
+			desc[0].classURI = 'http://test1/class1';
 			desc[0].properties = [];
 			desc[0].properties[0] = {};
 			desc[0].properties[0].uri = 'http://test1/property1';
@@ -101,6 +101,16 @@
 			desc[0].properties[1] = {};
 			desc[0].properties[1].uri = 'http://test1/property2';
 			desc[0].properties[1].datatype = 'http://test1/type2';
+
+			desc[1] = {};
+			desc[1].classURI = 'http://test1/class2';
+			desc[1].properties = [];
+			desc[1].properties[0] = {};
+			desc[1].properties[0].uri = 'http://test1/property3';
+			desc[1].properties[0].datatype = 'http://test1/type1';
+			desc[1].properties[1] = {};
+			desc[1].properties[1].uri = 'http://test1/property4';
+			desc[1].properties[1].datatype = 'http://test1/type2';
 
 			return desc;
 		};
@@ -115,41 +125,88 @@
 			}
 		};
 
-		function processClass(desc, id) {
-			var classObj = desc[id];
+		function processClass(desc, descID, id) {
+			var classObj = desc[descID];
+
+			$("#xvalues-list-" + id).empty();
+			$("#yvalues-list-" + id).empty();
 			for (var index = 0; index < classObj.properties.length; index++) {
-				$("#xvalues-list" + id).append(new Option(classObj.properties[index].uri, index));	
-				$("#yvalues-list" + id).append(new Option(classObj.properties[index].uri, index));
+				$("#xvalues-list-" + id).append(new Option(classObj.properties[index].uri, descID + ":" + index));	
+				$("#yvalues-list-" + id).append(new Option(classObj.properties[index].uri, descID + ":" + index));
 			}
 		}
 
+		function getConfID(event) {
+			var source = event.target || event.srcElement;
+			var res = source.id.split("-");
+			return res[res.length - 1];
+		};
+
 		function addConfiguration(desc, id) {
-			var snippet = '<div>' + 
+			var snippet = 	'<div id="configuration-' + id + '">' + 
+								'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
 								'<label>Class:</label>' + 
-                        		'<select id="class-list' + id + '" class="form-control">' +
+                        		'<select id="class-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 
 								'<label>X:</label>' +
-                        		'<select id="xvalues-list' + id + '" class="form-control">' +
+                        		'<select id="xvalues-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 
 								'<label>Y:</label>' +
-                        		'<select id="yvalues-list' + id + '" class="form-control">' +
+                        		'<select id="yvalues-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 							'</div>';
 
 			$('#chart-configuration').append(snippet);
 
-			$("#class-list" + id).empty();
+			$("#class-list-" + id).empty();
 			for (var index = 0; index < desc.length; index++) {
-				$("#class-list" + id).append(new Option(desc[index].classURI, index));	
+				$("#class-list-" + id).append(new Option(desc[index].classURI, index));	
 			}
 
-			processClass(desc, id);
+			$("#class-list-" + id).change(function(event) {
+				var confID = getConfID(event);
+
+				chart[confID].classURI = desc[$(this).val()].classURI;
+				chart[confID].xvalue = desc[$(this).val()].properties[0].uri;
+				chart[confID].yvalue = desc[$(this).val()].properties[0].uri;
+				processClass(desc, $(this).val(), id)
+			});
+
+			$("#xvalues-list-" + id).change(function(event) {
+				var confID = getConfID(event);
+				var res = $(this).val().split(":");
+
+				chart[confID].xvalue = desc[res[0]].properties[res[1]].uri;
+			});
+
+			$("#yvalues-list-" + id).change(function(event) {
+				var confID = getConfID(event);
+				var res = $(this).val().split(":");
+
+				chart[confID].yvalue = desc[res[0]].properties[res[1]].uri;
+			});
+
+			$("#remove-conf-button-" + id).click(function(event) {
+				$('#configuration-' + id).remove();
+			});
+
+			processClass(desc, 0, id);
+
+			var conf = {}
+			conf.classURI = desc[0].classURI;
+			conf.xvalue = desc[0].properties[0].uri;
+			conf.yvalue = desc[0].properties[0].uri;
+
+			return conf;
 		}
+
+		var chart = {}
+		var id = 0;
 
 		function processSource() {
 			var endpointID = $("#dataset-list").val();
@@ -159,9 +216,8 @@
 
 			$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
 			$("#add-button").click(function(event) {
-				addConfiguration(desc, 0);				
-
-  				event.preventDefault();
+				var conf = addConfiguration(desc, id++);				
+				chart[id - 1] = conf;
 			});
 		};
 
