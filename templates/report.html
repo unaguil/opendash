@@ -17,7 +17,7 @@
 		<div id="version-selector"></div>
 		<div class="row">
 			<div class="col-md-9">
-				<div id="chart_div" style="height: 500px;"></div>
+				<div id="chart-div" style="height: 500px;"></div>
 			</div>
 
 			<div class="col-md-3">
@@ -148,6 +148,10 @@
 		function updateChart(desc, conf) {
 			updateData(desc, conf);
 
+			drawChart();
+		};
+
+		function drawChart() {
 			var arrayData = []
 			arrayData.push(getTitles());
 			var xvalues = getXValues();
@@ -167,9 +171,9 @@
 				title: 'Company Performance'
 			};
 
-			var lineChart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			var lineChart = new google.visualization.LineChart(document.getElementById('chart-div'));
 			lineChart.draw(data, options);
-		};
+		}
 
 		function addConfiguration(desc, id) {
 			var snippet = 	'<div id="configuration-' + id + '">' + 
@@ -228,6 +232,14 @@
 
 			$("#remove-conf-button-" + id).click(function(event) {
 				$('#configuration-' + id).remove();
+
+				var confID = getConfID(event);
+				delete chart[confID];
+
+				if (Object.keys(chart).length > 0)
+					drawChart();
+				else
+					$("#chart-div").empty();
 			});
 
 			processClass(desc, 0, id);
@@ -253,6 +265,8 @@
 			$("#add-button").click(function(event) {
 				var conf = addConfiguration(desc, id++);				
 				chart[id - 1] = conf;
+
+				updateChart(desc, conf);
 			});
 		};
 
