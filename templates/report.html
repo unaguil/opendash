@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+	<title>OpenDash</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript">
+		google.load("visualization", "1", {packages:["corechart"]});
+		google.setOnLoadCallback(drawChart);
+		function drawChart() {
+			var data = google.visualization.arrayToDataTable([
+				['Year', 'Sales', 'Expenses'],
+				['2004',  1000,      400],
+				['2005',  1170,      460],
+				['2006',  660,       1120],
+				['2007',  1030,      540]
+			]);
+
+			var options = {
+				title: 'Company Performance'
+			};
+
+			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
+		}
+	</script>
+</head>
+<body>
+
+	<div class="container">
+
+	<div class="jumbotron">
+		<div id="version-selector"></div>
+		<div class="row">
+			<div class="col-md-9">
+				<div id="chart_div" style="height: 500px;"></div>
+			</div>
+
+			<div class="col-md-3">
+				<form role="form">
+				  <div class="form-group">
+				    <label for="Dataset">Dataset</label>
+				    <select id="dataset-list" class="form-control">
+					  
+					</select>
+				  </div>
+				  <div class="form-group">
+				    <label for="Dataset">Graph</label>
+				    <select id ="graph-list" class="form-control">
+					
+					</select>
+				  </div>
+				  <button type="submit" class="btn btn-default">Submit</button>
+				</form>
+			</div>
+		</div>
+	</div>	
+
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
+
+	<script>
+		function getEndpoints() {
+			var endpoints = new Array();
+
+			endpoints[0] = 'http://test1';
+			endpoints[1] = 'http://test2';
+			endpoints[2] = 'http://test3';
+
+			return endpoints;
+		};
+
+		function getGraphs(endpoint) {
+			var graphs = new Array();
+
+			if (endpoint == 'http://test2') {
+
+				graphs[0] = 'http://test2/graph1';
+				graphs[1] = 'http://test2/graph2';
+
+			}
+
+			return graphs;
+		}
+
+		function init() {
+			var endpoints = getEndpoints();
+
+			$("#dataset-list").change(function() {
+				graphs = getGraphs($(this).val());
+
+				$("#graph-list").empty();
+
+				for (var index = 0; index < graphs.length; index++) {
+					$("#graph-list").append(new Option(graphs[index]));
+				}				
+			});
+
+			$("#dataset-list").empty();
+
+			for (var index = 0; index < endpoints.length; index++) {
+				$("#dataset-list").append(new Option(endpoints[index]));
+			}
+		}
+
+		window.onload = init();
+	</script
+</body>
+</html>
