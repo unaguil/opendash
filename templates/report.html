@@ -56,6 +56,8 @@
 				  </div>
 				  <button type="submit" class="btn btn-default">Submit</button>
 				</form>
+
+				<div id="chart-configuration"></div>
 			</div>
 		</div>
 	</div>	
@@ -85,11 +87,23 @@
 			}
 
 			return graphs;
-		}
+		};
 
 		function getDescription(endpointID, graphID) {
+			var desc = [];
 
-		}
+			desc[0] = {};
+			desc[0].classURI = 'http://test1/class';
+			desc[0].properties = [];
+			desc[0].properties[0] = {};
+			desc[0].properties[0].uri = 'http://test1/property1';
+			desc[0].properties[0].datatype = 'http://test1/type1';
+			desc[0].properties[1] = {};
+			desc[0].properties[1].uri = 'http://test1/property2';
+			desc[0].properties[1].datatype = 'http://test1/type2';
+
+			return desc;
+		};
 
 		function updateGraphList(endpoint) {
 			graphs = getGraphs(endpoint.val());
@@ -99,7 +113,57 @@
 			for (var index = 0; index < graphs.length; index++) {
 				$("#graph-list").append(new Option(graphs[index], index));
 			}
+		};
+
+		function processClass(desc, id) {
+			var classObj = desc[id];
+			for (var index = 0; index < classObj.properties.length; index++) {
+				$("#xvalues-list" + id).append(new Option(classObj.properties[index].uri, index));	
+				$("#yvalues-list" + id).append(new Option(classObj.properties[index].uri, index));
+			}
 		}
+
+		function addConfiguration(desc, id) {
+			var snippet = '<div>' + 
+								'<label>Class:</label>' + 
+                        		'<select id="class-list' + id + '" class="form-control">' +
+					  
+								'</select>' +
+
+								'<label>X:</label>' +
+                        		'<select id="xvalues-list' + id + '" class="form-control">' +
+					  
+								'</select>' +
+
+								'<label>Y:</label>' +
+                        		'<select id="yvalues-list' + id + '" class="form-control">' +
+					  
+								'</select>' +
+							'</div>';
+
+			$('#chart-configuration').append(snippet);
+
+			$("#class-list" + id).empty();
+			for (var index = 0; index < desc.length; index++) {
+				$("#class-list" + id).append(new Option(desc[index].classURI, index));	
+			}
+
+			processClass(desc, id);
+		}
+
+		function processSource() {
+			var endpointID = $("#dataset-list").val();
+			var graphID = $("#graph-list").val();
+
+			var desc = getDescription(endpointID, graphID);
+
+			$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
+			$("#add-button").click(function(event) {
+				addConfiguration(desc, 0);				
+
+  				event.preventDefault();
+			});
+		};
 
 		function init() {
 			var endpoints = getEndpoints();
@@ -115,9 +179,15 @@
 			}
 
 			updateGraphList($('#dataset-list').val('0'))
-		}
+
+			$("#source-form").submit(function(event) {
+				processSource();
+
+  				event.preventDefault();
+			});
+		};
 
 		window.onload = init();
-	</script
+	</script>
 </body>
 </html>
