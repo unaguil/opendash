@@ -41,7 +41,7 @@
 			</div>
 
 			<div class="col-md-3">
-				<form role="form">
+				<form id="source-form" role="form">
 				  <div class="form-group">
 				    <label for="Dataset">Dataset</label>
 				    <select id="dataset-list" class="form-control">
@@ -74,37 +74,47 @@
 			return endpoints;
 		};
 
-		function getGraphs(endpoint) {
+		function getGraphs(endpointID) {
 			var graphs = new Array();
 
-			if (endpoint == 'http://test2') {
+			if (endpointID == '0') {
 
-				graphs[0] = 'http://test2/graph1';
-				graphs[1] = 'http://test2/graph2';
+				graphs[0] = 'http://test1/graph1';
+				graphs[1] = 'http://test1/graph2';
 
 			}
 
 			return graphs;
 		}
 
+		function getDescription(endpointID, graphID) {
+
+		}
+
+		function updateGraphList(endpoint) {
+			graphs = getGraphs(endpoint.val());
+
+			$("#graph-list").empty();
+
+			for (var index = 0; index < graphs.length; index++) {
+				$("#graph-list").append(new Option(graphs[index], index));
+			}
+		}
+
 		function init() {
 			var endpoints = getEndpoints();
 
 			$("#dataset-list").change(function() {
-				graphs = getGraphs($(this).val());
-
-				$("#graph-list").empty();
-
-				for (var index = 0; index < graphs.length; index++) {
-					$("#graph-list").append(new Option(graphs[index]));
-				}				
+				updateGraphList($(this));					
 			});
 
 			$("#dataset-list").empty();
 
 			for (var index = 0; index < endpoints.length; index++) {
-				$("#dataset-list").append(new Option(endpoints[index]));
+				$("#dataset-list").append(new Option(endpoints[index], index));
 			}
+
+			updateGraphList($('#dataset-list').val('0'))
 		}
 
 		window.onload = init();
