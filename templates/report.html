@@ -8,26 +8,6 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
 
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	<script type="text/javascript">
-		google.load("visualization", "1", {packages:["corechart"]});
-		google.setOnLoadCallback(drawChart);
-		function drawChart() {
-			var data = google.visualization.arrayToDataTable([
-				['Year', 'Sales', 'Expenses'],
-				['2004',  1000,      400],
-				['2005',  1170,      460],
-				['2006',  660,       1120],
-				['2007',  1030,      540]
-			]);
-
-			var options = {
-				title: 'Company Performance'
-			};
-
-			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-			chart.draw(data, options);
-		}
-	</script>
 </head>
 <body>
 
@@ -66,6 +46,8 @@
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
 
 	<script>
+		google.load("visualization", "1", {packages:["corechart"]});
+
 		function getEndpoints() {
 			var endpoints = new Array();
 
@@ -142,6 +124,53 @@
 			return res[res.length - 1];
 		};
 
+		function updateData(desc, conf) {
+			conf.data = [Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000];
+		};
+
+		function getXValues() {
+			return ['2004', '2005', '2006', '2007'];
+		};
+
+		function getTitles() {
+			var titles = []
+			titles.push("X axis");
+
+			var index = 0;
+			for (var key in chart) {
+				titles.push("Title " + index);
+				index++;
+			}
+
+			return titles;
+		}
+
+		function updateChart(desc, conf) {
+			updateData(desc, conf);
+
+			var arrayData = []
+			arrayData.push(getTitles());
+			var xvalues = getXValues();
+			for (var rowIndex = 0; rowIndex < xvalues.length; rowIndex++) {
+				var row = [];
+				row.push(xvalues[rowIndex]);
+
+				for (var key in chart)
+					row.push(chart[key].data[rowIndex]);
+
+				arrayData.push(row);
+			}
+
+			var data = google.visualization.arrayToDataTable(arrayData);
+
+			var options = {
+				title: 'Company Performance'
+			};
+
+			var lineChart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			lineChart.draw(data, options);
+		};
+
 		function addConfiguration(desc, id) {
 			var snippet = 	'<div id="configuration-' + id + '">' + 
 								'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
@@ -175,6 +204,8 @@
 				chart[confID].xvalue = desc[$(this).val()].properties[0].uri;
 				chart[confID].yvalue = desc[$(this).val()].properties[0].uri;
 				processClass(desc, $(this).val(), id)
+
+				updateChart(desc, chart[confID]);
 			});
 
 			$("#xvalues-list-" + id).change(function(event) {
@@ -182,6 +213,8 @@
 				var res = $(this).val().split(":");
 
 				chart[confID].xvalue = desc[res[0]].properties[res[1]].uri;
+
+				updateChart(desc, chart[confID]);
 			});
 
 			$("#yvalues-list-" + id).change(function(event) {
@@ -189,6 +222,8 @@
 				var res = $(this).val().split(":");
 
 				chart[confID].yvalue = desc[res[0]].properties[res[1]].uri;
+
+				updateChart(desc, chart[confID]);
 			});
 
 			$("#remove-conf-button-" + id).click(function(event) {
