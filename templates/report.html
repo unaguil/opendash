@@ -48,8 +48,8 @@
 	<script>
 		google.load("visualization", "1", {packages:["corechart"]});
 
-		function updateGraphList(endpoint) {
-			$.getJSON("endpoints/" + endpoint.val() + "/graphs", function(data) {
+		function updateGraphList(endpointURL) {
+			$.post("endpoints/get_graphs", { endpoint: endpointURL }, function(data) {
 				$("#graph-list").empty();
 
 				for (var index = 0; index < data.graphs.length; index++) {
@@ -94,7 +94,7 @@
 		}
 
 		function updateChart(desc, conf) {
-			$.getJSON("endpoints/" + desc.endpointID + "/graphs/" + desc.graphID + "/data", conf, function(data) {
+			$.post("endpoints/get_data", { configuration: conf }, function(data) {
 				conf.data = data.data;
 				drawChart();
 			});
@@ -205,19 +205,19 @@
 		var id = 0;
 
 		function processSource() {
-			var endpointID = $("#dataset-list").val();
-			var graphID = $("#graph-list").val();
+			var endpointURL = $("#dataset-list :selected").text();
+			var graphName = $("#graph-list :selected").text();
 
-			$.getJSON("endpoints/" + endpointID + "/graphs/" + graphID, function(data) {
+			$.post("endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 				desc = data.desc;
-			});
 
-			$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
-			$("#add-button").click(function(event) {
-				var conf = addConfiguration(desc, id++);				
-				chart[id - 1] = conf;
+				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
+				$("#add-button").click(function(event) {
+					var conf = addConfiguration(desc, id++);				
+					chart[id - 1] = conf;
 
-				updateChart(desc, conf);
+					updateChart(desc, conf);
+				});
 			});
 		};
 
@@ -230,11 +230,11 @@
 					$("#dataset-list").append(new Option(endpoint.url, endpoint.id));
 				}
 
-				updateGraphList($('#dataset-list').val('0'))
+				updateGraphList($('#dataset-list :selected').text())
 			});
 
 			$("#dataset-list").change(function() {
-				updateGraphList($(this));					
+				updateGraphList($('#dataset-list :selected').text());					
 			});
 
 			$("#source-form").submit(function(event) {
