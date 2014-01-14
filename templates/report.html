@@ -48,67 +48,19 @@
 	<script>
 		google.load("visualization", "1", {packages:["corechart"]});
 
-		function getEndpoints() {
-			var endpoints = new Array();
-
-			endpoints[0] = 'http://test1';
-			endpoints[1] = 'http://test2';
-			endpoints[2] = 'http://test3';
-
-			return endpoints;
-		};
-
-		function getGraphs(endpointID) {
-			var graphs = new Array();
-
-			if (endpointID == '0') {
-
-				graphs[0] = 'http://test1/graph1';
-				graphs[1] = 'http://test1/graph2';
-
-			}
-
-			return graphs;
-		};
-
-		function getDescription(endpointID, graphID) {
-			var desc = [];
-
-			desc[0] = {};
-			desc[0].classURI = 'http://test1/class1';
-			desc[0].properties = [];
-			desc[0].properties[0] = {};
-			desc[0].properties[0].uri = 'http://test1/property1';
-			desc[0].properties[0].datatype = 'http://test1/type1';
-			desc[0].properties[1] = {};
-			desc[0].properties[1].uri = 'http://test1/property2';
-			desc[0].properties[1].datatype = 'http://test1/type2';
-
-			desc[1] = {};
-			desc[1].classURI = 'http://test1/class2';
-			desc[1].properties = [];
-			desc[1].properties[0] = {};
-			desc[1].properties[0].uri = 'http://test1/property3';
-			desc[1].properties[0].datatype = 'http://test1/type1';
-			desc[1].properties[1] = {};
-			desc[1].properties[1].uri = 'http://test1/property4';
-			desc[1].properties[1].datatype = 'http://test1/type2';
-
-			return desc;
-		};
-
 		function updateGraphList(endpoint) {
-			graphs = getGraphs(endpoint.val());
+			$.getJSON("endpoints/" + endpoint.val() + "/graphs", function(data) {
+				$("#graph-list").empty();
 
-			$("#graph-list").empty();
-
-			for (var index = 0; index < graphs.length; index++) {
-				$("#graph-list").append(new Option(graphs[index], index));
-			}
+				for (var index = 0; index < data.graphs.length; index++) {
+					var graph = data.graphs[index];
+					$("#graph-list").append(new Option(graph.name, graph.id));
+				}
+			});
 		};
 
 		function processClass(desc, descID, id) {
-			var classObj = desc[descID];
+			var classObj = desc.classes[descID];
 
 			$("#xvalues-list-" + id).empty();
 			$("#yvalues-list-" + id).empty();
@@ -122,10 +74,6 @@
 			var source = event.target || event.srcElement;
 			var res = source.id.split("-");
 			return res[res.length - 1];
-		};
-
-		function updateData(desc, conf) {
-			conf.data = [Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000];
 		};
 
 		function getXValues() {
@@ -146,9 +94,10 @@
 		}
 
 		function updateChart(desc, conf) {
-			updateData(desc, conf);
-
-			drawChart();
+			$.getJSON("endpoints/" + desc.endpointID + "/graphs/" + desc.graphID + "/data", conf, function(data) {
+				conf.data = data.data;
+				drawChart();
+			});
 		};
 
 		function drawChart() {
@@ -197,16 +146,16 @@
 			$('#chart-configuration').append(snippet);
 
 			$("#class-list-" + id).empty();
-			for (var index = 0; index < desc.length; index++) {
-				$("#class-list-" + id).append(new Option(desc[index].classURI, index));	
+			for (var index = 0; index < desc.classes.length; index++) {
+				$("#class-list-" + id).append(new Option(desc.classes[index].classURI, index));	
 			}
 
 			$("#class-list-" + id).change(function(event) {
 				var confID = getConfID(event);
 
-				chart[confID].classURI = desc[$(this).val()].classURI;
-				chart[confID].xvalue = desc[$(this).val()].properties[0].uri;
-				chart[confID].yvalue = desc[$(this).val()].properties[0].uri;
+				chart[confID].classURI = desc.classes[$(this).val()].classURI;
+				chart[confID].xvalue = desc.classes[$(this).val()].properties[0].uri;
+				chart[confID].yvalue = desc.classes[$(this).val()].properties[0].uri;
 				processClass(desc, $(this).val(), id)
 
 				updateChart(desc, chart[confID]);
@@ -216,7 +165,7 @@
 				var confID = getConfID(event);
 				var res = $(this).val().split(":");
 
-				chart[confID].xvalue = desc[res[0]].properties[res[1]].uri;
+				chart[confID].xvalue = desc.classes[res[0]].properties[res[1]].uri;
 
 				updateChart(desc, chart[confID]);
 			});
@@ -225,7 +174,7 @@
 				var confID = getConfID(event);
 				var res = $(this).val().split(":");
 
-				chart[confID].yvalue = desc[res[0]].properties[res[1]].uri;
+				chart[confID].yvalue = desc.classes[res[0]].properties[res[1]].uri;
 
 				updateChart(desc, chart[confID]);
 			});
@@ -245,9 +194,9 @@
 			processClass(desc, 0, id);
 
 			var conf = {}
-			conf.classURI = desc[0].classURI;
-			conf.xvalue = desc[0].properties[0].uri;
-			conf.yvalue = desc[0].properties[0].uri;
+			conf.classURI = desc.classes[0].classURI;
+			conf.xvalue = desc.classes[0].properties[0].uri;
+			conf.yvalue = desc.classes[0].properties[0].uri;
 
 			return conf;
 		}
@@ -259,7 +208,9 @@
 			var endpointID = $("#dataset-list").val();
 			var graphID = $("#graph-list").val();
 
-			var desc = getDescription(endpointID, graphID);
+			$.getJSON("endpoints/" + endpointID + "/graphs/" + graphID, function(data) {
+				desc = data.desc;
+			});
 
 			$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
 			$("#add-button").click(function(event) {
@@ -271,19 +222,20 @@
 		};
 
 		function init() {
-			var endpoints = getEndpoints();
+			$.getJSON("endpoints", function(data) {
+		 		$("#dataset-list").empty();
+
+				for (var index = 0; index < data.endpoints.length; index++) {
+					var endpoint = data.endpoints[index];
+					$("#dataset-list").append(new Option(endpoint.url, endpoint.id));
+				}
+
+				updateGraphList($('#dataset-list').val('0'))
+			});
 
 			$("#dataset-list").change(function() {
 				updateGraphList($(this));					
 			});
-
-			$("#dataset-list").empty();
-
-			for (var index = 0; index < endpoints.length; index++) {
-				$("#dataset-list").append(new Option(endpoints[index], index));
-			}
-
-			updateGraphList($('#dataset-list').val('0'))
 
 			$("#source-form").submit(function(event) {
 				processSource();
