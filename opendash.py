@@ -44,13 +44,17 @@ def get_endpoint_graphs():
 
 	return jsonify(graphs=graphs)
 
-ignored = []
 
 def loadIgnoredPrefixes():
+	ignored = []
 	with open('ignored.txt') as f:
 		ignored = f.read().splitlines()
 
+	return ignored
+
 def getFilter(var):
+	ignored = loadIgnoredPrefixes()	
+
 	filter = ''
 	if len(ignored) > 0:
 		filter += "FILTER ("
@@ -74,8 +78,15 @@ def get_source_description():
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
+	print '* Endpoint %s' % endpoint
+	print '* Graph %s' % graph
+
+	print 'Obtaining available classes'
+
 	query = "SELECT DISTINCT ?class FROM <%s> WHERE { [] a ?class " + getFilter("?class") + " } LIMIT 50"
-	qres = g.query(query %graph)
+	print query % graph
+
+	qres = g.query(query % graph)
 
 	desc = {}
 	desc['endpoint'] = endpoint
@@ -108,6 +119,4 @@ def get_data():
 	return jsonify(data=data)
 
 if __name__ == "__main__":
-	loadIgnoredPrefixes()
-
 	app.run(debug=True)
