@@ -61,7 +61,7 @@
 			});
 		};
 
-		function getConfID(event) {
+		function getLineID(event) {
 			var source = event.target || event.srcElement;
 			var res = source.id.split("-");
 			return res[res.length - 1];
@@ -148,7 +148,7 @@
 			$("#remove-conf-button-" + id).click(function(event) {
 				$('#configuration-' + id).remove();
 
-				var lineID = getConfID(event);
+				var lineID = getLineID(event);
 				delete chart.lines[lineID];
 
 				if (Object.keys(chart.lines).length > 0)
@@ -158,7 +158,7 @@
 			});
 
 			$("#yvalues-list-" + id).change(function(event) {
-				var lineID = getConfID(event);
+				var lineID = getLineID(event);
 				var res = $(this).val().split(":");
 
 				chart.lines[lineID].yvalues = desc.classes[res[0]].properties[res[1]].uri;
