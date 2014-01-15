@@ -21,8 +21,12 @@ endpoints = [
 	}
 ]
 
+@app.route("/")
+def render_index():
+	return render_template('index.html')
+
 @app.route("/report")
-def show_chart():
+def render_report():
 	return render_template('report.html')
 
 @app.route("/endpoints")
