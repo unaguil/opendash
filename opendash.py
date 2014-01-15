@@ -70,6 +70,26 @@ def getFilter(var):
 
 	return filter
 
+def get_properties(g, graph, clazz):
+	query = """SELECT DISTINCT ?property (COUNT(DISTINCT ?s) AS ?count)
+				FROM <%s>
+				WHERE 	{ 	?s a <%s> . 
+							?s ?property ?o . 
+							%s 
+						} GROUP BY ?property ORDER BY desc(?count) LIMIT 25"""
+	
+	print 'Obtaining properties'
+	query =  query % (graph, clazz, getFilter("?property"))
+	qres = g.query(query)
+
+	properties = []
+	for p in qres:
+		properties.append({
+				'uri': p[0]
+			})
+
+	return properties
+
 @app.route("/endpoints/get_description", methods=['POST'])
 def get_source_description():
 	endpoint = request.form['endpoint']
@@ -84,9 +104,9 @@ def get_source_description():
 	print 'Obtaining available classes'
 
 	query = "SELECT DISTINCT ?class FROM <%s> WHERE { [] a ?class " + getFilter("?class") + " } LIMIT 50"
-	print query % graph
+	query = query % graph
 
-	qres = g.query(query % graph)
+	qres = g.query(query)
 
 	desc = {}
 	desc['endpoint'] = endpoint
@@ -97,12 +117,7 @@ def get_source_description():
 		clazz = {}
 		clazz['classURI'] = c[0]
 
-		clazz['properties'] = 	[{ 	'uri': 'http://test1/property1',
-									'datatype': 'http://test1/type1'
-								},
-								{ 	'uri': 'http://test1/property2',
-									'datatype': 'http://test1/type2'
-								}]
+		clazz['properties'] = get_properties(g, graph, c[0])
 		classes.append(clazz)
 
 	desc['classes'] = classes
