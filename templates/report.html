@@ -65,9 +65,12 @@
 			$("#yvalues-list-" + id).empty();
 			for (var index = 0; index < classObj.properties.length; index++) {
 				var property = classObj.properties[index];
-				
-				$("#xvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));	
-				$("#yvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));
+			
+				if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
+					$("#xvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));	
+
+				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)	
+					$("#yvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));
 			}
 		}
 
@@ -204,17 +207,32 @@
 			conf.yvalue = desc.classes[0].properties[0].uri;
 
 			return conf;
-		}
+		};
 
 		var chart = {}
 		var id = 0;
 
-		function removeIncompatibleTypes(desc) {
-			var validDataTypes = [	'http://www.w3.org/2001/XMLSchema#integer',
-									'http://www.w3.org/2001/XMLSchema#decimal',
-									'http://www.w3.org/2001/XMLSchema#float'
-								];
+		function getValidDataTypes() {
+			return $.merge(getXValidDataTypes(), getYValidDataTypes());
 
+		};
+
+		function getXValidDataTypes() {
+			return 	[	'http://www.w3.org/2001/XMLSchema#integer',
+						'http://www.w3.org/2001/XMLSchema#decimal',
+						'http://www.w3.org/2001/XMLSchema#float',
+						'http://www.w3.org/2001/XMLSchema#string'
+					];			
+		};
+
+		function getYValidDataTypes() {
+			return 	[	'http://www.w3.org/2001/XMLSchema#integer',
+						'http://www.w3.org/2001/XMLSchema#decimal',
+						'http://www.w3.org/2001/XMLSchema#float',
+					];			
+		};
+
+		function removeIncompatibleTypes(desc) {
 			compatibleDesc = []
 
 			classes = []
@@ -224,7 +242,7 @@
 				clazz = desc.classes[clazzIndex];
 				for (var propertyIndex = 0; propertyIndex < clazz.properties.length; propertyIndex++) {
 					property = clazz.properties[propertyIndex];
-					if ($.inArray(property.datatype, validDataTypes) != -1)
+					if ($.inArray(property.datatype, getValidDataTypes()) != -1)
 						properties.push(property);
 				}
 				if (properties.length > 0)
