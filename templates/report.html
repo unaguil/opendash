@@ -61,12 +61,13 @@
 
 		function processClass(desc, descID, id) {
 			var classObj = desc.classes[descID];
-
 			$("#xvalues-list-" + id).empty();
 			$("#yvalues-list-" + id).empty();
 			for (var index = 0; index < classObj.properties.length; index++) {
-				$("#xvalues-list-" + id).append(new Option(classObj.properties[index].uri, descID + ":" + index));	
-				$("#yvalues-list-" + id).append(new Option(classObj.properties[index].uri, descID + ":" + index));
+				var property = classObj.properties[index];
+				
+				$("#xvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));	
+				$("#yvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));
 			}
 		}
 
@@ -208,12 +209,43 @@
 		var chart = {}
 		var id = 0;
 
+		function removeIncompatibleTypes(desc) {
+			var validDataTypes = [	'http://www.w3.org/2001/XMLSchema#integer',
+									'http://www.w3.org/2001/XMLSchema#decimal',
+									'http://www.w3.org/2001/XMLSchema#float'
+								];
+
+			compatibleDesc = []
+
+			classes = []
+			for (var clazzIndex = 0; clazzIndex < desc.classes.length; clazzIndex++) {
+				properties = []
+
+				clazz = desc.classes[clazzIndex];
+				for (var propertyIndex = 0; propertyIndex < clazz.properties.length; propertyIndex++) {
+					property = clazz.properties[propertyIndex];
+					if ($.inArray(property.datatype, validDataTypes) != -1)
+						properties.push(property);
+				}
+				if (properties.length > 0)
+					classes.push({classURI : clazz.classURI, properties: properties})
+			}
+
+			compatibleDesc.endpoint = desc.endpoint;
+			compatibleDesc.graph = desc.graph;
+			compatibleDesc.classes = classes;
+
+			return compatibleDesc;
+		};
+
 		function processSource() {
 			var endpointURL = $("#dataset-list :selected").text();
 			var graphName = $("#graph-list :selected").text();
 
 			$.post("endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 				desc = data.desc;
+
+				desc = removeIncompatibleTypes(desc);
 
 				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
 				$("#add-button").click(function(event) {

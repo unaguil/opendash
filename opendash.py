@@ -84,10 +84,26 @@ def get_properties(g, graph, clazz):
 	properties = []
 	for p in qres:
 		properties.append({
-				'uri': p[0]
+				'uri': str(p[0]),
+				'datatype': get_property_type(g, graph, clazz, str(p[0]))
 			})
 
 	return properties
+
+def get_property_type(g, graph, clazz, property):
+	query = """SELECT ?value FROM <%s> WHERE {
+				?s a <%s> .
+				?s <%s> ?value .
+				} LIMIT 1"""
+
+	query = query % (graph, clazz, property)
+
+	qres = g.query(query)
+	for value in qres:
+		if type(value[0]) is rdflib.term.Literal:
+			return value[0].datatype
+		else:
+			return ''
 
 @app.route("/endpoints/get_description", methods=['POST'])
 def get_source_description():
