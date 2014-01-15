@@ -148,10 +148,10 @@
 			$("#remove-conf-button-" + id).click(function(event) {
 				$('#configuration-' + id).remove();
 
-				var confID = getConfID(event);
-				delete chart[confID];
+				var lineID = getConfID(event);
+				delete chart.lines[lineID];
 
-				if (Object.keys(chart).length > 0)
+				if (Object.keys(chart.lines).length > 0)
 					drawChart();
 				else
 					$("#chart-div").empty();
