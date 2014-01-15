@@ -61,21 +61,6 @@
 			});
 		};
 
-		function processClass(desc, descID, id) {
-			var classObj = desc.classes[descID];
-			$("#xvalues-list-" + id).empty();
-			$("#yvalues-list-" + id).empty();
-			for (var index = 0; index < classObj.properties.length; index++) {
-				var property = classObj.properties[index];
-			
-				if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
-					$("#xvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));	
-
-				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)	
-					$("#yvalues-list-" + id).append(new Option(property.uri, descID + ":" + index));
-			}
-		}
-
 		function getConfID(event) {
 			var source = event.target || event.srcElement;
 			var res = source.id.split("-");
@@ -87,7 +72,7 @@
 			titles.push("X axis");
 
 			var index = 0;
-			for (var key in chart) {
+			for (var key in chart.lines) {
 				titles.push("Title " + index);
 				index++;
 			}
@@ -95,11 +80,16 @@
 			return titles;
 		};
 
-		function updateChart(desc, conf) {
+		function updateChartLine(desc, chart, lineID) {
 			$.post("endpoints/get_data", 
-				{ endpoint: desc.endpoint, graph: desc.graph, configuration: JSON.stringify(conf) }, 
+				{ 	endpoint: desc.endpoint, 
+					graph: desc.graph,
+					mainclass: chart.mainclass,
+					xvalues: chart.xvalues,
+					yvalues: chart.lines[lineID].yvalues
+				}, 
 				function(data) {
-					conf.data = data.data;
+					chart.lines[lineID].data = data.data;
 
 					drawChart();
 			});
@@ -111,13 +101,13 @@
 			titles = getTitles();
 			arrayData.push(titles);
 
-			for (var rowIndex = 0; rowIndex < chart[0].data.length; rowIndex++) {
+			for (var rowIndex = 0; rowIndex < chart.lines[0].data.length; rowIndex++) {
 				var row = [];
-				var xvalue = parseInt(chart[0].data[rowIndex]['x']);
+				var xvalue = parseInt(chart.lines[0].data[rowIndex]['x']);
 				row.push(xvalue);
 
-				for (var key in chart) {
-					var yvalue = parseInt(chart[key].data[rowIndex]['y']);
+				for (var key in chart.lines) {
+					var yvalue = parseInt(chart.lines[key].data[rowIndex]['y']);
 					row.push(yvalue);
 				}
 
@@ -132,20 +122,11 @@
 
 			var lineChart = new google.visualization.LineChart(document.getElementById('chart-div'));
 			lineChart.draw(data, options);
-		}
+		};
 
-		function addConfiguration(desc, id) {
+		function addLine(desc, id) {
 			var snippet = 	'<div id="configuration-' + id + '">' + 
 								'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
-								'<label>Class:</label>' + 
-								'<select id="class-list-' + id + '" class="form-control">' +
-					  
-								'</select>' +
-
-								'<label>X:</label>' +
-								'<select id="xvalues-list-' + id + '" class="form-control">' +
-					  
-								'</select>' +
 
 								'<label>Y:</label>' +
 								'<select id="yvalues-list-' + id + '" class="form-control">' +
@@ -155,39 +136,14 @@
 
 			$('#chart-configuration').append(snippet);
 
-			$("#class-list-" + id).empty();
-			for (var index = 0; index < desc.classes.length; index++) {
-				$("#class-list-" + id).append(new Option(desc.classes[index].classURI, index));	
+			var classID = $("#main-class-list :selected").val();
+
+			for (var index = 0; index < desc.classes[classID].properties.length; index++) {
+				var property = desc.classes[classID].properties[index];
+
+				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)	
+					$("#yvalues-list-" + id).append(new Option(property.uri, classID + ":" + index));
 			}
-
-			$("#class-list-" + id).change(function(event) {
-				var confID = getConfID(event);
-
-				chart[confID].classURI = desc.classes[$(this).val()].classURI;
-				chart[confID].xvalue = desc.classes[$(this).val()].properties[0].uri;
-				chart[confID].yvalue = desc.classes[$(this).val()].properties[0].uri;
-				processClass(desc, $(this).val(), id)
-
-				updateChart(desc, chart[confID]);
-			});
-
-			$("#xvalues-list-" + id).change(function(event) {
-				var confID = getConfID(event);
-				var res = $(this).val().split(":");
-
-				chart[confID].xvalue = desc.classes[res[0]].properties[res[1]].uri;
-
-				updateChart(desc, chart[confID]);
-			});
-
-			$("#yvalues-list-" + id).change(function(event) {
-				var confID = getConfID(event);
-				var res = $(this).val().split(":");
-
-				chart[confID].yvalue = desc.classes[res[0]].properties[res[1]].uri;
-
-				updateChart(desc, chart[confID]);
-			});
 
 			$("#remove-conf-button-" + id).click(function(event) {
 				$('#configuration-' + id).remove();
@@ -201,17 +157,23 @@
 					$("#chart-div").empty();
 			});
 
-			processClass(desc, 0, id);
+			$("#yvalues-list-" + id).change(function(event) {
+				var lineID = getConfID(event);
+				var res = $(this).val().split(":");
 
-			var conf = {}
-			conf.classURI = desc.classes[0].classURI;
-			conf.xvalue = desc.classes[0].properties[0].uri;
-			conf.yvalue = desc.classes[0].properties[0].uri;
+				chart.lines[lineID].yvalues = desc.classes[res[0]].properties[res[1]].uri;
+				updateChartLine(desc, chart, lineID);
+			});
 
-			return conf;
+			var line = {}
+			line.yvalues = desc.classes[classID].properties[0].uri;
+
+			return line;
 		};
 
 		var chart = {}
+		chart.lines = {}
+
 		var id = 0;
 
 		function getValidDataTypes() {
@@ -265,7 +227,10 @@
 				if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
 					$("#main-xvalues-list").append(new Option(property.uri, descID + ":" + index));
 			}
-		}
+
+			chart.mainclass = desc.classes[descID].classURI;
+			chart.xvalues = desc.classes[descID].properties[0].uri;
+		};
 
 		function processSource() {
 			var endpointURL = $("#dataset-list :selected").text();
@@ -293,14 +258,19 @@
 					updateMainClass(desc, index);					
 				});
 
+				$("#main-xvalues-list").change(function() {
+					chart.xvalues = $('#main-xvalues-list :selected').text()
+				});
+
 				updateMainClass(desc, 0)
 
-				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
+				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">Add line</button>');
 				$("#add-button").click(function(event) {
-					var conf = addConfiguration(desc, id++);				
-					chart[id - 1] = conf;
+					$("#main-class-list").prop("disabled", true);
+					$("#main-xvalues-list").prop("disabled", true);
 
-					updateChart(desc, conf);
+					chart.lines[id] = addLine(desc, id++);;
+					updateChartLine(desc, chart, id - 1);
 				});
 			});
 		};
@@ -324,6 +294,8 @@
 			$("#select-source-button").click(function(event) {
 				processSource();
 
+				$("#dataset-list").prop("disabled", true);
+				$("#graph-list").prop("disabled", true);
 				$(this).prop("disabled", true);
 			});
 		};

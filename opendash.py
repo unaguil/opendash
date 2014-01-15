@@ -142,7 +142,9 @@ def get_source_description():
 def get_data():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
-	conf = json.loads(request.form['configuration'])
+	mainclass = request.form['mainclass']
+	xvalues = request.form['xvalues']
+	yvalues = request.form['yvalues']
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
@@ -153,7 +155,7 @@ def get_data():
 				?s <%s> ?y .
 				} ORDER BY(?x)"""
 
-	query = query % (graph, conf['classURI'], conf['xvalue'], conf['yvalue'])
+	query = query % (graph, mainclass, xvalues, yvalues)
 	qres = g.query(query)
 
 	data = []
