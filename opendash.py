@@ -147,7 +147,7 @@ def get_data():
 				?s a <%s> .
 				?s <%s> ?x .
 				?s <%s> ?y .
-				} LIMIT 10"""
+				} ORDER BY(?x)"""
 
 	query = query % (graph, conf['classURI'], conf['xvalue'], conf['yvalue'])
 	qres = g.query(query)
