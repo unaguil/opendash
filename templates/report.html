@@ -258,6 +258,15 @@
 			return compatibleDesc;
 		};
 
+		function updateMainClass(desc, descID) {
+			$("#main-xvalues-list").empty();
+			for (var index = 0; index < desc.classes[descID].properties.length; index++) {
+				var property = desc.classes[descID].properties[index];
+				if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
+					$("#main-xvalues-list").append(new Option(property.uri, descID + ":" + index));
+			}
+		}
+
 		function processSource() {
 			var endpointURL = $("#dataset-list :selected").text();
 			var graphName = $("#graph-list :selected").text();
@@ -266,6 +275,25 @@
 				desc = data.desc;
 
 				desc = removeIncompatibleTypes(desc);
+
+				var snippet = 	'<label>Main Class:</label>' + 
+								'<select id="main-class-list" class="form-control"></select>' + 
+								'<label>X:</label>' + 
+								'<select id="main-xvalues-list" class="form-control"></select>';
+
+				$('#chart-configuration').append(snippet);
+
+				$("#main-class-list").empty();
+				for (var index = 0; index < desc.classes.length; index++)
+					$("#main-class-list").append(new Option(desc.classes[index].classURI, index));	
+
+				$("#main-class-list").change(function() {
+					var index = $(this).val();
+
+					updateMainClass(desc, index);					
+				});
+
+				updateMainClass(desc, 0)
 
 				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">+</button>');
 				$("#add-button").click(function(event) {

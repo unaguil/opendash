@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+	<title>OpenDash</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+</head>
+<body>
+
+	<div class="container">
+
+		{% include 'header.html' %}
+
+		<div class="jumbotron">
+			<h1>OpenDash</h1>
+			<p class="lead">Visualización de información de fuentes abiertas</p>
+		</div>
+
+		{% include 'footer.html' %}	
+
+	</div>
+
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
+</body>
+</html>
