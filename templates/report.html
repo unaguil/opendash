@@ -16,28 +16,24 @@
 		{% include 'header.html' %}
 
 		<div class="jumbotron">
-			<div id="version-selector"></div>
+
 			<div class="row">
 				<div class="col-md-9">
 					<div id="chart-div" style="height: 500px;"></div>
 				</div>
 
 				<div class="col-md-3">
-					<form id="source-form" role="form">
-					  <div class="form-group">
-					    <label for="Dataset">Dataset</label>
-					    <select id="dataset-list" class="form-control">
-						  
+					<div class="form-group">
+						<label for="Dataset">Dataset</label>
+						<select id="dataset-list" class="form-control">  
 						</select>
-					  </div>
-					  <div class="form-group">
-					    <label for="Dataset">Graph</label>
-					    <select id ="graph-list" class="form-control">
-						
+					</div>
+					<div class="form-group">
+						<label for="Dataset">Graph</label>
+						<select id ="graph-list" class="form-control">
 						</select>
-					  </div>
-					  <button type="submit" class="btn btn-default">Submit</button>
-					</form>
+					</div>
+					<button id="select-source-button" type="button" class="btn btn-success">Select source</button>
 
 					<div id="chart-configuration"></div>
 				</div>
@@ -142,17 +138,17 @@
 			var snippet = 	'<div id="configuration-' + id + '">' + 
 								'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
 								'<label>Class:</label>' + 
-                        		'<select id="class-list-' + id + '" class="form-control">' +
+								'<select id="class-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 
 								'<label>X:</label>' +
-                        		'<select id="xvalues-list-' + id + '" class="form-control">' +
+								'<select id="xvalues-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 
 								'<label>Y:</label>' +
-                        		'<select id="yvalues-list-' + id + '" class="form-control">' +
+								'<select id="yvalues-list-' + id + '" class="form-control">' +
 					  
 								'</select>' +
 							'</div>';
@@ -283,7 +279,7 @@
 
 		function init() {
 			$.getJSON("endpoints", function(data) {
-		 		$("#dataset-list").empty();
+				$("#dataset-list").empty();
 
 				for (var index = 0; index < data.endpoints.length; index++) {
 					var endpoint = data.endpoints[index];
@@ -297,10 +293,10 @@
 				updateGraphList($('#dataset-list :selected').text());					
 			});
 
-			$("#source-form").submit(function(event) {
+			$("#select-source-button").click(function(event) {
 				processSource();
 
-  				event.preventDefault();
+				$(this).prop("disabled", true);
 			});
 		};
 
