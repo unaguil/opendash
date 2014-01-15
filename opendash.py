@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from flask import jsonify, request
 
 import rdflib
-
+import json
 import random
 
 app = Flask(__name__)
@@ -78,7 +78,6 @@ def get_properties(g, graph, clazz):
 							%s 
 						} GROUP BY ?property ORDER BY desc(?count) LIMIT 25"""
 	
-	print 'Obtaining properties'
 	query =  query % (graph, clazz, getFilter("?property"))
 	qres = g.query(query)
 
@@ -97,11 +96,6 @@ def get_source_description():
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
-
-	print '* Endpoint %s' % endpoint
-	print '* Graph %s' % graph
-
-	print 'Obtaining available classes'
 
 	query = "SELECT DISTINCT ?class FROM <%s> WHERE { [] a ?class " + getFilter("?class") + " } LIMIT 50"
 	query = query % graph
@@ -126,11 +120,26 @@ def get_source_description():
 
 @app.route("/endpoints/get_data", methods=['POST'])
 def get_data():
-	data = 	[	random.randrange(1000), 
-				random.randrange(1000),
-				random.randrange(1000),
-				random.randrange(1000)
-			]
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	conf = json.loads(request.form['configuration'])
+
+	g = rdflib.ConjunctiveGraph('SPARQLStore')
+	g.open(endpoint)
+
+	query = """SELECT ?x ?y FROM <%s> WHERE {
+				?s a <%s> .
+				?s <%s> ?x .
+				?s <%s> ?y .
+				} LIMIT 10"""
+
+	query = query % (graph, conf['classURI'], conf['xvalue'], conf['yvalue'])
+	qres = g.query(query)
+
+	data = []
+	for row in qres:
+		data.append({'x' : row[0], 'y': row[1]})
+
 	return jsonify(data=data)
 
 if __name__ == "__main__":

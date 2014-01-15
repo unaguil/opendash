@@ -76,10 +76,6 @@
 			return res[res.length - 1];
 		};
 
-		function getXValues() {
-			return ['2004', '2005', '2006', '2007'];
-		};
-
 		function getTitles() {
 			var titles = []
 			titles.push("X axis");
@@ -91,25 +87,33 @@
 			}
 
 			return titles;
-		}
+		};
 
 		function updateChart(desc, conf) {
-			$.post("endpoints/get_data", { configuration: conf }, function(data) {
-				conf.data = data.data;
-				drawChart();
+			$.post("endpoints/get_data", 
+				{ endpoint: desc.endpoint, graph: desc.graph, configuration: JSON.stringify(conf) }, 
+				function(data) {
+					conf.data = data.data;
+
+					drawChart();
 			});
 		};
 
 		function drawChart() {
 			var arrayData = []
-			arrayData.push(getTitles());
-			var xvalues = getXValues();
-			for (var rowIndex = 0; rowIndex < xvalues.length; rowIndex++) {
-				var row = [];
-				row.push(xvalues[rowIndex]);
 
-				for (var key in chart)
-					row.push(chart[key].data[rowIndex]);
+			titles = getTitles();
+			arrayData.push(titles);
+
+			for (var rowIndex = 0; rowIndex < chart[0].data.length; rowIndex++) {
+				var row = [];
+				var xvalue = parseInt(chart[0].data[rowIndex]['x']);
+				row.push(xvalue);
+
+				for (var key in chart) {
+					var yvalue = parseInt(chart[key].data[rowIndex]['y']);
+					row.push(yvalue);
+				}
 
 				arrayData.push(row);
 			}
