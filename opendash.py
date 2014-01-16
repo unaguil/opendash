@@ -2,10 +2,17 @@
 
 from flask import Flask, render_template
 from flask import jsonify, request
+from flask.ext.admin import Admin
+from flask.ext.admin.contrib.sqla import ModelView
 
 import rdflib
 import json
 import random
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+
+from model.opendash_model import User
 
 app = Flask(__name__)
 
@@ -165,4 +172,11 @@ def get_data():
 	return jsonify(data=data)
 
 if __name__ == "__main__":
+	engine = create_engine('sqlite:///opendash.db')
+	Session = sessionmaker(bind=engine)
+	session = Session()
+
+	admin = Admin(app, name='OPENDASH')
+	admin.add_view(ModelView(User, session))
+
 	app.run(debug=True)
