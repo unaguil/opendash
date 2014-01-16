@@ -105,9 +105,11 @@
 			titles = getTitles();
 			arrayData.push(titles);
 
-			for (var rowIndex = 0; rowIndex < chart.lines[0].data.length; rowIndex++) {
+			var someKey = Object.keys(chart.lines)[0];
+			var line = chart.lines[someKey];
+			for (var rowIndex = 0; rowIndex < line.data.length; rowIndex++) {
 				var row = [];
-				var xvalue = parseInt(chart.lines[0].data[rowIndex]['x']);
+				var xvalue = parseInt(line.data[rowIndex]['x']);
 				row.push(xvalue);
 
 				for (var key in chart.lines) {
