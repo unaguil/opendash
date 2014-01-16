@@ -8,13 +8,22 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 class User(Base):
-    __tablename__ = 'user'
-    
-    id = Column(Integer, primary_key=True)
-    account = Column(String, nullable=False)
-    
-    def __init__(self, account):
-        self.account = account
+	__tablename__ = 'user'
+	
+	id = Column(Integer, primary_key=True)
+	account = Column(String, nullable=False)
+	
+	def __init__(self, account=None):
+		self.account = account
+
+class Endpoint(Base):
+	__tablename__ = 'endpoint'
+	
+	id = Column(Integer, primary_key=True)
+	url = Column(UnicodeText, nullable=False)
+	
+	def __init__(self, url=None):
+		self.url = url
 
 if __name__ == '__main__':
 	USER = 'opendash'

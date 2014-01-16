@@ -12,21 +12,9 @@ import random
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from model.opendash_model import User
+from model.opendash_model import User, Endpoint
 
 app = Flask(__name__)
-
-endpoints = [
-	{	'id': 0,
-		'url': 'http://helheim.deusto.es/sparql'
-	}, 
-	{	'id': 1,
-		'url': 'http://test2'
-	}, 
-	{	'id': 2,
-		'url': 'http://test3'
-	}
-]
 
 @app.route("/")
 def render_index():
@@ -38,6 +26,12 @@ def render_report():
 
 @app.route("/endpoints")
 def get_endpoints():
+	available_endpoints = session.query(Endpoint).all()
+
+	endpoints = []
+	for endpoint in available_endpoints:
+		endpoints.append({'id': endpoint.id, 'url': endpoint.url })
+
 	return jsonify(endpoints=endpoints)
 
 @app.route("/endpoints/get_graphs", methods=['POST'])
@@ -171,12 +165,14 @@ def get_data():
 
 	return jsonify(data=data)
 
+engine = create_engine('sqlite:///opendash.db')
+Session = sessionmaker(bind=engine)
+session = Session()
+
 if __name__ == "__main__":
-	engine = create_engine('sqlite:///opendash.db')
-	Session = sessionmaker(bind=engine)
-	session = Session()
 
 	admin = Admin(app, name='OPENDASH')
 	admin.add_view(ModelView(User, session))
+	admin.add_view(ModelView(Endpoint, session))
 
 	app.run(debug=True)
