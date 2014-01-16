@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
 
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
 </head>
 <body>
 
@@ -15,33 +16,36 @@
 
 		{% include 'header.html' %}
 
-		<div class="jumbotron">
-
+		<div class="well">
 			<div class="row">
-				<div class="col-md-9">
-					<div id="chart-div" style="height: 500px;"></div>
+				<div class="col-md-7">
+					<div id="chart-div" style="height: 500px;" class="well"></div>
 				</div>
 
-				<div class="col-md-3">
-					<div class="form-group">
-						<label for="Dataset">Dataset</label>
-						<select id="dataset-list" class="form-control">  
-						</select>
+				<div class="col-md-5">
+					<div class="well">
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Dataset</label>
+								<div class="col-sm-10">
+									<select id="dataset-list" class="form-control"></select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Password</label>
+								<div class="col-sm-10">
+									<select id ="graph-list" class="form-control"></select>
+								</div>
+							</div>
+							<button id="select-source-button" type="button" class="btn btn-success">Select source</button>
+						</form>
 					</div>
-					<div class="form-group">
-						<label for="Dataset">Graph</label>
-						<select id ="graph-list" class="form-control">
-						</select>
-					</div>
-					<button id="select-source-button" type="button" class="btn btn-success">Select source</button>
-
-					<div id="chart-configuration"></div>
+					<div id="main-configuration"></div>
 				</div>
 			</div>
 		</div>
 
 		{% include 'footer.html' %}	
-		
 	</div>
 
 	<script src="https://code.jquery.com/jquery.js"></script>
@@ -126,15 +130,20 @@
 
 		function addLine(desc, id) {
 			var snippet = 	'<div id="configuration-' + id + '">' + 
-								'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
-
-								'<label>Y:</label>' +
-								'<select id="yvalues-list-' + id + '" class="form-control">' +
-					  
-								'</select>' +
+								'<form class="form-horizontal" role="form">' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Y</label>' +
+										'<div class="col-sm-8">' +
+											'<select id="yvalues-list-' + id + '" class="form-control"></select>' +
+										'</div>' + 
+										'<div class="col-sm-2">' +
+											'<button id="remove-conf-button-' + id + '"type="button" class="btn btn-danger">X</button>' +
+										'</div>' +
+									'</div>' +
+								'</form>' +
 							'</div>';
 
-			$('#chart-configuration').append(snippet);
+			$('#lines-configuration').append(snippet);
 
 			var classID = $("#main-class-list :selected").val();
 
@@ -241,12 +250,31 @@
 
 				desc = removeIncompatibleTypes(desc);
 
-				var snippet = 	'<label>Main Class:</label>' + 
-								'<select id="main-class-list" class="form-control"></select>' + 
-								'<label>X:</label>' + 
-								'<select id="main-xvalues-list" class="form-control"></select>';
+				var snippet = 	'<div class="well">' +
+									'<form class="form-horizontal" role="form">' +
+										'<div class="form-group">' +
+											'<label class="col-sm-2 control-label">Main Class</label>' + 
+											'<div class="col-sm-10">' +
+												'<select id="main-class-list" class="form-control"></select>' + 
+											'</div>' + 
+										'</div>' +
+										'<div class="form-group">' +
+											'<label class="col-sm-2 control-label">X</label>' + 
+											'<div class="col-sm-10">' +
+												'<select id="main-xvalues-list" class="form-control"></select>' +
+											'</div>' +
+										'</div>' +
+										'<button id="add-button" type="button" class="btn btn-primary">Add line</button>' +
+									'</form> </br>' +
+									'<div class="panel panel-default">' +
+										'<div class="panel-heading">' +
+    										'<h3 class="panel-title">Lines</h3>' +
+  										'</div>' +
+										'<div id="lines-configuration" class="panel-body"></div>' +
+									'</div>' +
+								'</div>';
 
-				$('#chart-configuration').append(snippet);
+				$('#main-configuration').append(snippet);
 
 				$("#main-class-list").empty();
 				for (var index = 0; index < desc.classes.length; index++)
@@ -264,7 +292,6 @@
 
 				updateMainClass(desc, 0)
 
-				$("#chart-configuration").append('<button id="add-button" type="button" class="btn btn-primary">Add line</button>');
 				$("#add-button").click(function(event) {
 					$("#main-class-list").prop("disabled", true);
 					$("#main-xvalues-list").prop("disabled", true);
