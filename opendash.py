@@ -139,6 +139,36 @@ def get_source_description():
 
 	return jsonify(desc=desc)
 
+@app.route("/endpoints/get_compatible_classes", methods=['POST'])
+def get_compatible_classes():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	clazz = request.form['class']
+	property = request.form['property']
+
+	g = rdflib.ConjunctiveGraph('SPARQLStore')
+	g.open(endpoint)
+
+	query = "SELECT DISTINCT ?class FROM <%s> WHERE { [] a ?class " + getFilter("?class") + " } LIMIT 50"
+	query = query % graph
+
+	qres = g.query(query)
+
+	compatibles = {}
+
+	classes = []
+	for c in qres:
+		clazz = {}
+		clazz['classURI'] = c[0]
+
+		clazz['properties'] = get_properties(g, graph, c[0])
+		classes.append(clazz)
+
+	compatibles['classes'] = classes
+
+	return jsonify(compatibles=compatibles)
+
+
 @app.route("/endpoints/get_data", methods=['POST'])
 def get_data():
 	endpoint = request.form['endpoint']

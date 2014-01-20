@@ -182,8 +182,73 @@
 			return line;
 		};
 
+		function updateSecondaryYValues(compatibles, id, classID) {
+			$("#secondary-yvalues-list-" + id).empty();
+
+			var clazz = compatibles['classes'][classID];
+			for (var index = 0; index < clazz.properties.length; index++) {
+				var property = clazz.properties[index];
+				$("#secondary-yvalues-list-" + id).append(new Option(property.uri, index));
+			}
+		}
+
+		function addClass(desc, id) {
+			var snippet = 	'<div id="class-configuration-' + id + '" class="well">' +
+								'<form class="form-horizontal" role="form">' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Class</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="secondary-class-list-' + id + '" class="form-control"></select>' + 
+										'</div>' + 
+									'</div>' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Y</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="secondary-yvalues-list-' + id + '" class="form-control"></select>' +
+										'</div>' +
+									'</div>' +
+									'<button id="remove-class-conf-button-' + id + '"type="button" class="btn btn-danger">Remove</button>' +
+								'</form>' +
+							'</div>';
+
+			$('#classes-configuration').append(snippet);
+
+			$("#remove-class-conf-button-" + id).click(function(event) {
+				$('#class-configuration-' + id).remove();
+
+			});
+
+			$("#secondary-class-list-" + id).change(function() {
+				var classID = $(this).val();
+				updateSecondaryYValues(compatibles, id, classID);				
+			});
+
+			$("#secondary-yvalues-list-" + id).change(function() {
+				console.log("property changed");
+			});
+
+			$.post("endpoints/get_compatible_classes", 
+				{ 	endpoint: desc.endpoint, 
+					graph: desc.graph, 
+					class: chart.mainclass,
+					property: chart.xvalues
+				}, 
+				function(data) {
+					for (var index = 0; index < data.compatibles['classes'].length; index++) {
+						var clazz = data.compatibles['classes'][index];
+						$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
+					}
+
+					compatibles = data.compatibles;
+
+					updateSecondaryYValues(compatibles, id, 0);
+				}
+			);
+		};
+
 		var chart = {}
 		chart.lines = {}
+		compatibles = null;
 
 		var id = 0;
 
@@ -266,13 +331,20 @@
 												'<select id="main-xvalues-list" class="form-control"></select>' +
 											'</div>' +
 										'</div>' +
-										'<button id="add-button" type="button" class="btn btn-primary">Add line</button>' +
+										'<button id="add-line-button" type="button" class="btn btn-primary">Add property</button>' +
+										'<button id="add-class-button" type="button" class="btn btn-primary">Add class</button>' +
 									'</form> </br>' +
 									'<div class="panel panel-default">' +
 										'<div class="panel-heading">' +
-    										'<h3 class="panel-title">Lines</h3>' +
+    										'<h3 class="panel-title">Properties</h3>' +
   										'</div>' +
 										'<div id="lines-configuration" class="panel-body"></div>' +
+									'</div>' +
+									'<div class="panel panel-default">' +
+										'<div class="panel-heading">' +
+    										'<h3 class="panel-title">Classes</h3>' +
+  										'</div>' +
+										'<div id="classes-configuration" class="panel-body"></div>' +
 									'</div>' +
 								'</div>';
 
@@ -294,12 +366,19 @@
 
 				updateMainClass(desc, 0)
 
-				$("#add-button").click(function(event) {
+				$("#add-line-button").click(function(event) {
 					$("#main-class-list").prop("disabled", true);
 					$("#main-xvalues-list").prop("disabled", true);
 
 					chart.lines[id] = addLine(desc, id++);;
 					updateChartLine(desc, chart, id - 1);
+				});
+
+				$("#add-class-button").click(function(event) {
+					$("#main-class-list").prop("disabled", true);
+					$("#main-xvalues-list").prop("disabled", true);
+
+					addClass(desc, id++);;
 				});
 			});
 		};
