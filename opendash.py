@@ -144,7 +144,21 @@ def get_source_description():
 
 	return jsonify(desc=desc)
 
-@app.route("/endpoints/get_compatible_classes", methods=['POST'])
+def get_connections(clazz, property, desc):
+	connections = []
+
+	for c in desc['classes']:
+		if c['classURI'] != clazz:
+			connection = {}
+			for p in c['properties']:
+				if p['uri'] is property:
+					connection['classURI'] = c['classURI']
+					connection['property'] = p['uri']
+					connections.append(connection)
+
+	return connections
+
+@app.route("/endpoints/get_connections", methods=['POST'])
 def get_compatible_classes():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
@@ -153,8 +167,9 @@ def get_compatible_classes():
 
 	desc = get_description(endpoint, graph)
 
-	return jsonify(compatibles=desc['classes'])
+	connections = get_connections(clazz, property, desc)
 
+	return jsonify(connections=connections)
 
 @app.route("/endpoints/get_data", methods=['POST'])
 def get_data():

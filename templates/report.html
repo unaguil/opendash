@@ -182,10 +182,9 @@
 			return line;
 		};
 
-		function updateSecondaryYValues(compatibles, id, classID) {
+		function updateSecondaryYValues(connections, id, clazz) {
 			$("#secondary-yvalues-list-" + id).empty();
 
-			var clazz = compatibles[classID];
 			for (var index = 0; index < clazz.properties.length; index++) {
 				var property = clazz.properties[index];
 				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)
@@ -220,36 +219,37 @@
 			});
 
 			$("#secondary-class-list-" + id).change(function() {
-				var classID = $(this).val();
-				updateSecondaryYValues(compatibles, id, classID);				
+				var clazz = connections[$(this).val()];
+				updateSecondaryYValues(connections, id, clazz);				
 			});
 
 			$("#secondary-yvalues-list-" + id).change(function() {
 				console.log("property changed");
 			});
 
-			$.post("endpoints/get_compatible_classes", 
+			$.post("endpoints/get_connections", 
 				{ 	endpoint: desc.endpoint, 
 					graph: desc.graph, 
 					class: chart.mainclass,
 					property: chart.xvalues
 				}, 
 				function(data) {
-					compatibles = removeIncompatibleTypes(compatibles, getYValidDataTypes);
+					connections = removeIncompatibleTypes(data.connections, getYValidDataTypes);
 
-					for (var index = 0; index < compatibles.length; index++) {
-						var clazz = compatibles[index];
+					for (var index = 0; index < connections.length; index++) {
+						var clazz = connections[index];
 						$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
 					}
 
-					updateSecondaryYValues(compatibles, id, 0);
+					var clazz = connections[0];
+					updateSecondaryYValues(connections, id, clazz);
 				}
 			);
 		};
 
 		var chart = {}
 		chart.lines = {}
-		compatibles = null;
+		connections = null;
 
 		var id = 0;
 
