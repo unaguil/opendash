@@ -110,11 +110,7 @@ def get_property_type(g, graph, clazz, property):
 		else:
 			return ''
 
-@app.route("/endpoints/get_description", methods=['POST'])
-def get_source_description():
-	endpoint = request.form['endpoint']
-	graph = request.form['graph']
-
+def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
@@ -137,6 +133,15 @@ def get_source_description():
 
 	desc['classes'] = classes
 
+	return desc
+
+@app.route("/endpoints/get_description", methods=['POST'])
+def get_source_description():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+
+	desc = get_description(endpoint, graph)
+
 	return jsonify(desc=desc)
 
 @app.route("/endpoints/get_compatible_classes", methods=['POST'])
@@ -146,23 +151,9 @@ def get_compatible_classes():
 	clazz = request.form['class']
 	property = request.form['property']
 
-	g = rdflib.ConjunctiveGraph('SPARQLStore')
-	g.open(endpoint)
+	desc = get_description(endpoint, graph)
 
-	query = "SELECT DISTINCT ?class FROM <%s> WHERE { [] a ?class " + getFilter("?class") + " } LIMIT 50"
-	query = query % graph
-
-	qres = g.query(query)
-
-	classes = []
-	for c in qres:
-		clazz = {}
-		clazz['classURI'] = c[0]
-
-		clazz['properties'] = get_properties(g, graph, c[0])
-		classes.append(clazz)
-
-	return jsonify(compatibles=classes)
+	return jsonify(compatibles=desc['classes'])
 
 
 @app.route("/endpoints/get_data", methods=['POST'])
