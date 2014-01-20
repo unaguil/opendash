@@ -154,8 +154,6 @@ def get_compatible_classes():
 
 	qres = g.query(query)
 
-	compatibles = {}
-
 	classes = []
 	for c in qres:
 		clazz = {}
@@ -164,9 +162,7 @@ def get_compatible_classes():
 		clazz['properties'] = get_properties(g, graph, c[0])
 		classes.append(clazz)
 
-	compatibles['classes'] = classes
-
-	return jsonify(compatibles=compatibles)
+	return jsonify(compatibles=classes)
 
 
 @app.route("/endpoints/get_data", methods=['POST'])

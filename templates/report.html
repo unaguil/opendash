@@ -185,10 +185,11 @@
 		function updateSecondaryYValues(compatibles, id, classID) {
 			$("#secondary-yvalues-list-" + id).empty();
 
-			var clazz = compatibles['classes'][classID];
+			var clazz = compatibles[classID];
 			for (var index = 0; index < clazz.properties.length; index++) {
 				var property = clazz.properties[index];
-				$("#secondary-yvalues-list-" + id).append(new Option(property.uri, index));
+				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)
+					$("#secondary-yvalues-list-" + id).append(new Option(property.uri, index));
 			}
 		}
 
@@ -234,12 +235,12 @@
 					property: chart.xvalues
 				}, 
 				function(data) {
-					for (var index = 0; index < data.compatibles['classes'].length; index++) {
-						var clazz = data.compatibles['classes'][index];
+					compatibles = removeIncompatibleTypes(compatibles, getYValidDataTypes);
+
+					for (var index = 0; index < compatibles.length; index++) {
+						var clazz = compatibles[index];
 						$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
 					}
-
-					compatibles = data.compatibles;
 
 					updateSecondaryYValues(compatibles, id, 0);
 				}
@@ -272,10 +273,8 @@
 					];			
 		};
 
-		function removeIncompatibleTypes(desc) {
-			compatibleDesc = []
-
-			classes = []
+		function removeIncompatibleTypes(classes, getValidDataTypes) {
+			compatibleClasses = []
 			for (var clazzIndex = 0; clazzIndex < desc.classes.length; clazzIndex++) {
 				properties = []
 
@@ -286,14 +285,10 @@
 						properties.push(property);
 				}
 				if (properties.length > 0)
-					classes.push({classURI : clazz.classURI, properties: properties})
+					compatibleClasses.push({classURI : clazz.classURI, properties: properties})
 			}
 
-			compatibleDesc.endpoint = desc.endpoint;
-			compatibleDesc.graph = desc.graph;
-			compatibleDesc.classes = classes;
-
-			return compatibleDesc;
+			return compatibleClasses;
 		};
 
 		function updateMainClass(desc, descID) {
@@ -315,7 +310,7 @@
 			$.post("endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 				desc = data.desc;
 
-				desc = removeIncompatibleTypes(desc);
+				desc.classes = removeIncompatibleTypes(desc.classes, getValidDataTypes);			
 
 				var snippet = 	'<div class="well">' +
 									'<form class="form-horizontal" role="form">' +
