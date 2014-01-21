@@ -4,9 +4,9 @@ from flask import Flask, render_template, redirect, url_for
 from flask import jsonify, request
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
-from flask.ext.login import LoginManager, login_user, current_user, logout_user
+from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
 from flask.ext.wtf import Form
-from wtforms import TextField, PasswordField
+from wtforms import TextField, PasswordField, ValidationError
 from wtforms.validators import DataRequired
 
 import rdflib
@@ -41,10 +41,13 @@ def index():
 	return render_template('index.html', form=form, user=current_user)
 
 @app.route("/report")
-def render_report():
-	return render_template('report.html')
+@login_required
+def report():
+	form = LoginForm()
+	return render_template('report.html', form=form, user=current_user)
 
 @app.route("/endpoints")
+@login_required
 def get_endpoints():
 	available_endpoints = session.query(Endpoint).all()
 
@@ -55,6 +58,7 @@ def get_endpoints():
 	return jsonify(endpoints=endpoints)
 
 @app.route("/endpoints/get_graphs", methods=['POST'])
+@login_required
 def get_endpoint_graphs():
 	endpoint = request.form['endpoint']
 
@@ -166,6 +170,7 @@ def get_description(endpoint, graph):
 	return desc
 
 @app.route("/endpoints/get_description", methods=['POST'])
+@login_required
 def get_source_description():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
@@ -198,6 +203,7 @@ def get_connections(clazz, desc):
 	return connections
 
 @app.route("/endpoints/get_connections", methods=['POST'])
+@login_required
 def get_compatible_classes():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
@@ -210,6 +216,7 @@ def get_compatible_classes():
 	return jsonify(connections=connections)
 
 @app.route("/endpoints/get_data", methods=['POST'])
+@login_required
 def get_data():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
@@ -236,6 +243,7 @@ def get_data():
 	return jsonify(data=data)
 
 @app.route("/endpoints/get_class_data", methods=['POST'])
+@login_required
 def get_class_data():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
@@ -271,14 +279,16 @@ def get_class_data():
 @app.route("/login", methods=["POST"])
 def login():
 	form = LoginForm(request.form)
+
 	if form.validate_on_submit():
 		user = form.get_user()
-		if user is not None:
-			login_user(user)
-			return redirect(request.args.get("next") or url_for("index"))
-	return render_template("index.html", form=form)
+		login_user(user)
+		return redirect(url_for("report"))
+
+	return render_template("index.html", form=form, invalid_login=True)
 
 @app.route("/logout", methods=["POST"])
+@login_required
 def logout():
 	logout_user()
 	form = LoginForm(request.form)
@@ -288,14 +298,13 @@ class LoginForm(Form):
 	user = TextField(validators=[DataRequired()])
 	password = PasswordField(validators=[DataRequired()])
 
-	def validate_login(self, field):
+	def validate(self):
 		user = self.get_user()
 
-		if user is None:
-			raise ValidationError('Invalid user')
+		if user is None or user.password != self.password.data:
+			return False
 
-		if user.password != self.password.data:
-			raise ValidationError('Invalid password')
+		return True
 
 	def get_user(self):
 		return session.query(User).filter_by(user=self.user.data).first()

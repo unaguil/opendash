@@ -12,9 +12,11 @@ class User(Base):
 	
 	id = Column(Integer, primary_key=True)
 	user = Column(String, nullable=False)
+	password = Column(String, nullable=False)
 	
-	def __init__(self, user=None):
+	def __init__(self, user=None, password=None):
 		self.user = user
+		self.password = password
 
 	# Flask-Login integration
 	def is_authenticated(self):
@@ -28,6 +30,9 @@ class User(Base):
 
 	def get_id(self):
 		return unicode(self.id)
+
+	def check_password(self, password):
+		return self.password == password
 
 class Endpoint(Base):
 	__tablename__ = 'endpoint'
