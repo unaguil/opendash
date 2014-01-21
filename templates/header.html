@@ -1,24 +1,35 @@
 <div class="navbar" role="navigation">
   <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <p class="navbar-brand text-muted">OPENDASH</p>
-    </div>
-    <div class="navbar-collapse collapse">
-      <form class="navbar-form navbar-right" role="form">
-        <div class="form-group">
-          <input type="text" placeholder="User" class="form-control">
-        </div>
-        <div class="form-group">
-          <input type="password" placeholder="Password" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">Sign in</button>
-      </form>
-    </div><!--/.navbar-collapse -->
+	<div class="navbar-header">
+	  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	  </button>
+	  <p class="navbar-brand text-muted">OPENDASH</p>
+	</div>
+	<div class="navbar-collapse collapse">
+		{% if user and user.is_authenticated() %}
+		<form class="navbar-form navbar-right" role="form" action="{{ url_for('logout') }}" method="post">
+			{{ form.csrf_token }}
+			<div class="form-group">
+				<h3>{{ user.user }} <button type="submit" class="btn btn-primary">Sign out</button></h3>
+			</div>
+  		</form>
+		{% else %}
+	  	<form class="navbar-form navbar-right" role="form" action="{{ url_for('login') }}" method="post">
+			{{ form.csrf_token }}
+			<div class="form-group">
+				{{ form.user(size=20, class='form-control', placeholder='User') }}
+			</div>
+			<div class="form-group">
+				{{ form.password(size=20, class='form-control', placeholder='Password') }}
+			</div>
+			<button type="submit" class="btn btn-primary">Sign in</button>
+  		</form>
+  		{% endif %}
+	</div>
   </div>
+</form>
 </div>

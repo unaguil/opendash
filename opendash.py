@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask import jsonify, request
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.login import LoginManager, login_user, current_user, logout_user
+from flask.ext.wtf import Form
+from wtforms import TextField, PasswordField
+from wtforms.validators import DataRequired
 
 import rdflib
 import json
@@ -16,9 +20,25 @@ from model.opendash_model import User, Endpoint
 
 app = Flask(__name__)
 
+engine = create_engine('sqlite:///opendash.db')
+Session = sessionmaker(bind=engine)
+session = Session()
+
+app.config['SECRET_KEY'] = '123456790'
+
+login_manager = LoginManager()
+login_manager.setup_app(app)
+
+# Create user loader function
+@login_manager.user_loader
+def load_user(user_id):
+	user = session.query(User).get(user_id)
+	return user
+
 @app.route("/")
-def render_index():
-	return render_template('index.html')
+def index():
+	form = LoginForm()
+	return render_template('index.html', form=form, user=current_user)
 
 @app.route("/report")
 def render_report():
@@ -248,9 +268,37 @@ def get_class_data():
 
 	return jsonify(data=data)
 
-engine = create_engine('sqlite:///opendash.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+@app.route("/login", methods=["POST"])
+def login():
+	form = LoginForm(request.form)
+	if form.validate_on_submit():
+		user = form.get_user()
+		if user is not None:
+			login_user(user)
+			return redirect(request.args.get("next") or url_for("index"))
+	return render_template("index.html", form=form)
+
+@app.route("/logout", methods=["POST"])
+def logout():
+	logout_user()
+	form = LoginForm(request.form)
+	return redirect(request.args.get("next") or url_for("index"))
+
+class LoginForm(Form):
+	user = TextField(validators=[DataRequired()])
+	password = PasswordField(validators=[DataRequired()])
+
+	def validate_login(self, field):
+		user = self.get_user()
+
+		if user is None:
+			raise ValidationError('Invalid user')
+
+		if user.password != self.password.data:
+			raise ValidationError('Invalid password')
+
+	def get_user(self):
+		return session.query(User).filter_by(user=self.user.data).first()
 
 if __name__ == "__main__":
 

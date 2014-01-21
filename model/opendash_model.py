@@ -11,10 +11,23 @@ class User(Base):
 	__tablename__ = 'user'
 	
 	id = Column(Integer, primary_key=True)
-	account = Column(String, nullable=False)
+	user = Column(String, nullable=False)
 	
-	def __init__(self, account=None):
-		self.account = account
+	def __init__(self, user=None):
+		self.user = user
+
+	# Flask-Login integration
+	def is_authenticated(self):
+		return True
+
+	def is_active(self):
+		return True
+
+	def is_anonymous(self):
+		return False
+
+	def get_id(self):
+		return unicode(self.id)
 
 class Endpoint(Base):
 	__tablename__ = 'endpoint'
