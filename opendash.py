@@ -88,12 +88,21 @@ def get_properties(g, graph, clazz):
 
 	properties = []
 	for p in qres:
-		properties.append({
+		property = {
 				'uri': str(p[0]),
 				'datatype': get_property_type(g, graph, clazz, str(p[0]))
-			})
+			}
+
+		properties.append(property)
 
 	return properties
+
+def infer_datatype(value):
+	if type(value) is str:
+		return 'http://www.w3.org/2001/XMLSchema#string'
+	elif type(value) is int:
+		return 'http://www.w3.org/2001/XMLSchema#integer'
+	return ''
 
 def get_property_type(g, graph, clazz, property):
 	query = """SELECT ?value FROM <%s> WHERE {
@@ -106,15 +115,12 @@ def get_property_type(g, graph, clazz, property):
 	qres = g.query(query)
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
-			return value[0].datatype
-		else:
-			return ''
+			if value[0].datatype is not '':
+				return str(value[0].datatype)
 
-@app.route("/endpoints/get_description", methods=['POST'])
-def get_source_description():
-	endpoint = request.form['endpoint']
-	graph = request.form['graph']
+		return infer_datatype(str(value[0]))
 
+def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
@@ -130,14 +136,58 @@ def get_source_description():
 	classes = []
 	for c in qres:
 		clazz = {}
-		clazz['classURI'] = c[0]
+		clazz['classURI'] = str(c[0])
 
-		clazz['properties'] = get_properties(g, graph, c[0])
+		clazz['properties'] = get_properties(g, graph, str(c[0]))
 		classes.append(clazz)
 
 	desc['classes'] = classes
 
+	return desc
+
+@app.route("/endpoints/get_description", methods=['POST'])
+def get_source_description():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+
+	desc = get_description(endpoint, graph)
+
 	return jsonify(desc=desc)
+
+def get_class_properties(clazz, desc):
+	for c in desc['classes']:
+		if c['classURI'] == clazz:
+			return c['properties']
+	return []
+
+def get_connections(clazz, desc):
+	connections = []
+
+	for c in desc['classes']:
+		if c['classURI'] != clazz:
+			for p1 in c['properties']:
+				properties = []
+				for p2 in get_class_properties(clazz, desc):
+					if p1['uri'] == p2['uri']:
+						p1['connection'] = p2['uri']
+						properties.append(p1)
+
+				if len(properties) > 0:
+					connections.append({'classURI' : c['classURI'], 'properties': properties})
+
+	return connections
+
+@app.route("/endpoints/get_connections", methods=['POST'])
+def get_compatible_classes():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	clazz = request.form['class']
+
+	desc = get_description(endpoint, graph)
+
+	connections = get_connections(clazz, desc)
+
+	return jsonify(connections=connections)
 
 @app.route("/endpoints/get_data", methods=['POST'])
 def get_data():
@@ -161,7 +211,40 @@ def get_data():
 
 	data = []
 	for row in qres:
-		data.append({'x' : row[0], 'y': row[1]})
+		data.append({'x' : str(row[0]), 'y': str(row[1])})
+
+	return jsonify(data=data)
+
+@app.route("/endpoints/get_class_data", methods=['POST'])
+def get_class_data():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	mainclass = request.form['mainclass']
+	xvalues = request.form['xvalues']
+	secondary_class = request.form['secondaryclass']
+	yvalues = request.form['yvalues']
+	connection = request.form['connection']
+
+	g = rdflib.ConjunctiveGraph('SPARQLStore')
+	g.open(endpoint)
+
+	query = """SELECT ?x ?y FROM <%s> WHERE {
+				?s1 a <%s> .
+				?s2 a <%s> .
+				?s1 <%s> ?x .
+				?s2 <%s> ?y .
+				?s1 <%s> ?v1 .
+				?s2 <%s> ?v2 .
+				FILTER (?v1 = ?v2) 
+				} ORDER BY(?x)"""
+
+	query = query % (graph, mainclass, secondary_class, xvalues, yvalues, connection, connection)
+
+	qres = g.query(query)
+
+	data = []
+	for row in qres:
+		data.append({'x' : str(row[0]), 'y': str(row[1])})
 
 	return jsonify(data=data)
 
