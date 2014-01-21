@@ -190,11 +190,17 @@
 				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)
 					$("#secondary-yvalues-list-" + id).append(new Option(property.uri, index));
 			}
-		}
+		};
+
+		function updateConnectionLabel(connections, id, clazz) {
+			var property = clazz['properties'][$("#secondary-yvalues-list-" + id).val()];
+
+			$("#connection-label").text(property.connection);
+		};
 
 		function addClass(desc, id) {
 			var snippet = 	'<div id="class-configuration-' + id + '" class="well">' +
-								'<span id="connection-label" class="label label-default">Default</span>' + 
+								'<span id="connection-label" class="label label-default">Connection:</span>' + 
 								'<form class="form-horizontal" role="form">' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Class</label>' + 
@@ -222,12 +228,10 @@
 					connections = removeIncompatibleTypes(data.connections, getYValidDataTypes);
 
 					if (connections.length > 0) {
-
 						$('#classes-configuration').append(snippet);
 
 						$("#remove-class-conf-button-" + id).click(function(event) {
 							$('#class-configuration-' + id).remove();
-
 						});
 
 						$("#secondary-class-list-" + id).change(function() {
@@ -236,7 +240,8 @@
 						});
 
 						$("#secondary-yvalues-list-" + id).change(function() {
-							console.log("property changed");
+							var clazz = connections[$(this).val()];
+							updateConnectionLabel(connections, id, clazz);
 						});
 
 						for (var index = 0; index < connections.length; index++) {
@@ -246,6 +251,7 @@
 
 						var clazz = connections[0];
 						updateSecondaryYValues(connections, id, clazz);
+						updateConnectionLabel(connections, id, clazz);
 					}
 				}
 			);

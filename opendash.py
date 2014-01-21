@@ -116,7 +116,7 @@ def get_property_type(g, graph, clazz, property):
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
 			if value[0].datatype is not '':
-				return value[0].datatype
+				return str(value[0].datatype)
 
 		return infer_datatype(str(value[0]))
 
@@ -136,9 +136,9 @@ def get_description(endpoint, graph):
 	classes = []
 	for c in qres:
 		clazz = {}
-		clazz['classURI'] = c[0]
+		clazz['classURI'] = str(c[0])
 
-		clazz['properties'] = get_properties(g, graph, c[0])
+		clazz['properties'] = get_properties(g, graph, str(c[0]))
 		classes.append(clazz)
 
 	desc['classes'] = classes
@@ -154,17 +154,26 @@ def get_source_description():
 
 	return jsonify(desc=desc)
 
-def get_connections(clazz, property, desc):
+def get_class_properties(clazz, desc):
+	for c in desc['classes']:
+		if c['classURI'] == clazz:
+			return c['properties']
+	return []
+
+def get_connections(clazz, desc):
 	connections = []
 
 	for c in desc['classes']:
 		if c['classURI'] != clazz:
-			connection = {}
-			for p in c['properties']:
-				if p['uri'] is property:
-					connection['classURI'] = c['classURI']
-					connection['property'] = p['uri']
-					connections.append(connection)
+			for p1 in c['properties']:
+				properties = []
+				for p2 in get_class_properties(clazz, desc):
+					if p1['uri'] == p2['uri']:
+						p1['connection'] = p2['uri']
+						properties.append(p1)
+
+				if len(properties) > 0:
+					connections.append({'classURI' : c['classURI'], 'properties': properties})
 
 	return connections
 
@@ -173,11 +182,10 @@ def get_compatible_classes():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
 	clazz = request.form['class']
-	property = request.form['property']
 
 	desc = get_description(endpoint, graph)
 
-	connections = get_connections(clazz, property, desc)
+	connections = get_connections(clazz, desc)
 
 	return jsonify(connections=connections)
 
