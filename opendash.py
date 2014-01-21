@@ -88,12 +88,21 @@ def get_properties(g, graph, clazz):
 
 	properties = []
 	for p in qres:
-		properties.append({
+		property = {
 				'uri': str(p[0]),
 				'datatype': get_property_type(g, graph, clazz, str(p[0]))
-			})
+			}
+
+		properties.append(property)
 
 	return properties
+
+def infer_datatype(value):
+	if type(value) is str:
+		return 'http://www.w3.org/2001/XMLSchema#string'
+	elif type(value) is int:
+		return 'http://www.w3.org/2001/XMLSchema#integer'
+	return ''
 
 def get_property_type(g, graph, clazz, property):
 	query = """SELECT ?value FROM <%s> WHERE {
@@ -106,9 +115,10 @@ def get_property_type(g, graph, clazz, property):
 	qres = g.query(query)
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
-			return value[0].datatype
-		else:
-			return ''
+			if value[0].datatype is not '':
+				return value[0].datatype
+
+		return infer_datatype(str(value[0]))
 
 def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
