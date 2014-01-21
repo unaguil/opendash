@@ -194,6 +194,7 @@
 
 		function addClass(desc, id) {
 			var snippet = 	'<div id="class-configuration-' + id + '" class="well">' +
+								'<span id="connection-label" class="label label-default">Default</span>' + 
 								'<form class="form-horizontal" role="form">' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Class</label>' + 
@@ -211,22 +212,6 @@
 								'</form>' +
 							'</div>';
 
-			$('#classes-configuration').append(snippet);
-
-			$("#remove-class-conf-button-" + id).click(function(event) {
-				$('#class-configuration-' + id).remove();
-
-			});
-
-			$("#secondary-class-list-" + id).change(function() {
-				var clazz = connections[$(this).val()];
-				updateSecondaryYValues(connections, id, clazz);				
-			});
-
-			$("#secondary-yvalues-list-" + id).change(function() {
-				console.log("property changed");
-			});
-
 			$.post("endpoints/get_connections", 
 				{ 	endpoint: desc.endpoint, 
 					graph: desc.graph, 
@@ -236,13 +221,32 @@
 				function(data) {
 					connections = removeIncompatibleTypes(data.connections, getYValidDataTypes);
 
-					for (var index = 0; index < connections.length; index++) {
-						var clazz = connections[index];
-						$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
-					}
+					if (connections.length > 0) {
 
-					var clazz = connections[0];
-					updateSecondaryYValues(connections, id, clazz);
+						$('#classes-configuration').append(snippet);
+
+						$("#remove-class-conf-button-" + id).click(function(event) {
+							$('#class-configuration-' + id).remove();
+
+						});
+
+						$("#secondary-class-list-" + id).change(function() {
+							var clazz = connections[$(this).val()];
+							updateSecondaryYValues(connections, id, clazz);				
+						});
+
+						$("#secondary-yvalues-list-" + id).change(function() {
+							console.log("property changed");
+						});
+
+						for (var index = 0; index < connections.length; index++) {
+							var clazz = connections[index];
+							$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
+						}
+
+						var clazz = connections[0];
+						updateSecondaryYValues(connections, id, clazz);
+					}
 				}
 			);
 		};
@@ -275,10 +279,10 @@
 
 		function removeIncompatibleTypes(classes, getValidDataTypes) {
 			compatibleClasses = []
-			for (var clazzIndex = 0; clazzIndex < desc.classes.length; clazzIndex++) {
+			for (var clazzIndex = 0; clazzIndex < classes.length; clazzIndex++) {
 				properties = []
 
-				clazz = desc.classes[clazzIndex];
+				clazz = classes[clazzIndex];
 				for (var propertyIndex = 0; propertyIndex < clazz.properties.length; propertyIndex++) {
 					property = clazz.properties[propertyIndex];
 					if ($.inArray(property.datatype, getValidDataTypes()) != -1)

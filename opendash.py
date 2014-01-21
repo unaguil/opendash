@@ -208,3 +208,15 @@ if __name__ == "__main__":
 	admin.add_view(ModelView(Endpoint, session))
 
 	app.run(debug=True)
+
+@app.route("/endpoints/get_class_data", methods=['POST'])
+def get_class_data():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	mainclass = request.form['mainclass']
+	xvalues = request.form['xvalues']
+	secondaryclass = request.form['secondaryclass']
+	property = request.form['property']
+	connection = request.form['property']
+
+	return jsonify(data=data)
