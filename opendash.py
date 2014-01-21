@@ -203,7 +203,7 @@ def get_data():
 
 	data = []
 	for row in qres:
-		data.append({'x' : row[0], 'y': row[1]})
+		data.append({'x' : str(row[0]), 'y': str(row[1])})
 
 	return jsonify(data=data)
 

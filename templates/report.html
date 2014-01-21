@@ -73,7 +73,7 @@
 
 		function getTitles() {
 			var titles = []
-			titles.push("X axis");
+			titles.push("x");
 
 			var index = 0;
 			for (var key in chart.lines) {
@@ -109,7 +109,7 @@
 			var line = chart.lines[someKey];
 			for (var rowIndex = 0; rowIndex < line.data.length; rowIndex++) {
 				var row = [];
-				var xvalue = parseInt(line.data[rowIndex]['x']);
+				var xvalue = line.data[rowIndex]['x'];
 				row.push(xvalue);
 
 				for (var key in chart.lines) {
