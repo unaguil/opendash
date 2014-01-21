@@ -215,6 +215,39 @@ def get_data():
 
 	return jsonify(data=data)
 
+@app.route("/endpoints/get_class_data", methods=['POST'])
+def get_class_data():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	mainclass = request.form['mainclass']
+	xvalues = request.form['xvalues']
+	secondary_class = request.form['secondaryclass']
+	yvalues = request.form['yvalues']
+	connection = request.form['connection']
+
+	g = rdflib.ConjunctiveGraph('SPARQLStore')
+	g.open(endpoint)
+
+	query = """SELECT ?x ?y FROM <%s> WHERE {
+				?s1 a <%s> .
+				?s2 a <%s> .
+				?s1 <%s> ?x .
+				?s2 <%s> ?y .
+				?s1 <%s> ?v1 .
+				?s2 <%s> ?v2 .
+				FILTER (?v1 = ?v2) 
+				} ORDER BY(?x)"""
+
+	query = query % (graph, mainclass, secondary_class, xvalues, yvalues, connection, connection)
+
+	qres = g.query(query)
+
+	data = []
+	for row in qres:
+		data.append({'x' : str(row[0]), 'y': str(row[1])})
+
+	return jsonify(data=data)
+
 engine = create_engine('sqlite:///opendash.db')
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -226,15 +259,3 @@ if __name__ == "__main__":
 	admin.add_view(ModelView(Endpoint, session))
 
 	app.run(debug=True)
-
-@app.route("/endpoints/get_class_data", methods=['POST'])
-def get_class_data():
-	endpoint = request.form['endpoint']
-	graph = request.form['graph']
-	mainclass = request.form['mainclass']
-	xvalues = request.form['xvalues']
-	secondaryclass = request.form['secondaryclass']
-	property = request.form['property']
-	connection = request.form['property']
-
-	return jsonify(data=data)

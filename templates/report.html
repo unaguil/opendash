@@ -81,6 +81,12 @@
 				index++;
 			}
 
+			var index = 0;
+			for (var key in chart.classes) {
+				titles.push("Title " + index);
+				index++;
+			}
+
 			return titles;
 		};
 
@@ -93,7 +99,24 @@
 					yvalues: chart.lines[lineID].yvalues
 				}, 
 				function(data) {
-					chart.lines[lineID].data = data.data;
+					chart.data[lineID] = data.data;
+
+					drawChart();
+			});
+		};
+
+		function updateChartClass(desc, chart, classID) {
+			$.post("endpoints/get_class_data", 
+				{ 	endpoint: desc.endpoint, 
+					graph: desc.graph,
+					mainclass: chart.mainclass,
+					xvalues: chart.xvalues,
+					secondaryclass: chart.classes[classID].secondaryClass,
+					yvalues: chart.classes[classID].yvalues,
+					connection: chart.classes[classID].connection
+				}, 
+				function(data) {
+					chart.data[classID] = data.data;
 
 					drawChart();
 			});
@@ -105,15 +128,15 @@
 			titles = getTitles();
 			arrayData.push(titles);
 
-			var someKey = Object.keys(chart.lines)[0];
-			var line = chart.lines[someKey];
-			for (var rowIndex = 0; rowIndex < line.data.length; rowIndex++) {
+			var someKey = Object.keys(chart.data)[0];
+			var data = chart.data[someKey];
+			for (var rowIndex = 0; rowIndex < data.length; rowIndex++) {
 				var row = [];
-				var xvalue = line.data[rowIndex]['x'];
+				var xvalue = data[rowIndex]['x'];
 				row.push(xvalue);
 
-				for (var key in chart.lines) {
-					var yvalue = parseInt(chart.lines[key].data[rowIndex]['y']);
+				for (var key in chart.data) {
+					var yvalue = parseInt(chart.data[key][rowIndex]['y']);
 					row.push(yvalue);
 				}
 
@@ -176,24 +199,26 @@
 				updateChartLine(desc, chart, lineID);
 			});
 
-			var line = {}
+			var line = {};
 			line.yvalues = desc.classes[classID].properties[0].uri;
-
-			return line;
+			chart.lines[id] = line;
 		};
 
 		function updateSecondaryYValues(connections, id, clazz) {
+			var classID = $("#secondary-class-list :selected").val();
+
 			$("#secondary-yvalues-list-" + id).empty();
 
 			for (var index = 0; index < clazz.properties.length; index++) {
 				var property = clazz.properties[index];
 				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)
-					$("#secondary-yvalues-list-" + id).append(new Option(property.uri, index));
+					$("#secondary-yvalues-list-" + id).append(new Option(property.uri, classID + ":" + index));
 			}
 		};
 
 		function updateConnectionLabel(connections, id, clazz) {
-			var property = clazz['properties'][$("#secondary-yvalues-list-" + id).val()];
+			var res = $("#secondary-yvalues-list-" + id).val().split(":");
+			var property = clazz['properties'][res[1]];
 
 			$("#connection-label").text(property.connection);
 		};
@@ -241,6 +266,15 @@
 						$("#secondary-yvalues-list-" + id).change(function() {
 							var clazz = connections[$(this).val()];
 							updateConnectionLabel(connections, id, clazz);
+
+							var classID = getLineID(event);
+							var res = $(this).val().split(":");
+
+							property = connections[res[0]].properties[res[1]];
+							chart.classes[classID].yvalues = property.uri;
+							chart.classes[classID].connection = property.connection;
+							
+							updateChartClass(desc, chart, classID);
 						});
 
 						for (var index = 0; index < connections.length; index++) {
@@ -251,13 +285,24 @@
 						var clazz = connections[0];
 						updateSecondaryYValues(connections, id, clazz);
 						updateConnectionLabel(connections, id, clazz);
+
+						var classConf = {}
+						classConf.secondaryClass = clazz['classURI'];
+						classConf.yvalues = clazz.properties[0].uri;
+						classConf.connection = clazz.properties[0].connection;
+
+						chart.classes[id] = classConf;
+
+						updateChartClass(desc, chart, id);
 					}
 				}
 			);
 		};
 
-		var chart = {}
-		chart.lines = {}
+		var chart = {};
+		chart.data = {};
+		chart.lines = {};
+		chart.classes = {};
 		connections = null;
 
 		var id = 0;
@@ -374,15 +419,17 @@
 					$("#main-class-list").prop("disabled", true);
 					$("#main-xvalues-list").prop("disabled", true);
 
-					chart.lines[id] = addLine(desc, id++);;
-					updateChartLine(desc, chart, id - 1);
+					addLine(desc, id);;
+					updateChartLine(desc, chart, id);
+					id++;
 				});
 
 				$("#add-class-button").click(function(event) {
 					$("#main-class-list").prop("disabled", true);
 					$("#main-xvalues-list").prop("disabled", true);
 
-					addClass(desc, id++);;
+					addClass(desc, id);;
+					id++;
 				});
 			});
 		};
