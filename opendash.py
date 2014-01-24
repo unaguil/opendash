@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, redirect, url_for
 from flask import jsonify, request
-from flask.ext.admin import Admin
+from flask.ext.admin import Admin, BaseView, expose
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
 from flask.ext.wtf import Form
@@ -38,6 +38,9 @@ def load_user(user_id):
 @app.route("/")
 def index():
 	form = LoginForm()
+
+	if current_user.is_authenticated() and current_user.is_admin():
+		return redirect('/admin')
 	return render_template('index.html', form=form, user=current_user)
 
 @app.route("/report")
@@ -283,7 +286,11 @@ def login():
 	if form.validate_on_submit():
 		user = form.get_user()
 		login_user(user)
-		return redirect(url_for("report"))
+
+		if user.is_admin():
+			return redirect('/admin')
+		else:
+			return redirect(url_for("report"))
 
 	return render_template("index.html", form=form, invalid_login=True)
 
@@ -309,10 +316,36 @@ class LoginForm(Form):
 	def get_user(self):
 		return session.query(User).filter_by(user=self.user.data).first()
 
+class UserView(ModelView):
+
+	def __init__(self, session, **kwargs):
+		# You can pass name and other parameters if you want to
+		super(UserView, self).__init__(User, session, **kwargs)
+
+	def is_accessible(self):
+		return current_user.is_authenticated() and current_user.is_admin()
+
+class EndpointView(ModelView):
+
+	def __init__(self, session, **kwargs):
+		# You can pass name and other parameters if you want to
+		super(EndpointView, self).__init__(Endpoint, session, **kwargs)
+
+	def is_accessible(self):
+		return current_user.is_authenticated() and current_user.is_admin()
+
+class LogoutView(BaseView):
+	@expose('/')
+	def index(self):
+		logout_user()
+		form = LoginForm(request.form)
+		return redirect(request.args.get("next") or url_for("index"))
+
 if __name__ == "__main__":
 
-	admin = Admin(app, name='OPENDASH')
-	admin.add_view(ModelView(User, session))
-	admin.add_view(ModelView(Endpoint, session))
+	admin = Admin(app, name='OpenDASH')
+	admin.add_view(UserView(session))
+	admin.add_view(EndpointView(session))
+	admin.add_view(LogoutView(name='Log out'))
 
 	app.run(debug=True)

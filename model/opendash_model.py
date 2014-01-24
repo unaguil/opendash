@@ -34,6 +34,9 @@ class User(Base):
 	def check_password(self, password):
 		return self.password == password
 
+	def is_admin(self):
+		return self.user == 'admin'
+
 class Endpoint(Base):
 	__tablename__ = 'endpoint'
 	
