@@ -1,13 +1,8 @@
 <!doctype html>
 <html>
 <head>
-	<title>OpenDash</title>
 
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<!-- Bootstrap -->
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
-
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	{% include 'page-head.html' %}
 
 	<link href='http://fonts.googleapis.com/css?family=Russo+One' rel='stylesheet' type='text/css'>
 </head>
@@ -18,7 +13,7 @@
 		{% include 'header.html' %}
 
 		<div class="jumbotron">
-			<h1 style="font-family: 'Russo One', sans-serif;"><span class="glyphicon glyphicon-signal"></span> OPENDASH</h1>
+			<h1 style="font-family: 'Russo One', sans-serif;"><span class="glyphicon glyphicon-signal"></span> OpenDASH</h1>
 			<p class="lead" style="font-family: sans-serif;">Dashboard y Business Intelligence (BI) utilizando Opendata</p>
 		</div>
 
