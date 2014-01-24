@@ -7,8 +7,6 @@ from flask.ext.admin import Admin
 from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
 
 import rdflib
-import json
-import random
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -297,7 +295,6 @@ def login():
 @login_required
 def logout():
 	logout_user()
-	form = LoginForm(session, request.form)
 	return redirect(request.args.get("next") or url_for("index"))
 
 if __name__ == "__main__":

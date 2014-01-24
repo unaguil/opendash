@@ -2,7 +2,7 @@
 
 from flask.ext.wtf import Form
 from wtforms.validators import DataRequired
-from wtforms import TextField, PasswordField, ValidationError
+from wtforms import TextField, PasswordField
 
 from model.opendash_model import User
 

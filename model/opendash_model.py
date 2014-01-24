@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import UnicodeText, Date, create_engine, Column
-from sqlalchemy import Integer, ForeignKey, Table, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import UnicodeText, create_engine, Column
+from sqlalchemy import Integer, String
 
 Base = declarative_base()
 

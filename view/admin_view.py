@@ -7,7 +7,6 @@ from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import current_user, logout_user
 
 from model.opendash_model import User, Endpoint
-from form.login import LoginForm
 
 from flask import request
 
@@ -32,5 +31,4 @@ class LogoutView(BaseView):
 	@expose('/')
 	def index(self):
 		logout_user()
-		form = LoginForm(request.form)
 		return redirect(request.args.get("next") or url_for("index"))
