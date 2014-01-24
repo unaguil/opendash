@@ -5,9 +5,11 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Bootstrap -->
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
 
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+	<link href='http://fonts.googleapis.com/css?family=Russo+One' rel='stylesheet' type='text/css'>
 </head>
 <body>
 
@@ -16,8 +18,8 @@
 		{% include 'header.html' %}
 
 		<div class="jumbotron">
-			<h1>OPENDASH</h1>
-			<p class="lead">Dashboard y Business Intelligence (BI) utilizando Opendata</p>
+			<h1 style="font-family: 'Russo One', sans-serif;"><span class="glyphicon glyphicon-signal"></span> OPENDASH</h1>
+			<p class="lead" style="font-family: sans-serif;">Dashboard y Business Intelligence (BI) utilizando Opendata</p>
 		</div>
 
 		{% include 'footer.html' %}	
@@ -25,6 +27,6 @@
 	</div>
 
 	<script src="https://code.jquery.com/jquery.js"></script>
-	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
+	<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>	
 </body>
 </html>
