@@ -2,8 +2,8 @@
 
 from flask import Flask, render_template, redirect, url_for
 from flask import jsonify, request
-from flask.ext.admin import Admin, BaseView, expose
-from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.admin import Admin
+
 from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
 from flask.ext.wtf import Form
 from wtforms import TextField, PasswordField, ValidationError
@@ -17,6 +17,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 from model.opendash_model import User, Endpoint
+from view.admin_view import UserView, EndpointView, LogoutView
 
 app = Flask(__name__)
 
@@ -315,31 +316,6 @@ class LoginForm(Form):
 
 	def get_user(self):
 		return session.query(User).filter_by(user=self.user.data).first()
-
-class UserView(ModelView):
-
-	def __init__(self, session, **kwargs):
-		# You can pass name and other parameters if you want to
-		super(UserView, self).__init__(User, session, **kwargs)
-
-	def is_accessible(self):
-		return current_user.is_authenticated() and current_user.is_admin()
-
-class EndpointView(ModelView):
-
-	def __init__(self, session, **kwargs):
-		# You can pass name and other parameters if you want to
-		super(EndpointView, self).__init__(Endpoint, session, **kwargs)
-
-	def is_accessible(self):
-		return current_user.is_authenticated() and current_user.is_admin()
-
-class LogoutView(BaseView):
-	@expose('/')
-	def index(self):
-		logout_user()
-		form = LoginForm(request.form)
-		return redirect(request.args.get("next") or url_for("index"))
 
 if __name__ == "__main__":
 
