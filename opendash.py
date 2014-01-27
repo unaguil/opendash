@@ -98,7 +98,7 @@ def get_properties(g, graph, clazz):
 	return properties
 
 def infer_datatype(value):
-	if type(value) is str:
+	if type(value) is str or type(value) is unicode:
 		return 'http://www.w3.org/2001/XMLSchema#string'
 	elif type(value) is int:
 		return 'http://www.w3.org/2001/XMLSchema#integer'
@@ -115,7 +115,7 @@ def get_property_type(g, graph, clazz, property):
 	qres = g.query(query)
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
-			if value[0].datatype is not '':
+			if value[0].datatype is not None and value[0].datatype != '':
 				return str(value[0].datatype)
 
 		return infer_datatype(str(value[0]))
