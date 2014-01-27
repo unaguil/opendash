@@ -91,13 +91,15 @@
 		};
 
 		function updateChartLine(desc, chart, lineID) {
+			var post_data = { 	endpoint: desc.endpoint, 
+								graph: desc.graph,
+								mainclass: chart.mainclass,
+								xvalues: chart.xvalues,
+								yvalues: chart.lines[lineID].yvalues
+							};
+
 			$.post("endpoints/get_data", 
-				{ 	endpoint: desc.endpoint, 
-					graph: desc.graph,
-					mainclass: chart.mainclass,
-					xvalues: chart.xvalues,
-					yvalues: chart.lines[lineID].yvalues
-				}, 
+				post_data, 
 				function(data) {
 					chart.data[lineID] = data.data;
 
@@ -175,7 +177,7 @@
 			for (var index = 0; index < desc.classes[classID].properties.length; index++) {
 				var property = desc.classes[classID].properties[index];
 
-				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)	
+				if (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1)	
 					$("#yvalues-list-" + id).append(new Option(property.uri, classID + ":" + index));
 			}
 
@@ -211,7 +213,7 @@
 
 			for (var index = 0; index < clazz.properties.length; index++) {
 				var property = clazz.properties[index];
-				if ($.inArray(property.datatype, getYValidDataTypes()) != -1)
+				if (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1)
 					$("#secondary-yvalues-list-" + id).append(new Option(property.uri, classID + ":" + index));
 			}
 		};
@@ -335,7 +337,7 @@
 				clazz = classes[clazzIndex];
 				for (var propertyIndex = 0; propertyIndex < clazz.properties.length; propertyIndex++) {
 					property = clazz.properties[propertyIndex];
-					if ($.inArray(property.datatype, getValidDataTypes()) != -1)
+					if (property.type == 'object_type' || $.inArray(property.datatype, getValidDataTypes()) != -1)
 						properties.push(property);
 				}
 				if (properties.length > 0)
@@ -349,7 +351,7 @@
 			$("#main-xvalues-list").empty();
 			for (var index = 0; index < desc.classes[descID].properties.length; index++) {
 				var property = desc.classes[descID].properties[index];
-				if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
+				if (property.type == 'object_type' || $.inArray(property.datatype, getXValidDataTypes()) != -1)	
 					$("#main-xvalues-list").append(new Option(property.uri, descID + ":" + index));
 			}
 
@@ -376,7 +378,7 @@
 										'</div>' +
 										'<div class="form-group">' +
 											'<label class="col-sm-2 control-label">X</label>' + 
-											'<div class="col-sm-10">' +
+											'<div id="selected-property" class="col-sm-10">' +
 												'<select id="main-xvalues-list" class="form-control"></select>' +
 											'</div>' +
 										'</div>' +
@@ -410,7 +412,8 @@
 				});
 
 				$("#main-xvalues-list").change(function() {
-					chart.xvalues = $('#main-xvalues-list :selected').text()
+					chart.xvalues = $('#main-xvalues-list :selected')
+					updateObjectType();
 				});
 
 				updateMainClass(desc, 0)
@@ -433,6 +436,39 @@
 				});
 			});
 		};
+
+		function findClass(uri) {
+			for (var i = 0; i < desc.classes.length; i++) {
+				if (desc.classes[i].classURI == uri)
+					return i;
+			}
+			return -1;
+		}
+
+		function updateObjectType() {
+			var res = $('#main-xvalues-list :selected').val().split(":");
+			var classID = res[0];
+			var propertyID = res[1];
+
+			$("#subproperty-list").remove();
+
+			if (desc.classes[classID].properties[propertyID].type == 'object_type') {
+				var snippet = '<select id="subproperty-list" class="form-control"></select>';
+
+				$("#selected-property").append(snippet);
+
+				var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
+
+				for (var index = 0; index < desc.classes[subpropertyClassID].properties.length; index++) {
+					var property = desc.classes[subpropertyClassID].properties[index];
+
+					if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
+						$("#subproperty-list").append(new Option(property.uri, subpropertyClassID + ":" + index));
+				}
+
+				chart.xvalues = $('#subproperty-list :selected')
+			}
+		}
 
 		function init() {
 			$.getJSON("endpoints", function(data) {

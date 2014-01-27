@@ -16,6 +16,9 @@ from model.opendash_model import User, Endpoint
 
 app = Flask(__name__)
 
+DATA_TYPE = 'data_type'
+OBJECT_TYPE = 'object_type'
+
 @app.route("/")
 def render_index():
 	return render_template('index.html')
@@ -88,9 +91,11 @@ def get_properties(g, graph, clazz):
 
 	properties = []
 	for p in qres:
+		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
 		property = {
 				'uri': str(p[0]),
-				'datatype': get_property_type(g, graph, clazz, str(p[0]))
+				'datatype': data_type,
+				'type': ref_type
 			}
 
 		properties.append(property)
@@ -104,6 +109,18 @@ def infer_datatype(value):
 		return 'http://www.w3.org/2001/XMLSchema#integer'
 	return ''
 
+def get_object_type(g, graph, value):
+	query = """SELECT ?type FROM <%s> WHERE {
+				<%s> a ?type .
+				}"""
+
+	query = query % (graph, value)
+
+	qres = g.query(query)
+
+	for value in qres:
+		return str(value[0])
+
 def get_property_type(g, graph, clazz, property):
 	query = """SELECT ?value FROM <%s> WHERE {
 				?s a <%s> .
@@ -116,9 +133,11 @@ def get_property_type(g, graph, clazz, property):
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
 			if value[0].datatype is not None and value[0].datatype != '':
-				return str(value[0].datatype)
+				return DATA_TYPE, str(value[0].datatype)
+			else:
+				return DATA_TYPE, infer_datatype(str(value[0]))
 
-		return infer_datatype(str(value[0]))
+		return OBJECT_TYPE, get_object_type(g, graph, str(value[0]))
 
 def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
@@ -207,6 +226,9 @@ def get_data():
 				} ORDER BY(?x)"""
 
 	query = query % (graph, mainclass, xvalues, yvalues)
+
+	print query
+
 	qres = g.query(query)
 
 	data = []
