@@ -95,6 +95,7 @@
 								graph: desc.graph,
 								mainclass: chart.mainclass,
 								xvalues: chart.xvalues,
+								subproperty: 'subproperty' in chart ? chart.subproperty : '',
 								yvalues: chart.lines[lineID].yvalues
 							};
 
@@ -412,7 +413,7 @@
 				});
 
 				$("#main-xvalues-list").change(function() {
-					chart.xvalues = $('#main-xvalues-list :selected')
+					chart.xvalues = $('#main-xvalues-list :selected').text();
 					updateObjectType();
 				});
 
@@ -466,9 +467,17 @@
 						$("#subproperty-list").append(new Option(property.uri, subpropertyClassID + ":" + index));
 				}
 
-				chart.xvalues = $('#subproperty-list :selected')
+				$("#subproperty-list").change(function() {
+					var res = $(this).val().split(":");
+
+					chart.xvalues = desc.classes[res[0]].properties[res[1]].uri;			
+					chart.subproperty = $('#main-xvalues-list :selected').text();
+				});
+
+				chart.xvalues = desc.classes[classID].properties[propertyID].uri;
+				chart.subproperty = $('#main-xvalues-list :selected').text();
 			}
-		}
+		};
 
 		function init() {
 			$.getJSON("endpoints", function(data) {

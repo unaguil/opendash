@@ -214,18 +214,32 @@ def get_data():
 	graph = request.form['graph']
 	mainclass = request.form['mainclass']
 	xvalues = request.form['xvalues']
+	subproperty = request.form['subproperty']
 	yvalues = request.form['yvalues']
+
+	print xvalues
+	print subproperty
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
-	query = """SELECT ?x ?y FROM <%s> WHERE {
-				?s a <%s> .
-				?s <%s> ?x .
-				?s <%s> ?y .
-				} ORDER BY(?x)"""
+	if len(subproperty) == 0:
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?x .
+					?s <%s> ?y .
+					} ORDER BY(?x)"""
 
-	query = query % (graph, mainclass, xvalues, yvalues)
+		query = query % (graph, mainclass, xvalues, yvalues)
+	else:
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?p .
+					?p <%s> ?x .
+					?s <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, subproperty, xvalues, yvalues)
 
 	print query
 
