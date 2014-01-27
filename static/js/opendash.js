@@ -1,6 +1,7 @@
 
 
 //////////////////////////////// utility functions ///////////////////////////////////////
+
 function findClass(uri) {
 	for (var i = 0; i < desc.classes.length; i++) {
 		if (desc.classes[i].classURI == uri)
@@ -15,6 +16,19 @@ function getObjectID(event) {
 	return res[res.length - 1];
 };
 
+function addSelectComponent(componentID, values, onChange) {
+	$("#" + componentID).empty();
+	for (var index = 0; index < values.length; index++)
+		$("#" + componentID).append(new Option(values[index].classURI, index));
+
+	$("#" + componentID).change(function() {
+		var index = $(this).val();
+		onChange(values[index], index);					
+	});	
+
+	onChange(values[0], 0);
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -25,17 +39,6 @@ chart.classes = {};
 connections = null;
 
 var id = 0;
-
-function updateGraphList(endpointURL) {
-	$.post("endpoints/get_graphs", { endpoint: endpointURL }, function(data) {
-		$("#graph-list").empty();
-
-		for (var index = 0; index < data.graphs.length; index++) {
-			var graph = data.graphs[index];
-			$("#graph-list").append(new Option(graph.name, graph.id));
-		}
-	});
-};
 
 function getTitles() {
 	var titles = []
@@ -306,10 +309,10 @@ function removeIncompatibleTypes(classes, getValidDataTypes) {
 	return compatibleClasses;
 };
 
-function updateMainClass(desc, descID) {
+function updateMainClass(selectedObj, descID) {
 	$("#main-xvalues-list").empty();
-	for (var index = 0; index < desc.classes[descID].properties.length; index++) {
-		var property = desc.classes[descID].properties[index];
+	for (var index = 0; index < selectedObj.properties.length; index++) {
+		var property = selectedObj.properties[index];
 		if (property.type == 'object_type' || $.inArray(property.datatype, getXValidDataTypes()) != -1)	
 			$("#main-xvalues-list").append(new Option(property.uri, descID + ":" + index));
 	}
@@ -360,22 +363,12 @@ function processSource() {
 
 		$('#main-configuration').append(snippet);
 
-		$("#main-class-list").empty();
-		for (var index = 0; index < desc.classes.length; index++)
-			$("#main-class-list").append(new Option(desc.classes[index].classURI, index));	
-
-		$("#main-class-list").change(function() {
-			var index = $(this).val();
-
-			updateMainClass(desc, index);					
-		});
+		addSelectComponent("main-class-list", desc.classes, updateMainClass);
 
 		$("#main-xvalues-list").change(function() {
 			chart.xvalues = $('#main-xvalues-list :selected').text();
 			updateObjectType();
 		});
-
-		updateMainClass(desc, 0)
 
 		$("#add-line-button").click(function(event) {
 			$("#main-class-list").prop("disabled", true);
@@ -429,7 +422,9 @@ function updateObjectType() {
 	}
 };
 
-function init() {
+///////////////////////////////// source management //////////////////////////////////////
+
+function populateEndpoints() {
 	$.getJSON("endpoints", function(data) {
 		$("#dataset-list").empty();
 
@@ -446,10 +441,31 @@ function init() {
 	});
 
 	$("#select-source-button").click(function(event) {
-		processSource();
-
 		$("#dataset-list").prop("disabled", true);
 		$("#graph-list").prop("disabled", true);
 		$(this).prop("disabled", true);
+
+		processSource();
 	});
 };
+
+function updateGraphList(endpointURL) {
+	$.post("endpoints/get_graphs", { endpoint: endpointURL }, function(data) {
+		$("#graph-list").empty();
+
+		for (var index = 0; index < data.graphs.length; index++) {
+			var graph = data.graphs[index];
+			$("#graph-list").append(new Option(graph.name, graph.id));
+		}
+	});
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////// initialization /////////////////////////////////////
+
+function init() {
+	populateEndpoints();
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
