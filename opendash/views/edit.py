@@ -49,7 +49,7 @@ def get_endpoint_graphs():
 
 def loadIgnoredPrefixes():
 	ignored = []
-	with open('ignored.txt') as f:
+	with open('opendash/views/ignored.txt') as f:
 		ignored = f.read().splitlines()
 
 	return ignored
