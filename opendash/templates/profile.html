@@ -30,6 +30,7 @@
 							{% else %}
 							<a href="/report/{{r.id}}/make_public"><span class="glyphicon glyphicon-eye-close"></span></a>
 							{% endif %}
+							<a href="/report/{{r.id}}/remove" class="btn btn-danger btn-xs" role="button">X</span></a>
 						</li>
 						{% endfor %}
 					</ul>

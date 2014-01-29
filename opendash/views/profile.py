@@ -23,6 +23,8 @@ def make_public(report_id):
 	if report is not None:
 		report.public = True
 
+	session.commit()
+
 	return redirect(url_for("profile"))
 
 @app.route("/report/<report_id>/make_private")
@@ -32,5 +34,18 @@ def make_private(report_id):
 
 	if report is not None:
 		report.public = False
+
+	session.commit()
+
+	return redirect(url_for("profile"))
+
+@app.route("/report/<report_id>/remove")
+@login_required
+def remove_report(report_id):
+	report = session.query(Report).filter_by(id=report_id, user=current_user.id).first()
+
+	session.delete(report)
+
+	session.commit()
 
 	return redirect(url_for("profile"))
