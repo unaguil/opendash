@@ -77,7 +77,7 @@ function updateChartLine(desc, chart, lineID) {
 						graph: desc.graph,
 						mainclass: chart.mainclass,
 						xvalues: chart.xvalues,
-						subproperty: chart.subproperty,
+						xsubproperty: chart.xsubproperty,
 						yvalues: chart.lines[lineID].yvalues
 					};
 
@@ -353,7 +353,7 @@ function updateMainClass(componentID, selectedObj, descID) {
 
 function updateSubProperty() {
 	chart.xvalues = $('#subproperty-list :selected').text();
-	chart.subproperty = $('#main-xvalues-list :selected').text();
+	chart.xsubproperty = $('#main-xvalues-list :selected').text();
 };
 
 function updateXValues() {
@@ -374,7 +374,7 @@ function updateXValues() {
 		updateSelectComponent('subproperty-list', desc.classes[subpropertyClassID].properties, 'uri', updateSubProperty, xValuesFilter);
 	} else {
 		chart.xvalues = $('#main-xvalues-list :selected').text();
-		chart.subproperty = '';
+		chart.xsubproperty = '';
 	}
 };
 
