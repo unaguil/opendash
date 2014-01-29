@@ -6,7 +6,7 @@ from flask.ext.admin import BaseView, expose
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import current_user, logout_user
 
-from model.opendash_model import User, Endpoint
+from opendash.model.opendash_model import User, Endpoint
 
 from flask import request
 

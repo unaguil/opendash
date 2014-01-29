@@ -1,47 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template, redirect, url_for
-from flask import jsonify, request
-from flask.ext.admin import Admin
-
-from flask.ext.login import LoginManager, login_user, current_user, logout_user, login_required
+from flask import jsonify, request, render_template
+from flask.ext.login import login_required, current_user
 
 import rdflib
 
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from opendash import app, session
+from opendash.form.login import LoginForm
 
-from model.opendash_model import User, Endpoint
-from view.admin_view import UserView, EndpointView, LogoutView
-from form.login import LoginForm
-
-app = Flask(__name__)
+from opendash.model.opendash_model import Endpoint
 
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
-
-engine = create_engine('sqlite:///opendash.db')
-Session = sessionmaker(bind=engine)
-session = Session()
-
-app.config['SECRET_KEY'] = '123456790'
-
-login_manager = LoginManager()
-login_manager.setup_app(app)
-
-# Create user loader function
-@login_manager.user_loader
-def load_user(user_id):
-	user = session.query(User).get(user_id)
-	return user
-
-@app.route("/")
-def index():
-	form = LoginForm(session)
-
-	if current_user.is_authenticated() and current_user.is_admin():
-		return redirect('/admin')
-	return render_template('index.html', form=form, user=current_user)
 
 @app.route("/edit")
 @login_required
@@ -326,33 +296,3 @@ def get_class_data():
 		data.append({'x' : str(row[0]), 'y': str(row[1])})
 
 	return jsonify(data=data)
-
-@app.route("/login", methods=["POST"])
-def login():
-	form = LoginForm(session, request.form)
-
-	if form.validate_on_submit():
-		user = form.get_user()
-		login_user(user)
-
-		if user.is_admin():
-			return redirect('/admin')
-		else:
-			return redirect(url_for("edit"))
-
-	return render_template("index.html", form=form, invalid_login=True)
-
-@app.route("/logout", methods=["POST"])
-@login_required
-def logout():
-	logout_user()
-	return redirect(request.args.get("next") or url_for("index"))
-
-if __name__ == "__main__":
-
-	admin = Admin(app, name='OpenDASH')
-	admin.add_view(UserView(session))
-	admin.add_view(EndpointView(session))
-	admin.add_view(LogoutView(name='Log out'))
-
-	app.run(debug=True)

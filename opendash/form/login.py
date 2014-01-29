@@ -4,7 +4,7 @@ from flask.ext.wtf import Form
 from wtforms.validators import DataRequired
 from wtforms import TextField, PasswordField
 
-from model.opendash_model import User
+from opendash.model.opendash_model import User
 
 class LoginForm(Form):
 	user = TextField(validators=[DataRequired()])
