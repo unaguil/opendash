@@ -8,7 +8,7 @@
 		<form class="navbar-form navbar-right" role="form" action="{{ url_for('logout') }}" method="post">
 			{{ form.csrf_token }}
 			<div class="form-group">
-				<a style="color:gray; margin-right: 4px; font-size:150%">{{ user.user }}</a>
+				<a href="/user/{{ user.user }}" style="color:gray; margin-right: 4px; font-size:150%">{{ user.user }}</a>
 			</div>
 			<button type="submit" class="btn btn-primary">Sign out</button></h3>
   		</form>
