@@ -19,12 +19,14 @@
 		<div class="well">
   			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h4 class="panel-title">Reports <a href="#" class="btn btn-primary btn-xs" role="button"><span class="glyphicon glyphicon-plus"></span></a></h4> 
+					<h4 class="panel-title">Reports <a href="/report/new_report" class="btn btn-primary btn-xs" role="button"><span class="glyphicon glyphicon-plus"></span></a></h4> 
 				</div>
 				<div class="panel-body">
 					<ul class="list-group">
 						{% for r in reports %}
-						<li class="list-group-item">{{ r.name }}
+						<li class="list-group-item">
+							<span id="report-name-label"class="label label-default">{{ r.name }}</span>
+							<span class="label label-primary">{{ r.id }}</span>
 							{% if r.public %} 
 							<a href="/report/{{r.id}}/make_private"><span class="glyphicon glyphicon-eye-open"></span></a>
 							{% else %}

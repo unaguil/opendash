@@ -49,3 +49,14 @@ def remove_report(report_id):
 	session.commit()
 
 	return redirect(url_for("profile"))
+
+@app.route("/report/new_report")
+@login_required
+def new_report():
+	report = Report('unnamed report')
+
+	current_user.reports.append(report)
+
+	session.commit()
+
+	return redirect(url_for("profile"))
