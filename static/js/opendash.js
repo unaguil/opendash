@@ -134,7 +134,23 @@ function drawChart() {
 	lineChart.draw(data, options);
 };
 
+function updateYValues(componentID) {
+	var tokens = componentID.split("-");
+	var lineID = tokens[tokens.length - 1];
+
+	var classURI = $('#main-class-list :selected').text();
+	var propertyURI = $('#' + componentID + ' :selected').text();
+
+	var classID = findClass(classURI);
+	var propertyID = findProperty(propertyURI, classID);
+
+	chart.lines[lineID].yvalues = desc.classes[classID].properties[propertyID].uri;
+	updateChartLine(desc, chart, lineID);
+};
+
 function addLine(desc, id) {
+	chart.lines[id]	 = {}
+
 	var snippet = 	'<div id="configuration-' + id + '">' + 
 						'<form class="form-horizontal" role="form">' +
 							'<div class="form-group">' +
@@ -153,12 +169,7 @@ function addLine(desc, id) {
 
 	var classID = $("#main-class-list :selected").val();
 
-	for (var index = 0; index < desc.classes[classID].properties.length; index++) {
-		var property = desc.classes[classID].properties[index];
-
-		if (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1)	
-			$("#yvalues-list-" + id).append(new Option(property.uri, classID + ":" + index));
-	}
+	updateSelectComponent("yvalues-list-" + id, desc.classes[classID].properties, 'uri', updateYValues);
 
 	$("#remove-conf-button-" + id).click(function(event) {
 		$('#configuration-' + id).remove();
@@ -171,18 +182,6 @@ function addLine(desc, id) {
 		else
 			$("#chart-div").empty();
 	});
-
-	$("#yvalues-list-" + id).change(function(event) {
-		var lineID = getObjectID(event);
-		var res = $(this).val().split(":");
-
-		chart.lines[lineID].yvalues = desc.classes[res[0]].properties[res[1]].uri;
-		updateChartLine(desc, chart, lineID);
-	});
-
-	var line = {};
-	line.yvalues = desc.classes[classID].properties[0].uri;
-	chart.lines[id] = line;
 };
 
 function updateSecondaryYValues(connections, id, clazz) {
