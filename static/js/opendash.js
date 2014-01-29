@@ -79,7 +79,7 @@ function updateChartLine(desc, chart, lineID) {
 						xvalues: chart.xvalues,
 						xsubproperty: chart.xsubproperty,
 						yvalues: chart.lines[lineID].yvalues,
-						ysubproperty: ''
+						ysubproperty: chart.lines[lineID].ysubproperty
 					};
 
 	$.post("endpoints/get_data", 
@@ -142,9 +142,9 @@ function drawChart() {
 function updateYSubProperty(componentID) {
 	var tokens = componentID.split("-");
 	var lineID = tokens[tokens.length - 1];
-	
-	chart.lines[lineID].yvalues = $('#' + 'y-subproperty-list-' + componentID + ' :selected').text();
-	chart.lines[lineID].ysubproperty = $('#main-xvalues-list :selected').text();
+
+	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
+	chart.lines[lineID].ysubproperty = $('#yvalues-list-' + lineID + ' :selected').text();
 };
 
 function updateYValues(componentID) {
@@ -165,7 +165,7 @@ function updateYValues(componentID) {
 
 		var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
 
-		updateSelectComponent('y-subproperty-list-' + componentID, desc.classes[subpropertyClassID].properties, 'uri', updateYSubProperty, xValuesFilter);
+		updateSelectComponent('y-subproperty-list-' + componentID, desc.classes[subpropertyClassID].properties, 'uri', updateYSubProperty, yValuesFilter);
 	} else {
 		chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 		chart.lines[lineID].ysubproperty = '';
@@ -174,7 +174,7 @@ function updateYValues(componentID) {
 	updateChartLine(desc, chart, lineID);
 };
 
-function yValuesFilter(property) {
+function yValuesObjectFilter(property) {
 	return (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1);
 };
 
@@ -184,6 +184,10 @@ function xValuesObjectFilter(property) {
 
 function xValuesFilter(property) {
 	return $.inArray(property.datatype, getXValidDataTypes()) != -1;
+};
+
+function yValuesFilter(property) {
+	return $.inArray(property.datatype, getYValidDataTypes()) != -1;
 };
 
 function addLine(desc, id) {
@@ -207,7 +211,7 @@ function addLine(desc, id) {
 
 	var classID = $("#main-class-list :selected").val();
 
-	updateSelectComponent("yvalues-list-" + id, desc.classes[classID].properties, 'uri', updateYValues, yValuesFilter);
+	updateSelectComponent("yvalues-list-" + id, desc.classes[classID].properties, 'uri', updateYValues, yValuesObjectFilter);
 
 	$("#remove-conf-button-" + id).click(function(event) {
 		$('#configuration-' + id).remove();
