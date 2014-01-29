@@ -216,11 +216,12 @@ def get_data():
 	xvalues = request.form['xvalues']
 	xsubproperty = request.form['xsubproperty']
 	yvalues = request.form['yvalues']
+	ysubproperty = request.form['ysubproperty']
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
-	if len(xsubproperty) == 0:
+	if len(xsubproperty) == 0 and len(ysubproperty) == 0:
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
 					?s <%s> ?x .
@@ -228,7 +229,7 @@ def get_data():
 					} ORDER BY(?x)"""
 
 		query = query % (graph, mainclass, xvalues, yvalues)
-	else:
+	elif len(xsubproperty) == 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
 					?s <%s> ?p .
@@ -237,6 +238,25 @@ def get_data():
 					} ORDER BY(?x)"""
 
 		query = query % (graph, mainclass, xsubproperty, xvalues, yvalues)
+	elif len(ysubproperty) == 0: 
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?x .
+					?s <%s> ?p .
+					?p <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, xvalues, ysubproperty, yvalues)
+	else: 
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?p1 .
+					?p1 <%s> ?x .
+					?s <%s> ?p2 .
+					?p2 <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, xsubproperty, xvalues, ysubproperty, yvalues)
 
 	qres = g.query(query)
 
