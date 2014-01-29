@@ -17,7 +17,7 @@ def login():
 		if user.is_admin():
 			return redirect('/admin')
 		else:
-			return redirect(url_for("edit"))
+			return redirect(url_for("profile"))
 
 	return render_template("index.html", form=form, invalid_login=True)
 

@@ -13,9 +13,9 @@ from opendash.model.opendash_model import Endpoint
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
 
-@app.route("/edit")
+@app.route("/report/<report_id>/edit")
 @login_required
-def edit():
+def edit(report_id):
 	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user)
 

@@ -82,7 +82,7 @@ function updateChartLine(desc, chart, lineID) {
 						ysubproperty: chart.lines[lineID].ysubproperty
 					};
 
-	$.post("endpoints/get_data", 
+	$.post("/endpoints/get_data", 
 		post_data, 
 		function(data) {
 			chart.data[lineID] = data.data;
@@ -92,7 +92,7 @@ function updateChartLine(desc, chart, lineID) {
 };
 
 function updateChartClass(desc, chart, classID) {
-	$.post("endpoints/get_class_data", 
+	$.post("/endpoints/get_class_data", 
 		{ 	endpoint: desc.endpoint, 
 			graph: desc.graph,
 			mainclass: chart.mainclass,
@@ -265,7 +265,7 @@ function addClass(desc, id) {
 						'</form>' +
 					'</div>';
 
-	$.post("endpoints/get_connections", 
+	$.post("/endpoints/get_connections", 
 		{ 	endpoint: desc.endpoint, 
 			graph: desc.graph, 
 			class: chart.mainclass,
@@ -397,7 +397,7 @@ function processSource() {
 	var endpointURL = $("#dataset-list :selected").text();
 	var graphName = $("#graph-list :selected").text();
 
-	$.post("endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
+	$.post("/endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 		desc = data.desc;
 
 		desc.classes = removeIncompatibleTypes(desc.classes, getValidDataTypes);			
@@ -459,7 +459,7 @@ function processSource() {
 ///////////////////////////////// source management //////////////////////////////////////
 
 function populateEndpoints() {
-	$.getJSON("endpoints", function(data) {
+	$.getJSON("/endpoints", function(data) {
 		updateSelectComponent("dataset-list", data.endpoints, 'url', updateGraphList)
 	});
 
@@ -473,7 +473,7 @@ function populateEndpoints() {
 };
 
 function updateGraphList(componentID, endpoint, index) {
-	$.post("endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
+	$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
 		updateSelectComponent("graph-list", data.graphs, 'name', function() {});
 	});
 };
