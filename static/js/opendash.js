@@ -156,8 +156,12 @@ function yValuesFilter(property) {
 	return (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1);
 };
 
-function xValuesFilter(property) {
+function xValuesObjectFilter(property) {
 	return (property.type == 'object_type' || $.inArray(property.datatype, getXValidDataTypes()) != -1);
+};
+
+function xValuesFilter(property) {
+	return $.inArray(property.datatype, getXValidDataTypes()) != -1;
 };
 
 function addLine(desc, id) {
@@ -330,10 +334,15 @@ function removeIncompatibleTypes(classes, getValidDataTypes) {
 };
 
 function updateMainClass(componentID, selectedObj, descID) {
-	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues, xValuesFilter);
+	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues, xValuesObjectFilter);
 
 	chart.mainclass = desc.classes[descID].classURI;
 	chart.xvalues = desc.classes[descID].properties[0].uri;
+};
+
+function updateSubProperty() {
+	chart.xvalues = $('#subproperty-list :selected').text();
+	chart.subproperty = $('#main-xvalues-list :selected').text();
 };
 
 function updateXValues() {
@@ -351,25 +360,11 @@ function updateXValues() {
 
 		var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
 
-		for (var index = 0; index < desc.classes[subpropertyClassID].properties.length; index++) {
-			var property = desc.classes[subpropertyClassID].properties[index];
-
-			if ($.inArray(property.datatype, getXValidDataTypes()) != -1)	
-				$("#subproperty-list").append(new Option(property.uri, subpropertyClassID + ":" + index));
-		}
-
-		$("#subproperty-list").change(function() {
-			var res = $(this).val().split(":");
-
-			chart.xvalues = desc.classes[res[0]].properties[res[1]].uri;			
-			chart.subproperty = $('#main-xvalues-list :selected').text();
-		});
-
-		chart.xvalues = desc.classes[classID].properties[propertyID].uri;
-		chart.subproperty = $('#main-xvalues-list :selected').text();
-	} else
+		updateSelectComponent('subproperty-list', desc.classes[subpropertyClassID].properties, 'uri', updateSubProperty, xValuesFilter);
+	} else {
 		chart.xvalues = $('#main-xvalues-list :selected').text();
 		chart.subproperty = '';
+	}
 };
 
 function processSource() {
