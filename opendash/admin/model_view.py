@@ -6,7 +6,7 @@ from flask.ext.admin import BaseView, expose
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import current_user, logout_user
 
-from opendash.model.opendash_model import User, Endpoint
+from opendash.model.opendash_model import User, Endpoint, Report
 
 from flask import request
 
@@ -22,6 +22,14 @@ class EndpointView(ModelView):
 
 	def __init__(self, session, **kwargs):
 		super(EndpointView, self).__init__(Endpoint, session, **kwargs)
+
+	def is_accessible(self):
+		return current_user.is_authenticated() and current_user.is_admin()
+
+class ReportView(ModelView):
+
+	def __init__(self, session, **kwargs):
+		super(ReportView, self).__init__(Report, session, **kwargs)
 
 	def is_accessible(self):
 		return current_user.is_authenticated() and current_user.is_admin()

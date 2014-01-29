@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column
-from sqlalchemy import Integer, String, Unicode, UnicodeText
+from sqlalchemy import create_engine, Column, ForeignKey
+from sqlalchemy import Integer, String, Unicode, UnicodeText, Boolean
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 import uuid
 
@@ -16,6 +16,8 @@ class User(Base):
 	id = Column(Integer, primary_key=True)
 	user = Column(String, nullable=False)
 	password = Column(String, nullable=False)
+
+	reports = relationship('Report')
 	
 	def __init__(self, user=None, password=None):
 		self.user = user
@@ -45,7 +47,7 @@ class Endpoint(Base):
 	
 	id = Column(Integer, primary_key=True)
 	url = Column(UnicodeText, nullable=False)
-	
+
 	def __init__(self, url=None):
 		self.url = url
 
@@ -54,10 +56,14 @@ class Report(Base):
 
 	id = Column(String, primary_key=True)
 	name = Column(Unicode, nullable=False)
+	public = Column(Boolean, nullable=False)
 
-	def __init__(self, name=None):
-		self.id = uuid.uuid1()
+	user = Column(Integer, ForeignKey('user.id'))
+
+	def __init__(self, name=None, public=False):
+		self.id = str(uuid.uuid1())
 		self.name = name
+		self.public = public
 
 if __name__ == '__main__':
 	engine = create_engine('sqlite:///opendash.db')
@@ -69,7 +75,12 @@ if __name__ == '__main__':
 	session = Session()
 
 	session.add(User(user='admin', password='admin'))
-	session.add(User(user='test', password='test'))
+
+	user = User(user='test', password='test')
+	user.reports.append(Report('report1', False))
+	user.reports.append(Report('report2', True))
+
+	session.add(user)
 
 	session.add(Endpoint('http://helheim.deusto.es/sparql'))
 	session.add(Endpoint('http://localhost:3030/ds/query'))
