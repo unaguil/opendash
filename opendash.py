@@ -17,6 +17,9 @@ from form.login import LoginForm
 
 app = Flask(__name__)
 
+DATA_TYPE = 'data_type'
+OBJECT_TYPE = 'object_type'
+
 engine = create_engine('sqlite:///opendash.db')
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -40,11 +43,11 @@ def index():
 		return redirect('/admin')
 	return render_template('index.html', form=form, user=current_user)
 
-@app.route("/report")
+@app.route("/edit")
 @login_required
-def report():
+def edit():
 	form = LoginForm(session)
-	return render_template('report.html', form=form, user=current_user)
+	return render_template('edit.html', form=form, user=current_user)
 
 @app.route("/endpoints")
 @login_required
@@ -112,9 +115,11 @@ def get_properties(g, graph, clazz):
 
 	properties = []
 	for p in qres:
+		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
 		property = {
 				'uri': str(p[0]),
-				'datatype': get_property_type(g, graph, clazz, str(p[0]))
+				'datatype': data_type,
+				'type': ref_type
 			}
 
 		properties.append(property)
@@ -122,11 +127,23 @@ def get_properties(g, graph, clazz):
 	return properties
 
 def infer_datatype(value):
-	if type(value) is str:
+	if type(value) is str or type(value) is unicode:
 		return 'http://www.w3.org/2001/XMLSchema#string'
 	elif type(value) is int:
 		return 'http://www.w3.org/2001/XMLSchema#integer'
 	return ''
+
+def get_object_type(g, graph, value):
+	query = """SELECT ?type FROM <%s> WHERE {
+				<%s> a ?type .
+				}"""
+
+	query = query % (graph, value)
+
+	qres = g.query(query)
+
+	for value in qres:
+		return str(value[0])
 
 def get_property_type(g, graph, clazz, property):
 	query = """SELECT ?value FROM <%s> WHERE {
@@ -139,10 +156,12 @@ def get_property_type(g, graph, clazz, property):
 	qres = g.query(query)
 	for value in qres:
 		if type(value[0]) is rdflib.term.Literal:
-			if value[0].datatype is not '':
-				return str(value[0].datatype)
+			if value[0].datatype is not None and value[0].datatype != '':
+				return DATA_TYPE, str(value[0].datatype)
+			else:
+				return DATA_TYPE, infer_datatype(str(value[0]))
 
-		return infer_datatype(str(value[0]))
+		return OBJECT_TYPE, get_object_type(g, graph, str(value[0]))
 
 def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
@@ -222,18 +241,50 @@ def get_data():
 	graph = request.form['graph']
 	mainclass = request.form['mainclass']
 	xvalues = request.form['xvalues']
+	xsubproperty = request.form['xsubproperty']
 	yvalues = request.form['yvalues']
+	ysubproperty = request.form['ysubproperty']
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
-	query = """SELECT ?x ?y FROM <%s> WHERE {
-				?s a <%s> .
-				?s <%s> ?x .
-				?s <%s> ?y .
-				} ORDER BY(?x)"""
+	if len(xsubproperty) > 0 and len(ysubproperty) > 0:
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?p1 .
+					?p1 <%s> ?x .
+					?s <%s> ?p2 .
+					?p2 <%s> ?y .
+					} ORDER BY(?x)"""
 
-	query = query % (graph, mainclass, xvalues, yvalues)
+		query = query % (graph, mainclass, xsubproperty, xvalues, ysubproperty, yvalues)
+	elif len(xsubproperty) > 0: 
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?p .
+					?p <%s> ?x .
+					?s <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, xsubproperty, xvalues, yvalues)
+	elif len(ysubproperty) > 0: 
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?x .
+					?s <%s> ?p .
+					?p <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, xvalues, ysubproperty, yvalues)
+	else: 
+		query = """SELECT ?x ?y FROM <%s> WHERE {
+					?s a <%s> .
+					?s <%s> ?x .
+					?s <%s> ?y .
+					} ORDER BY(?x)"""
+
+		query = query % (graph, mainclass, xvalues, yvalues)
+
 	qres = g.query(query)
 
 	data = []
@@ -287,7 +338,7 @@ def login():
 		if user.is_admin():
 			return redirect('/admin')
 		else:
-			return redirect(url_for("report"))
+			return redirect(url_for("edit"))
 
 	return render_template("index.html", form=form, invalid_login=True)
 
