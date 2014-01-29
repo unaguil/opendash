@@ -8,7 +8,7 @@ from flask.ext.login import LoginManager, current_user
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from view.admin_view import UserView, EndpointView, LogoutView
+from admin.model_view import UserView, EndpointView, LogoutView
 from form.login import LoginForm
 
 from opendash.model.opendash_model import User
