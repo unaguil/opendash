@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import UnicodeText, create_engine, Column
-from sqlalchemy import Integer, String
+from sqlalchemy import create_engine, Column
+from sqlalchemy import Integer, String, Unicode, UnicodeText
+
+from sqlalchemy.orm import sessionmaker
+
+import uuid
 
 Base = declarative_base()
 
@@ -45,13 +49,29 @@ class Endpoint(Base):
 	def __init__(self, url=None):
 		self.url = url
 
+class Report(Base):
+	__tablename__ = 'report'
+
+	id = Column(String, primary_key=True)
+	name = Column(Unicode, nullable=False)
+
+	def __init__(self, name=None):
+		self.id = uuid.uuid1()
+		self.name = name
+
 if __name__ == '__main__':
-	USER = 'opendash'
-	PASS = 'opendash'
-	
-	DB_NAME = 'teseo'
-	
-	#engine = create_engine('mysql://%s:%s@localhost/%s?charset=utf8' % (USER, PASS, DB_NAME))
 	engine = create_engine('sqlite:///opendash.db')
+	
 	Base.metadata.drop_all(engine)
 	Base.metadata.create_all(engine)
+
+	Session = sessionmaker(bind=engine)
+	session = Session()
+
+	session.add(User(user='admin', password='admin'))
+	session.add(User(user='test', password='test'))
+
+	session.add(Endpoint('http://helheim.deusto.es/sparql'))
+	session.add(Endpoint('http://localhost:3030/ds/query'))
+
+	session.commit()
