@@ -23,9 +23,9 @@ OBJECT_TYPE = 'object_type'
 def render_index():
 	return render_template('index.html')
 
-@app.route("/report")
+@app.route("/edit")
 def render_report():
-	return render_template('report.html')
+	return render_template('edit.html')
 
 @app.route("/endpoints")
 def get_endpoints():
