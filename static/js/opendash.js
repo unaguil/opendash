@@ -148,7 +148,18 @@ function updateYValues(componentID) {
 	var classID = findClass(classURI);
 	var propertyID = findProperty(propertyURI, classID);
 
-	chart.lines[lineID].yvalues = desc.classes[classID].properties[propertyID].uri;
+	$("#y-subproperty-list-" + componentID).remove();
+	if (desc.classes[classID].properties[propertyID].type == 'object_type') {
+		var snippet = '<select id="y-subproperty-list-' + componentID + '" class="form-control"></select>';
+
+		$("#y-selected-property-" + componentID).append(snippet);
+
+		var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
+
+		updateSelectComponent('y-subproperty-list-' + componentID, desc.classes[subpropertyClassID].properties, 'uri', updateSubProperty, xValuesFilter);
+	}
+
+	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 	updateChartLine(desc, chart, lineID);
 };
 
@@ -171,7 +182,7 @@ function addLine(desc, id) {
 						'<form class="form-horizontal" role="form">' +
 							'<div class="form-group">' +
 								'<label class="col-sm-2 control-label">Y</label>' +
-								'<div class="col-sm-8">' +
+								'<div id="y-selected-property-yvalues-list-' + id + '" class="col-sm-8">' +
 									'<select id="yvalues-list-' + id + '" class="form-control"></select>' +
 								'</div>' + 
 								'<div class="col-sm-2">' +
