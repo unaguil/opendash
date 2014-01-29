@@ -78,7 +78,8 @@ function updateChartLine(desc, chart, lineID) {
 						mainclass: chart.mainclass,
 						xvalues: chart.xvalues,
 						xsubproperty: chart.xsubproperty,
-						yvalues: chart.lines[lineID].yvalues
+						yvalues: chart.lines[lineID].yvalues,
+						ysubproperty: ''
 					};
 
 	$.post("endpoints/get_data", 
@@ -138,6 +139,14 @@ function drawChart() {
 	lineChart.draw(data, options);
 };
 
+function updateYSubProperty(componentID) {
+	var tokens = componentID.split("-");
+	var lineID = tokens[tokens.length - 1];
+	
+	chart.lines[lineID].yvalues = $('#' + 'y-subproperty-list-' + componentID + ' :selected').text();
+	chart.lines[lineID].ysubproperty = $('#main-xvalues-list :selected').text();
+};
+
 function updateYValues(componentID) {
 	var tokens = componentID.split("-");
 	var lineID = tokens[tokens.length - 1];
@@ -156,10 +165,12 @@ function updateYValues(componentID) {
 
 		var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
 
-		updateSelectComponent('y-subproperty-list-' + componentID, desc.classes[subpropertyClassID].properties, 'uri', updateSubProperty, xValuesFilter);
+		updateSelectComponent('y-subproperty-list-' + componentID, desc.classes[subpropertyClassID].properties, 'uri', updateYSubProperty, xValuesFilter);
+	} else {
+		chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
+		chart.lines[lineID].ysubproperty = '';
 	}
 
-	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 	updateChartLine(desc, chart, lineID);
 };
 
@@ -351,7 +362,7 @@ function updateMainClass(componentID, selectedObj, descID) {
 	chart.xvalues = desc.classes[descID].properties[0].uri;
 };
 
-function updateSubProperty() {
+function updateXSubProperty() {
 	chart.xvalues = $('#subproperty-list :selected').text();
 	chart.xsubproperty = $('#main-xvalues-list :selected').text();
 };
@@ -371,7 +382,7 @@ function updateXValues() {
 
 		var subpropertyClassID = findClass(desc.classes[classID].properties[propertyID].datatype);
 
-		updateSelectComponent('subproperty-list', desc.classes[subpropertyClassID].properties, 'uri', updateSubProperty, xValuesFilter);
+		updateSelectComponent('subproperty-list', desc.classes[subpropertyClassID].properties, 'uri', updateXSubProperty, xValuesFilter);
 	} else {
 		chart.xvalues = $('#main-xvalues-list :selected').text();
 		chart.xsubproperty = '';
