@@ -24,11 +24,15 @@ function getObjectID(event) {
 	return res[res.length - 1];
 };
 
-function updateSelectComponent(componentID, values, property, onChange) {
+function updateSelectComponent(componentID, values, property, onChange, addFilter) {
+	addFilter = typeof addFilter == 'undefined' ? function f() { return true } : addFilter;
+
 	$("#" + componentID).empty();
 
-	for (var index = 0; index < values.length; index++)
-		$("#" + componentID).append(new Option(values[index][property], index));
+	for (var index = 0; index < values.length; index++) {
+		if (addFilter(values[index]) == true)
+			$("#" + componentID).append(new Option(values[index][property], index));
+	}
 
 	$("#" + componentID).change(function() {
 		var index = $(this).val();
@@ -148,6 +152,14 @@ function updateYValues(componentID) {
 	updateChartLine(desc, chart, lineID);
 };
 
+function yValuesFilter(property) {
+	return (property.type == 'object_type' || $.inArray(property.datatype, getYValidDataTypes()) != -1);
+};
+
+function xValuesFilter(property) {
+	return (property.type == 'object_type' || $.inArray(property.datatype, getXValidDataTypes()) != -1);
+};
+
 function addLine(desc, id) {
 	chart.lines[id]	 = {}
 
@@ -169,7 +181,7 @@ function addLine(desc, id) {
 
 	var classID = $("#main-class-list :selected").val();
 
-	updateSelectComponent("yvalues-list-" + id, desc.classes[classID].properties, 'uri', updateYValues);
+	updateSelectComponent("yvalues-list-" + id, desc.classes[classID].properties, 'uri', updateYValues, yValuesFilter);
 
 	$("#remove-conf-button-" + id).click(function(event) {
 		$('#configuration-' + id).remove();
@@ -318,7 +330,7 @@ function removeIncompatibleTypes(classes, getValidDataTypes) {
 };
 
 function updateMainClass(componentID, selectedObj, descID) {
-	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues);
+	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues, xValuesFilter);
 
 	chart.mainclass = desc.classes[descID].classURI;
 	chart.xvalues = desc.classes[descID].properties[0].uri;
@@ -358,7 +370,7 @@ function updateXValues() {
 	} else
 		chart.xvalues = $('#main-xvalues-list :selected').text();
 		chart.subproperty = '';
-}
+};
 
 function processSource() {
 	var endpointURL = $("#dataset-list :selected").text();
