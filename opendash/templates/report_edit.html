@@ -7,8 +7,6 @@
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
 
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
 </head>
 <body>
 
@@ -17,13 +15,16 @@
 		{% include 'header.html' %}
 
 		<div class="well">
-  			<div class="row">
-				<div class="col-md-6">
-					<div class="well" style="height: 500px;"><span class="glyphicon glyphicon-plus" style="font-size: 500%"></span></div>
-				</div>
-				<div class="col-md-6">
-					<div class="well" style="height: 500px;"><span class="glyphicon glyphicon-plus" style="font-size: 500%"></div>
-				</div>
+		  	<h3>{{ report.name }} <span class="label label-default">{{ report.charts | length }}</span></h3>
+
+		  	{% for chart in report.charts %}
+
+		  	<div id="chart-{{chart.id}}" class="well" style="height: 500px;"></div>
+
+			{% endfor %}
+
+			<div class="well" style="height: 500px;">
+				<a href="/report/{{report.id}}/chart/new"><span class="glyphicon glyphicon-plus" style="font-size: 500%"></span></a>
 			</div>
 		</div>
 
@@ -32,6 +33,5 @@
 
 	<script src="https://code.jquery.com/jquery.js"></script>
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
-	<script src="{{ url_for('static', filename='js/report.js') }}"></script>
 </body>
 </html>

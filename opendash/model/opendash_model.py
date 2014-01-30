@@ -60,6 +60,8 @@ class Report(Base):
 
 	user = Column(Integer, ForeignKey('user.id'))
 
+	charts = relationship('Chart')
+
 	def __init__(self, name=None, public=False):
 		self.id = str(uuid.uuid1())
 		self.name = name
@@ -68,12 +70,12 @@ class Report(Base):
 class Chart(Base):
 	__tablename__ = 'chart'
 
-	id = Column(String, primary_key=True)
+	id = Column(Integer, primary_key=True)
 	json = Column(UnicodeText, nullable=False)
 
-	report = Column(Integer, ForeignKey('report.id'))
+	report = Column(String, ForeignKey('report.id'))
 
-	def __init__(self, json=None):
+	def __init__(self, json=''):
 		self.json = json
 
 if __name__ == '__main__':

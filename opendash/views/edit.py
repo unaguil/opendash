@@ -13,12 +13,6 @@ from opendash.model.opendash_model import Endpoint
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
 
-@app.route("/graph/edit")
-@login_required
-def edit():
-	form = LoginForm(session)
-	return render_template('edit.html', form=form, user=current_user)
-
 @app.route("/endpoints")
 @login_required
 def get_endpoints():

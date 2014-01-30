@@ -456,6 +456,11 @@ function processSource() {
 	});
 };
 
+function saveChart(report_id, chart_id) {
+	$.post("/report/" + report_id + "/chart/" + chart_id + "/save", { chart: JSON.stringify(chart) }, function(data) {
+	});
+}
+
 ///////////////////////////////// source management //////////////////////////////////////
 
 function populateEndpoints() {
