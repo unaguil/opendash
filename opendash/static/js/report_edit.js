@@ -6,3 +6,10 @@ function drawCharts(charts) {
 		}
 	}
 };
+
+function deleteChart(report_id, chart_id) {
+	$.post("/report/" + report_id + "/chart/" + chart_id + "/delete", function(data) {
+		$("#chart-container-" + chart_id).remove();
+		$("#chart-counter-label").text($("#chart-counter-label").text() -1);
+	});
+};

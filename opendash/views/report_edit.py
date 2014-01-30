@@ -33,6 +33,14 @@ def new_chart(report_id):
 	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user, report=report, chart=chart)
 
+@app.route("/report/<report_id>/chart/<chart_id>/delete", methods=['POST'])
+@login_required
+def delete_chart(report_id, chart_id):
+	session.query(Chart).filter_by(id=chart_id, report=report_id).delete()
+	session.commit()
+
+	return jsonify(data=None)
+
 @app.route("/report/<report_id>/chart/edit")
 @login_required
 def chart_edit(report_id):
