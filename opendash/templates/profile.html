@@ -22,21 +22,34 @@
 					<h4 class="panel-title">Reports <a href="/report/new_report" class="btn btn-primary btn-xs" role="button"><span class="glyphicon glyphicon-plus"></span></a></h4> 
 				</div>
 				<div class="panel-body">
-					<ul class="list-group">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Access URL</th>
+								<th>Edit</th>
+								<th>Public</th>
+								<th>Remove</th>
+							</tr>
+						</thead>
+						<tbody>
 						{% for r in reports %}
-						<li class="list-group-item">
-							<span id="report-name-label"class="label label-default">{{ r.name }}</span>
-							<span class="label label-primary">{{ r.id }}</span>
-							<a href="/report/{{r.id}}/edit"><span class="glyphicon glyphicon-edit"></span></a>
-							{% if r.public %} 
-							<a href="/report/{{r.id}}/make_private"><span class="glyphicon glyphicon-eye-open"></span></a>
-							{% else %}
-							<a href="/report/{{r.id}}/make_public"><span class="glyphicon glyphicon-eye-close"></span></a>
-							{% endif %}
-							<a href="/report/{{r.id}}/remove" class="btn btn-danger btn-xs" role="button">X</span></a>
-						</li>
+						<tr>
+							<td><span id="report-name-label"class="label label-default">{{ r.name }}</span></td>
+							<td><a href="/report/{{r.id}}">/report/{{r.id}}</a></td>
+							<td><a href="/report/{{r.id}}/edit"><span class="glyphicon glyphicon-edit"></span></a></td>
+							<td>
+								{% if r.public %} 
+								<a href="/report/{{r.id}}/make_private"><span class="glyphicon glyphicon-eye-open"></span></a>
+								{% else %}
+								<a href="/report/{{r.id}}/make_public"><span class="glyphicon glyphicon-eye-close"></span></a>
+								{% endif %}
+							</td>
+							<td><a href="/report/{{r.id}}/remove" class="btn btn-danger btn-xs" role="button">X</span></a></td>
+						</tr>
 						{% endfor %}
-					</ul>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
