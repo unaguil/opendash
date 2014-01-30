@@ -4,6 +4,7 @@ from flask import jsonify, request, render_template
 from flask.ext.login import login_required, current_user
 
 import rdflib
+import json
 
 from opendash import app, session
 from opendash.form.login import LoginForm
@@ -201,18 +202,15 @@ def get_compatible_classes():
 @app.route("/endpoints/get_data", methods=['POST'])
 @login_required
 def get_data():
-	endpoint = request.form['endpoint']
-	graph = request.form['graph']
 	mainclass = request.form['mainclass']
 	xvalues = request.form['xvalues']
 	xsubproperty = request.form['xsubproperty']
-	yvalues = request.form['yvalues']
-	ysubproperty = request.form['ysubproperty']
+	line = json.loads(request.form['line'])
 
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
-	g.open(endpoint)
+	g.open(line['endpoint'])
 
-	if len(xsubproperty) > 0 and len(ysubproperty) > 0:
+	if len(xsubproperty) > 0 and len(line['ysubproperty']) > 0:
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
 					?s <%s> ?p1 .
@@ -221,7 +219,7 @@ def get_data():
 					?p2 <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xsubproperty, xvalues, ysubproperty, yvalues)
+		query = query % (line['graph'], mainclass, xsubproperty, xvalues, line['ysubproperty'], line['yvalues'])
 	elif len(xsubproperty) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -230,8 +228,8 @@ def get_data():
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xsubproperty, xvalues, yvalues)
-	elif len(ysubproperty) > 0: 
+		query = query % (line['graph'], mainclass, xsubproperty, xvalues, line['yvalues'])
+	elif len(line['ysubproperty']) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
 					?s <%s> ?x .
@@ -239,7 +237,7 @@ def get_data():
 					?p <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xvalues, ysubproperty, yvalues)
+		query = query % (line['graph'], mainclass, xvalues, line['ysubproperty'], line['yvalues'])
 	else: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -247,7 +245,7 @@ def get_data():
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xvalues, yvalues)
+		query = query % (line['graph'], mainclass, xvalues, line['yvalues'])
 
 	qres = g.query(query)
 

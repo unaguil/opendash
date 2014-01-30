@@ -53,44 +53,6 @@ connections = null;
 
 var id = 0;
 
-function getTitles() {
-	var titles = []
-	titles.push("x");
-
-	var index = 0;
-	for (var key in chart.lines) {
-		titles.push("Title " + index);
-		index++;
-	}
-
-	var index = 0;
-	for (var key in chart.classes) {
-		titles.push("Title " + index);
-		index++;
-	}
-
-	return titles;
-};
-
-function updateChartLine(desc, chart, lineID) {
-	var post_data = { 	endpoint: desc.endpoint, 
-						graph: desc.graph,
-						mainclass: chart.mainclass,
-						xvalues: chart.xvalues,
-						xsubproperty: chart.xsubproperty,
-						yvalues: chart.lines[lineID].yvalues,
-						ysubproperty: chart.lines[lineID].ysubproperty
-					};
-
-	$.post("/endpoints/get_data", 
-		post_data, 
-		function(data) {
-			chart.data[lineID] = data.data;
-
-			drawChart();
-	});
-};
-
 function updateChartClass(desc, chart, classID) {
 	$.post("/endpoints/get_class_data", 
 		{ 	endpoint: desc.endpoint, 
@@ -106,37 +68,6 @@ function updateChartClass(desc, chart, classID) {
 
 			drawChart();
 	});
-};
-
-function drawChart() {
-	var arrayData = []
-
-	titles = getTitles();
-	arrayData.push(titles);
-
-	var someKey = Object.keys(chart.data)[0];
-	var data = chart.data[someKey];
-	for (var rowIndex = 0; rowIndex < data.length; rowIndex++) {
-		var row = [];
-		var xvalue = data[rowIndex]['x'];
-		row.push(xvalue);
-
-		for (var key in chart.data) {
-			var yvalue = parseInt(chart.data[key][rowIndex]['y']);
-			row.push(yvalue);
-		}
-
-		arrayData.push(row);
-	}
-
-	var data = google.visualization.arrayToDataTable(arrayData);
-
-	var options = {
-		title: 'Some title'
-	};
-
-	var lineChart = new google.visualization.LineChart(document.getElementById('chart-div'));
-	lineChart.draw(data, options);
 };
 
 function updateYSubProperty(componentID) {
@@ -171,7 +102,10 @@ function updateYValues(componentID) {
 		chart.lines[lineID].ysubproperty = '';
 	}
 
-	updateChartLine(desc, chart, lineID);
+	chart.lines[lineID].endpoint = desc.endpoint;
+	chart.lines[lineID].graph = desc.graph;
+
+	updateChartLine(chart, lineID);
 };
 
 function yValuesObjectFilter(property) {
