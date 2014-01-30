@@ -200,7 +200,6 @@ def get_compatible_classes():
 	return jsonify(connections=connections)
 
 @app.route("/endpoints/get_data", methods=['POST'])
-@login_required
 def get_data():
 	mainclass = request.form['mainclass']
 	xvalues = request.form['xvalues']

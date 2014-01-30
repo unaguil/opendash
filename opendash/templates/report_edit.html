@@ -20,14 +20,18 @@
 		  	{% for chart in report.charts %}
 
 		  	<div id="chart-container-{{chart.id}}">
+		  		{% if edit %}
 		  		<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger btn-xs" role="button">X</a>
+		  		{% endif %}
 		  		<div id="chart-{{chart.id}}" class="well" style="height: 500px;"></div>
 		  	</div>
 
 			{% endfor %}
 
 			<div class="well" style="height: 500px;">
+				{% if edit %}
 				<a href="/report/{{report.id}}/chart/new"><span class="glyphicon glyphicon-plus" style="font-size: 500%"></span></a>
+				{% endif %}
 			</div>
 		</div>
 

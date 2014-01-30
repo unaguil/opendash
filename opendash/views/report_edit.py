@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import jsonify, request, render_template, url_for, redirect
+from flask import jsonify, request, render_template, url_for, redirect, abort
 from flask.ext.login import login_required, current_user
 
 import rdflib
@@ -20,7 +20,18 @@ def report_edit(report_id):
 
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	return render_template('report_edit.html', form=form, user=current_user, report=report)
+	return render_template('report_edit.html', form=form, user=current_user, report=report, edit=True)
+
+@app.route("/report/<report_id>")
+def report_view(report_id):
+	form = LoginForm(session)
+
+	report = session.query(Report).filter_by(id=report_id).first()
+
+	if report.public:
+		return render_template('report_edit.html', form=form, user=current_user, report=report, edit=False)
+	else:
+		 abort(404)
 
 @app.route("/report/<report_id>/chart/new")
 @login_required
