@@ -18,7 +18,12 @@
 				<div class="col-md-7">
 					<div id="chart-div" style="height: 500px;" class="well"></div>
 					<a href="javascript:void(0);" onclick="saveChart('{{report.id}}', {{chart.id}});" class="btn btn-primary" role="button">Save</a>
+
+					{% if new %}
+					<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger" role="button">Cancel</a>
+					{% else %}
 					<a href="/report/{{report.id}}/edit" class="btn btn-danger" role="button">Cancel</a>
+					{% endif %}
 				</div>
 
 				<div class="col-md-5">

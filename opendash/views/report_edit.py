@@ -31,7 +31,7 @@ def new_chart(report_id):
 	session.commit()
 
 	form = LoginForm(session)
-	return render_template('edit.html', form=form, user=current_user, report=report, chart=chart)
+	return render_template('edit.html', form=form, user=current_user, report=report, chart=chart, new=True)
 
 @app.route("/report/<report_id>/chart/<chart_id>/delete", methods=['POST'])
 @login_required

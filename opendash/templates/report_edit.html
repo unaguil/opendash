@@ -20,7 +20,7 @@
 		  	{% for chart in report.charts %}
 
 		  	<div id="chart-container-{{chart.id}}">
-		  		<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});"class="btn btn-danger btn-xs" role="button">X</a>
+		  		<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger btn-xs" role="button">X</a>
 		  		<div id="chart-{{chart.id}}" class="well" style="height: 500px;"></div>
 		  	</div>
 

@@ -396,6 +396,12 @@ function saveChart(report_id, chart_id) {
 	});
 }
 
+function deleteChart(report_id, chart_id) {
+	$.post("/report/" + report_id + "/chart/" + chart_id + "/delete", function(data) {
+		window.location.href = "/report/" + report_id + "/edit";
+	});
+};
+
 ///////////////////////////////// source management //////////////////////////////////////
 
 function populateEndpoints() {
