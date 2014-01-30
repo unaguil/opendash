@@ -376,7 +376,7 @@ function processSource() {
 			$("#main-xvalues-list").prop("disabled", true);
 
 			addLine(desc, id);;
-			updateChartLine('chart-div', desc, chart, id);
+			updateChartLine('chart-div', chart, id);
 			id++;
 		});
 
