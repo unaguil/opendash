@@ -65,6 +65,17 @@ class Report(Base):
 		self.name = name
 		self.public = public
 
+class Chart(Base):
+	__tablename__ = 'chart'
+
+	id = Column(String, primary_key=True)
+	json = Column(UnicodeText, nullable=False)
+
+	report = Column(Integer, ForeignKey('report.id'))
+
+	def __init__(self, json=None):
+		self.json = json
+
 if __name__ == '__main__':
 	engine = create_engine('sqlite:///opendash.db')
 	
