@@ -1,5 +1,6 @@
+google.load("visualization", "1", { packages:["corechart"] });
 
-function updateChartLine(chart, lineID) {
+function updateChartLine(componentID, chart, lineID) {
 	$.post("/endpoints/get_data", 
 		{ 	
 			mainclass : chart.mainclass,
@@ -10,14 +11,14 @@ function updateChartLine(chart, lineID) {
 		function(data) {
 			chart.data[lineID] = data.data;
 
-			drawChart();
+			drawChart(componentID, chart);
 	});
 };
 
-function drawChart() {
+function drawChart(elementID, chart) {
 	var arrayData = []
 
-	titles = getTitles();
+	titles = getTitles(chart);
 	arrayData.push(titles);
 
 	var someKey = Object.keys(chart.data)[0];
@@ -41,11 +42,11 @@ function drawChart() {
 		title: 'Some title'
 	};
 
-	var lineChart = new google.visualization.LineChart(document.getElementById('chart-div'));
+	var lineChart = new google.visualization.LineChart(document.getElementById(elementID));
 	lineChart.draw(data, options);
 };
 
-function getTitles() {
+function getTitles(chart) {
 	var titles = []
 	titles.push("x");
 

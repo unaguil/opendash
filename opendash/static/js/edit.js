@@ -66,7 +66,7 @@ function updateChartClass(desc, chart, classID) {
 		function(data) {
 			chart.data[classID] = data.data;
 
-			drawChart();
+			drawChart('chart-div', chart);
 	});
 };
 
@@ -105,7 +105,7 @@ function updateYValues(componentID) {
 	chart.lines[lineID].endpoint = desc.endpoint;
 	chart.lines[lineID].graph = desc.graph;
 
-	updateChartLine(chart, lineID);
+	updateChartLine('chart-div', chart, lineID);
 };
 
 function yValuesObjectFilter(property) {
@@ -154,7 +154,7 @@ function addLine(desc, id) {
 		delete chart.lines[lineID];
 
 		if (Object.keys(chart.lines).length > 0)
-			drawChart();
+			drawChart('chart-div', chart);
 		else
 			$("#chart-div").empty();
 	});
@@ -230,7 +230,7 @@ function addClass(desc, id) {
 					chart.classes[classID].yvalues = property.uri;
 					chart.classes[classID].connection = property.connection;
 					
-					updateChartClass(desc, chart, classID);
+					updateChartClass('chart-div', desc, chart, classID);
 				});
 
 				for (var index = 0; index < connections.length; index++) {
@@ -376,7 +376,7 @@ function processSource() {
 			$("#main-xvalues-list").prop("disabled", true);
 
 			addLine(desc, id);;
-			updateChartLine(desc, chart, id);
+			updateChartLine('chart-div', desc, chart, id);
 			id++;
 		});
 

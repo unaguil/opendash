@@ -25,16 +25,12 @@ def report_edit(report_id):
 @app.route("/report/<report_id>/chart/new")
 @login_required
 def new_chart(report_id):
-	form = LoginForm(session)
-
 	report = session.query(Report).filter_by(id=report_id).first()
-
 	chart = Chart()
-
 	report.charts.append(chart)
-
 	session.commit()
 
+	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user, report=report, chart=chart)
 
 @app.route("/report/<report_id>/chart/edit")
@@ -42,7 +38,6 @@ def new_chart(report_id):
 def chart_edit(report_id):
 	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user)
-
 
 @app.route("/report/<report_id>/chart/<chart_id>/save", methods=['POST'])
 @login_required

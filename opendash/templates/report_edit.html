@@ -33,6 +33,22 @@
 
 	<script src="https://code.jquery.com/jquery.js"></script>
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>	
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>	
 	<script src="{{ url_for('static', filename='js/lineChart.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/report_edit.js') }}"></script>
+
+	<script>
+		google.load("visualization", "1", { packages:["corechart"] });
+
+		var charts = {};
+
+		{% for c in report.charts %}
+
+		charts[{{c.id}}] = eval({{ c.json | safe }});
+
+		{% endfor %}
+
+		drawCharts(charts);
+	</script>
 </body>
 </html>
