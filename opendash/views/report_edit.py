@@ -13,12 +13,18 @@ from opendash.model.opendash_model import Endpoint, Report, Chart
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
 
+def has_privileges(report):
+	return not current_user.is_anonymous() and report.user == current_user.id	
+
 @app.route("/report/<report_id>/edit")
 @login_required
 def report_edit(report_id):
 	form = LoginForm(session)
 
 	report = session.query(Report).filter_by(id=report_id).first()
+
+	if report.user != current_user.id:
+		return abort(401)
 
 	return render_template('report_edit.html', form=form, user=current_user, report=report, edit=True)
 
@@ -30,13 +36,19 @@ def report_view(report_id):
 
 	if report.public:
 		return render_template('report_edit.html', form=form, user=current_user, report=report, edit=False)
+	elif has_privileges(report):
+		 return redirect(url_for('report_edit', report_id=report_id))
 	else:
-		 abort(404)
+		return abort(404)
 
 @app.route("/report/<report_id>/chart/new")
 @login_required
 def new_chart(report_id):
 	report = session.query(Report).filter_by(id=report_id).first()
+
+	if has_privileges(report):
+		return abort(401)
+
 	chart = Chart()
 	report.charts.append(chart)
 	session.commit()
@@ -47,6 +59,11 @@ def new_chart(report_id):
 @app.route("/report/<report_id>/chart/<chart_id>/delete", methods=['POST'])
 @login_required
 def delete_chart(report_id, chart_id):
+	report = session.query(Report).filter_by(id=report_id).first()
+
+	if has_privileges(report):
+		return abort(401)
+
 	session.query(Chart).filter_by(id=chart_id, report=report_id).delete()
 	session.commit()
 
@@ -55,12 +72,22 @@ def delete_chart(report_id, chart_id):
 @app.route("/report/<report_id>/chart/edit")
 @login_required
 def chart_edit(report_id):
+	report = session.query(Report).filter_by(id=report_id).first()
+
+	if has_privileges(report):
+		return abort(401)
+
 	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user)
 
 @app.route("/report/<report_id>/chart/<chart_id>/save", methods=['POST'])
 @login_required
 def chart_save(report_id, chart_id):
+	report = session.query(Report).filter_by(id=report_id).first()
+
+	if has_privileges(report):
+		return abort(401)
+	
 	json = request.form['chart']
 
 	chart = session.query(Chart).filter_by(id=chart_id).first()

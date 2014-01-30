@@ -27,6 +27,7 @@
 							<tr>
 								<th>Name</th>
 								<th>Access URL</th>
+								<th>Charts</th>
 								<th>Edit</th>
 								<th>Public</th>
 								<th>Remove</th>
@@ -35,8 +36,9 @@
 						<tbody>
 						{% for r in reports %}
 						<tr>
-							<td><span id="report-name-label"class="label label-default">{{ r.name }}</span></td>
+							<td><span id="report-name-label">{{ r.name }}</span></td>
 							<td><a href="/report/{{r.id}}">/report/{{r.id}}</a></td>
+							<td><a href="/report/{{r.id}}" class="label label-default">{{r.charts | length }}</a></td>
 							<td><a href="/report/{{r.id}}/edit"><span class="glyphicon glyphicon-edit"></span></a></td>
 							<td>
 								{% if r.public %} 
