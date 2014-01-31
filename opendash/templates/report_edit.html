@@ -43,12 +43,19 @@
 
 		  	{% for chart in report.charts %}
 
-		  	<div id="chart-container-{{chart.id}}" class="well">
-		  		{% if edit %}
-		  		<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger btn-xs" role="button">X</a>
-		  		{% endif %}
-		  		<div id="chart-{{chart.id}}" style="height: 500px;"></div>
-		  	</div>
+		  	<div id="chart-container-{{chart.id}}" class="panel panel-default">
+				<div class="panel-heading">
+					Chart {{chart.id}}
+					{% if edit %}
+						<div class="pull-right">
+		  					<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger btn-xs" role="button">X</a>
+		  				</div>
+		  			{% endif %}
+				</div>
+				<div class="panel-body">
+		  			<div id="chart-{{chart.id}}" style="height: 500px;"></div>
+				</div>
+			</div>
 
 			{% endfor %}
 
