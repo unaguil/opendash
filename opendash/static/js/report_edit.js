@@ -13,3 +13,7 @@ function deleteChart(report_id, chart_id) {
 		$("#chart-counter-label").text($("#chart-counter-label").text() -1);
 	});
 };
+
+function updateReport(report_id) {
+	$.post("/report/" + report_id + "/update", { name : $("#report-name-input").val() });
+};

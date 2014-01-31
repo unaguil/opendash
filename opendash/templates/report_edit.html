@@ -15,15 +15,26 @@
 		{% include 'header.html' %}
 
 		<div class="well">
-		  	<h3>{{ report.name }} <span id="chart-counter-label" class="label label-default">{{ report.charts | length }}</span></h3>
+
+			<div class="row">
+				<div class="col-lg-4">
+					<div class="input-group">
+						<span class="input-group-addon">Report name</span>
+						<input id="report-name-input" type="text" class="form-control" value="{{report.name}}" maxlength="30">
+					</div>
+				</div>
+				<a href="javascript:void(0);" onclick="updateReport('{{report.id}}');" class="btn btn-success" role="button">Update</a>
+			</div>
+
+			</br>
 
 		  	{% for chart in report.charts %}
 
-		  	<div id="chart-container-{{chart.id}}">
+		  	<div id="chart-container-{{chart.id}}" class="well">
 		  		{% if edit %}
 		  		<a href="javascript:void(0);" onclick="deleteChart('{{report.id}}', {{chart.id}});" class="btn btn-danger btn-xs" role="button">X</a>
 		  		{% endif %}
-		  		<div id="chart-{{chart.id}}" class="well" style="height: 500px;"></div>
+		  		<div id="chart-{{chart.id}}" style="height: 500px;"></div>
 		  	</div>
 
 			{% endfor %}

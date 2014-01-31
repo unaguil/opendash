@@ -41,6 +41,20 @@ def report_view(report_id):
 	else:
 		return abort(404)
 
+@app.route("/report/<report_id>/update")
+@login_required
+def update_report(report_id, methods=['POST']):
+	report = session.query(Report).filter_by(id=report_id).first()
+
+	if not has_privileges(report):
+		return abort(401)
+
+	report.name = request.form['name']
+	session.comit()
+
+	return jsonify(data=None)
+
+
 @app.route("/report/<report_id>/chart/new")
 @login_required
 def new_chart(report_id):
