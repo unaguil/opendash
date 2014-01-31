@@ -23,6 +23,20 @@
 						<input id="report-name-input" type="text" class="form-control" value="{{report.name}}" maxlength="30" {% if not edit %} disabled {% endif %}>
 					</div>
 				</div>
+
+				<div class="col-lg-3">
+					<div class="input-group">
+						<span class="input-group-addon">Created</span>
+						<input id="report-name-input" type="text" class="form-control" value="{{ report.created.strftime("%d/%m/%y %H:%M:%S") }}" disabled>
+					</div>
+				</div>
+
+				<div class="col-lg-3">
+					<div class="input-group">
+						<span class="input-group-addon">Modified</span>
+						<input id="report-name-input" type="text" class="form-control" value="{{ report.modified.strftime("%d/%m/%y %H:%M:%S") }}" disabled>
+					</div>
+				</div>
 			</div>
 
 			</br>
