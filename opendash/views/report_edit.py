@@ -23,7 +23,7 @@ def report_edit(report_id):
 
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	if report.user != current_user.id:
+	if not has_privileges(report):
 		return abort(401)
 
 	return render_template('report_edit.html', form=form, user=current_user, report=report, edit=True)
@@ -46,7 +46,7 @@ def report_view(report_id):
 def new_chart(report_id):
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	if has_privileges(report):
+	if not has_privileges(report):
 		return abort(401)
 
 	chart = Chart()
@@ -61,7 +61,7 @@ def new_chart(report_id):
 def delete_chart(report_id, chart_id):
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	if has_privileges(report):
+	if not has_privileges(report):
 		return abort(401)
 
 	session.query(Chart).filter_by(id=chart_id, report=report_id).delete()
@@ -74,7 +74,7 @@ def delete_chart(report_id, chart_id):
 def chart_edit(report_id):
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	if has_privileges(report):
+	if not has_privileges(report):
 		return abort(401)
 
 	form = LoginForm(session)
@@ -85,7 +85,7 @@ def chart_edit(report_id):
 def chart_save(report_id, chart_id):
 	report = session.query(Report).filter_by(id=report_id).first()
 
-	if has_privileges(report):
+	if not has_privileges(report):
 		return abort(401)
 	
 	json = request.form['chart']
