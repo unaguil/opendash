@@ -336,36 +336,40 @@ function processSource() {
 
 		desc.classes = removeIncompatibleTypes(desc.classes, getValidDataTypes);			
 
-		var snippet = 	'<div class="well">' +
-							'<form class="form-horizontal" role="form">' +
-								'<div class="form-group">' +
-									'<label class="col-sm-2 control-label">Class</label>' + 
-									'<div class="col-sm-10">' +
-										'<select id="main-class-list" class="form-control"></select>' + 
-									'</div>' + 
-								'</div>' +
-								'<div class="form-group">' +
-									'<label class="col-sm-2 control-label">X</label>' + 
-									'<div id="selected-property" class="col-sm-10">' +
-										'<select id="main-xvalues-list" class="form-control"></select>' +
+		var snippet = 	'<div class="panel panel-default">' +
+							'<div class="panel-heading">X axis</div>' +
+							'<div class="panel-body">' +
+								'<form class="form-horizontal" role="form">' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Class</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="main-class-list" class="form-control"></select>' + 
+										'</div>' + 
 									'</div>' +
-								'</div>' +
-								'<button id="add-line-button" type="button" class="btn btn-primary">Add property</button>' +
-								'<button id="add-class-button" type="button" class="btn btn-primary">Add class</button>' +
-							'</form> </br>' +
-							'<div class="panel panel-default">' +
-								'<div class="panel-heading">' +
-									'<h3 class="panel-title">Properties</h3>' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">X</label>' + 
+										'<div id="selected-property" class="col-sm-10">' +
+											'<select id="main-xvalues-list" class="form-control"></select>' +
+										'</div>' +
 									'</div>' +
-								'<div id="lines-configuration" class="panel-body"></div>' +
+								'</form>' +
 							'</div>' +
-							'<div class="panel panel-default">' +
-								'<div class="panel-heading">' +
-									'<h3 class="panel-title">Classes</h3>' +
-									'</div>' +
-								'<div id="classes-configuration" class="panel-body"></div>' +
+						'</div>' +
+						'<div class="panel panel-default">' +
+							'<div class="panel-heading">' +
+								'<div class="panel-title">' +
+									'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
+								'</div>' +
 							'</div>' +
+							'<div id="lines-configuration" class="panel-body"></div>' +
 						'</div>';
+						/*'<div class="panel panel-default">' +
+							'<div class="panel-heading">' +
+								'<div class="panel-title">' +
+									'Classes <button id="add-class-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
+								'</div>' +
+							'<div id="classes-configuration" class="panel-body"></div>' +
+						'</div>';*/
 
 		$('#main-configuration').append(snippet);
 
