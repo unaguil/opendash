@@ -76,11 +76,13 @@ class Chart(Base):
 	__tablename__ = 'chart'
 
 	id = Column(Integer, primary_key=True)
+	name = Column(Unicode, nullable=False)
 	json = Column(UnicodeText, nullable=False)
 
 	report = Column(String, ForeignKey('report.id'))
 
-	def __init__(self, json=''):
+	def __init__(self, name=None, json=None):
+		self.name = name
 		self.json = json
 
 if __name__ == '__main__':

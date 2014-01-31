@@ -64,10 +64,8 @@ def new_chart(report_id):
 	if not has_privileges(report):
 		return abort(401)
 
-	chart = Chart()
-	report.charts.append(chart)
-	report.modified = datetime.datetime.now()
-	session.commit()
+	chart = Chart('unamed chart')
+	chart.id = -1
 
 	form = LoginForm(session)
 	return render_template('edit.html', form=form, user=current_user, report=report, chart=chart, new=True)
@@ -104,11 +102,15 @@ def chart_save(report_id, chart_id):
 
 	if not has_privileges(report):
 		return abort(401)
-	
-	json = request.form['chart']
 
-	chart = session.query(Chart).filter_by(id=chart_id).first()
-	chart.json = json
+	if chart_id == 'new':
+		name = request.form['name']
+		chart = Chart(name)
+		report.charts.append(chart)
+	else:
+		chart = session.query(Chart).filter_by(id=chart_id).first()
+
+	chart.json = request.form['chart']
 
 	report.modified = datetime.datetime.now()
 

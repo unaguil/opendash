@@ -395,9 +395,15 @@ function processSource() {
 };
 
 function saveChart(report_id, chart_id) {
-	$.post("/report/" + report_id + "/chart/" + chart_id + "/save", { chart: JSON.stringify(chart) }, function(data) {
-		window.location.href = "/report/" + report_id + "/edit";
-	});
+	chart_id = chart_id == -1 ? 'new' : chart_id;
+	$.post("/report/" + report_id + "/chart/" + chart_id + "/save", 
+		{ 	chart: JSON.stringify(chart),
+			name: $("#chart-name-input").val()
+		}, 
+		function(data) {
+			window.location.href = "/report/" + report_id + "/edit";
+		}
+	);
 }
 
 function deleteChart(report_id, chart_id) {
