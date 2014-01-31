@@ -41,16 +41,16 @@ def report_view(report_id):
 	else:
 		return abort(404)
 
-@app.route("/report/<report_id>/update")
+@app.route("/report/<report_id>/update", methods=['POST'] )
 @login_required
-def update_report(report_id, methods=['POST']):
+def update_report(report_id):
 	report = session.query(Report).filter_by(id=report_id).first()
 
 	if not has_privileges(report):
 		return abort(401)
 
 	report.name = request.form['name']
-	session.comit()
+	session.commit()
 
 	return jsonify(data=None)
 

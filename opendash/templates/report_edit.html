@@ -23,7 +23,6 @@
 						<input id="report-name-input" type="text" class="form-control" value="{{report.name}}" maxlength="30">
 					</div>
 				</div>
-				<a href="javascript:void(0);" onclick="updateReport('{{report.id}}');" class="btn btn-success" role="button">Update</a>
 			</div>
 
 			</br>
@@ -65,6 +64,15 @@
 		{% endfor %}
 
 		drawCharts(charts);
+
+		$("#report-name-input").keypress(function(event) {
+			if (event.which == 13)
+				updateReport('{{report.id}}');
+		});
+
+		$("#report-name-input").focusout(function(event) {
+			updateReport('{{report.id}}');
+		});
 	</script>
 </body>
 </html>
