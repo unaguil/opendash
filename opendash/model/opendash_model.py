@@ -2,11 +2,12 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, ForeignKey
-from sqlalchemy import Integer, String, Unicode, UnicodeText, Boolean
+from sqlalchemy import Integer, String, Unicode, UnicodeText, Boolean, DateTime
 
 from sqlalchemy.orm import sessionmaker, relationship
 
 import uuid
+import datetime
 
 Base = declarative_base()
 
@@ -57,6 +58,8 @@ class Report(Base):
 	id = Column(String, primary_key=True)
 	name = Column(Unicode, nullable=False)
 	public = Column(Boolean, nullable=False)
+	created = Column(DateTime, nullable=False)
+	modified = Column(DateTime, nullable=False)
 
 	user = Column(Integer, ForeignKey('user.id'))
 
@@ -66,6 +69,8 @@ class Report(Base):
 		self.id = str(uuid.uuid1())
 		self.name = name
 		self.public = public
+		self.created = datetime.datetime.now()
+		self.modified = self.created
 
 class Chart(Base):
 	__tablename__ = 'chart'

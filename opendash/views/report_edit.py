@@ -4,6 +4,7 @@ from flask import jsonify, request, render_template, url_for, redirect, abort
 from flask.ext.login import login_required, current_user
 
 import rdflib
+import datetime
 
 from opendash import app, session
 from opendash.form.login import LoginForm
@@ -65,6 +66,7 @@ def new_chart(report_id):
 
 	chart = Chart()
 	report.charts.append(chart)
+	report.modified = datetime.datetime.now()
 	session.commit()
 
 	form = LoginForm(session)
@@ -79,6 +81,7 @@ def delete_chart(report_id, chart_id):
 		return abort(401)
 
 	session.query(Chart).filter_by(id=chart_id, report=report_id).delete()
+	report.modified = datetime.datetime.now()
 	session.commit()
 
 	return jsonify(data=None)
@@ -106,6 +109,8 @@ def chart_save(report_id, chart_id):
 
 	chart = session.query(Chart).filter_by(id=chart_id).first()
 	chart.json = json
+
+	report.modified = datetime.datetime.now()
 
 	session.commit()	
 
