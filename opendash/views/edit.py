@@ -92,11 +92,10 @@ def get_properties(g, graph, clazz):
 	return properties
 
 def infer_datatype(value):
-	if type(value) is str or type(value) is unicode:
-		return 'http://www.w3.org/2001/XMLSchema#string'
-	elif type(value) is int:
+	if value.isdigit():
 		return 'http://www.w3.org/2001/XMLSchema#integer'
-	return ''
+	else:
+		return 'http://www.w3.org/2001/XMLSchema#string'
 
 def get_object_type(g, graph, value):
 	query = """SELECT ?type FROM <%s> WHERE {
