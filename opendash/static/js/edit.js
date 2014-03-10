@@ -110,6 +110,8 @@ function updateYValues(componentID) {
 	} else {
 		chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 		chart.lines[lineID].ysubproperty = '';
+
+		updateChartLine('chart-div', chart, lineID);
 	}
 };
 
