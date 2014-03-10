@@ -299,10 +299,9 @@ function removeIncompatibleTypes(classes, getValidDataTypes) {
 };
 
 function updateMainClass(componentID, selectedObj, descID) {
-	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues, xValuesObjectFilter);
-
 	chart.mainclass = desc.classes[descID].classURI;
-	chart.xvalues = desc.classes[descID].properties[0].uri;
+
+	updateSelectComponent("main-xvalues-list", selectedObj.properties, 'uri', updateXValues, xValuesObjectFilter);
 };
 
 function updateXSubProperty() {
