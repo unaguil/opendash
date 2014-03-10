@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:doap="http://usefulinc.com/ns/doap#"
+    xmlns:sioc="http://rdfs.org/sioc/ns#"
+    xmlns:sioct="http://rdfs.org/sioc/types#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:mvcb="http://webns.net/mvcb/"
+    xmlns:rss="http://purl.org/rss/1.0/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:contact="http://www.w3.org/2000/10/swap/pim/contact#"
+    xmlns:air="http://www.daml.org/2001/10/html/airport-ont#"
+    xmlns:wn="http://xmlns.com/wordnet/1.6/"
+    xmlns:uranai="http://kota.s12.xrea.com/vocab/uranai#"
+    xmlns:rel="http://purl.org/vocab/relationship/"
+	xmlns:acad="http://www.w3.org/2002/07/owl#"
+    xml:base="http://www.morelab.deusto.es/resource/unai-aguilera"
+    xml:lang="en"
+>
+
+	<!-- document data -->	
+
+  <foaf:Document rdf:about="http://paginaspersonales.deusto.es/unai.aguilera/foaf.rdf">
+    <rdfs:label>Unai Aguilera's FOAF document</rdfs:label>
+    <rdfs:comment>Document with Friend-of-a-Friend description of Unai Aguilera</rdfs:comment>
+    <foaf:maker rdf:resource="http://www.morelab.deusto.es/resource/unai-aguilera"/>
+    <dct:license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+    <foaf:primaryTopic rdf:resource="http://www.morelab.deusto.es/resource/unai-aguilera"/>
+    <dct:created>2011-11-23</dct:created>
+    <dct:modified>2011-11-23</dct:modified>
+    <mvcb:errorReportsTo rdf:resource="mailto:unai.aguilera@deusto.es" />
+  </foaf:Document>
+
+  <!-- personal data -->
+  
+  <foaf:Person rdf:about="http://www.morelab.deusto.es/resource/unai-aguilera">
+    <foaf:name xml:lang="es">Unai Aguilera</foaf:name>
+    <foaf:title>Mr</foaf:title>
+    <foaf:firstName xml:lang="es">Unai</foaf:firstName>
+    <foaf:surname xml:lang="es">Aguilera</foaf:surname>
+    <foaf:gender>male</foaf:gender>
+    <foaf:nick>Aguilera, U.</foaf:nick>
+    <foaf:nick>U Aguilera</foaf:nick>
+    <foaf:nick>U. Aguilera</foaf:nick>
+    <foaf:nick>Aguilera U</foaf:nick>
+    <foaf:nick>Aguilera U.</foaf:nick>
+    <foaf:age>30</foaf:age>
+    <!--<uranai:bloodtype>A-</uranai:bloodtype>-->
+    <foaf:isDescribedIn rdf:resource="http://www.wikier.org/foaf.rdf" />
+
+    <foaf:mbox rdf:resource="mailto:unai.aguilera@deusto.es" />
+
+    <foaf:homepage rdf:resource="http://paginaspersonales.deusto.es/unai.aguilera/" />    
+	
+    <foaf:workplaceHomepage rdf:resource="http://www.morelab.deusto.es/" />
+	
+    <foaf:schoolHomepage rdf:resource="http://www.deusto.es/" />
+
+    <foaf:depiction>
+      <foaf:Image rdf:about="http://www.morelab.deusto.es/images/stories/uaguiler.jpg">
+        <dct:title>Unai Aguilera</dct:title>
+        <dct:format>image/jpg</dct:format>
+      </foaf:Image>
+    </foaf:depiction>
+    
+	<!-- same -->
+	
+    <owl:sameAs rdf:resource="http://dblp.l3s.de/d2r/resource/authors/Unai_Aguilera" />
+    <owl:sameAs rdf:resource="http://www.bibsonomy.org/author/Unai+Aguilera" />
+    <owl:sameAs rdf:resource="http://scholar.google.com/citations?user=Wx12Yd0AAAAJ" />
+
+	<!-- geo data -->
+	
+    <foaf:based_near rdf:resource="http://sws.geonames.org/3128026/about.rdf" />
+	
+    <contact:nearestAirport>
+      <air:Airport rdf:about="http://airports.dataincubator.org/airports/LEBB.rdf">
+        <air:iataCode>BIO</air:iataCode>
+        <dct:title>Airport of Loiu</dct:title>
+        <dct:title xml:lang="es">Aeropuerto de Loiu</dct:title>
+      </air:Airport>
+    </contact:nearestAirport>
+	
+	<!-- interests -->
+	
+	<foaf:interest rdf:resource="http://dbpedia.org/page/Pervasive_Computing" dct:title="Pervasive Computing" />  
+	<foaf:interest rdf:resource="http://dbpedia.org/page/Ubiquitous_Computing" dct:title="Ubiquitous Computing" /> 
+	<foaf:interest rdf:resource="http://www.w3.org/2001/sw/" dct:title="Semantic Web" />
+	<foaf:interest rdf:resource="http://dbpedia.org/page/MANET" dct:title="MANET" />
+	<foaf:interest rdf:resource="http://dbpedia.org/page/Semantic_Web_Services" dct:title="Semantic Web Services" />
+	<foaf:interest rdf:resource="http://dbpedia.org/page/Service_Composition" dct:title="Service Composition" />    
+	
+	<!-- accounts -->
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#linkedin">
+        <sioc:id>26263133</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://www.linkedin.com/" />
+        <foaf:page rdf:resource="http://www.linkedin.com/pub/unai-aguilera/" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#slideshare">
+        <sioc:name>uaguiler</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.slideshare.net/" />
+        <foaf:page rdf:resource="http://www.slideshare.net/uaguiler/" />
+      </sioc:UserAccount>
+    </foaf:account>
+	
+    <!-- Internet 2 -->
+    <rel:worksWith rdf:resource="http://www.morelab.deusto.es/resource/aitor-gomez-goiri" />
+	<rel:worksWith rdf:resource="http://www.morelab.deusto.es/resource/dbujan" />
+	<rel:worksWith rdf:resource="http://www.morelab.deusto.es/resource/pcuriel" />
+	<rel:worksWith rdf:resource="http://www.morelab.deusto.es/resource/aitor-almeida" />
+	
+	<!-- Thesis director -->
+	<acad:supervisor rdf:resource="http://www.morelab.deusto.es/resource/dipina" />
+	
+	<!-- relations -->
+	<foaf:knows rdf:resource="http://littera.deusto.es/prof/abaitua/foaf.rdf" />
+	<foaf:knows rdf:resource="http://paginaspersonales.deusto.es/alrayon/resources/foaf.rdf" />
+	<foaf:knows rdf:resource="http://paginaspersonales.deusto.es/josuka/foaf.rdf" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/aitor-gomez-goiri" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/ana-belen-lago" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/bernhard-klein" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/david-ausin" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/dbujan" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/dipina" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/eduardo-castillejo" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/fcastanedo" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/iraide-ruiz" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/ivan-pretel" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/janire-larranaga" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/jmlopez" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/jon-etxebarria" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/jonathan-garibay" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/koldo-zabaleta" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/mikel-emaldi" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/pablo-orduna" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/pcuriel" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/xabier-laiseca" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/aitor-almeida" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/szilard-kados" />
+	<foaf:knows rdf:resource="http://www.morelab.deusto.es/resource/xabier-eguiluz" />
+	
+	
+	<!-- contributions -->	
+
+    <!-- projects 
+
+    <foaf:pastProject>
+      <doap:Project rdf:about=""> 
+        <doap:name></doap:name>
+        <doap:description></doap:description>
+        <doap:homepage rdf:resource="" />
+        <rdfs:seeAlso rdf:resource="" />
+      </doap:Project>
+    </foaf:pastProject>
+   -->
+   
+  </foaf:Person>
+  
+</rdf:RDF>
+
