@@ -9,31 +9,37 @@
 >	
   
   <test:Resource rdf:about="http://somedomain/resource/resource1">
+     <test:valueStrX>resource1</test:valueStrX>
      <test:valueX>1</test:valueX>
      <test:valueY>1</test:valueY>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource2">
+     <test:valueStrX>resource2</test:valueStrX>
      <test:valueX>2</test:valueX>
      <test:valueY>4</test:valueY>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource3">
+     <test:valueStrX>resource3</test:valueStrX>
      <test:valueX>3</test:valueX>
      <test:valueY>9</test:valueY>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource4">
+     <test:valueStrX>resource4</test:valueStrX>
      <test:valueX>4</test:valueX>
      <test:valueY>16</test:valueY>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource5">
+     <test:valueStrX>resource5</test:valueStrX>
      <test:valueX>5</test:valueX>
      <test:valueY>25</test:valueY>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource6">
+     <test:valueStrX>resource6</test:valueStrX>
      <test:valueX>6</test:valueX>
      <test:valueY>36</test:valueY>
   </test:Resource>
