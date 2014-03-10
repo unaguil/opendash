@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:test="http://somedomain/resource/test-ds2#"
+    xml:base="http://somedomain/resource/test-ds2#"
+    xml:lang="en"
+>	
+  
+  <test:Resource rdf:about="http://somedomain/resource/resource1">
+     <test:valueX>1</test:valueX>
+     <test:valueY>1</test:valueY>
+  </test:Resource>
+
+  <test:Resource rdf:about="http://somedomain/resource/resource2">
+     <test:valueX>2</test:valueX>
+     <test:valueY>4</test:valueY>
+  </test:Resource>
+
+  <test:Resource rdf:about="http://somedomain/resource/resource3">
+     <test:valueX>3</test:valueX>
+     <test:valueY>9</test:valueY>
+  </test:Resource>
+
+  <test:Resource rdf:about="http://somedomain/resource/resource4">
+     <test:valueX>4</test:valueX>
+     <test:valueY>16</test:valueY>
+  </test:Resource>
+
+  <test:Resource rdf:about="http://somedomain/resource/resource5">
+     <test:valueX>5</test:valueX>
+     <test:valueY>25</test:valueY>
+  </test:Resource>
+
+  <test:Resource rdf:about="http://somedomain/resource/resource6">
+     <test:valueX>6</test:valueX>
+     <test:valueY>36</test:valueY>
+  </test:Resource>
+
+</rdf:RDF>
+
