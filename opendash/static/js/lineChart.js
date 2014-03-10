@@ -1,13 +1,13 @@
 google.load("visualization", "1", { packages:["corechart"] });
 
 function updateChartLine(componentID, chart, lineID) {
-	$.post("/endpoints/get_data", 
-		{ 	
-			mainclass : chart.mainclass,
-			xvalues : chart.xvalues,
-			xsubproperty : chart.xsubproperty,
-			line : JSON.stringify(chart.lines[lineID]) 
-		}, 
+	var post_data = { 	
+		mainclass : chart.mainclass,
+		xvalues : chart.xvalues,
+		xsubproperty : chart.xsubproperty,
+		line : JSON.stringify(chart.lines[lineID]) 
+	};
+	$.post("/endpoints/get_data", post_data, 
 		function(data) {
 			chart.data[lineID] = data.data;
 

@@ -54,8 +54,7 @@ connections = null;
 var id = 0;
 
 function updateChartClass(desc, chart, classID) {
-	console.log("Getting data");
-	post_data = { 
+	var post_data = { 
 		endpoint: desc.endpoint, 
 		graph: desc.graph,
 		mainclass: chart.mainclass,
@@ -385,7 +384,7 @@ function processSource() {
 			$("#main-class-list").prop("disabled", true);
 			$("#main-xvalues-list").prop("disabled", true);
 
-			addLine(desc, id);;
+			addLine(desc, id);
 			updateChartLine('chart-div', chart, id);
 			id++;
 		});
