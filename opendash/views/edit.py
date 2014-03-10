@@ -281,8 +281,12 @@ def get_class_data():
 
 	qres = g.query(query)
 
+	print query
+
 	data = []
 	for row in qres:
 		data.append({'x' : str(row[0]), 'y': str(row[1])})
+
+	print data
 
 	return jsonify(data=data)

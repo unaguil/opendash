@@ -54,16 +54,22 @@ connections = null;
 var id = 0;
 
 function updateChartClass(desc, chart, classID) {
-	$.post("/endpoints/get_class_data", 
-		{ 	endpoint: desc.endpoint, 
-			graph: desc.graph,
-			mainclass: chart.mainclass,
-			xvalues: chart.xvalues,
-			secondaryclass: chart.classes[classID].secondaryClass,
-			yvalues: chart.classes[classID].yvalues,
-			connection: chart.classes[classID].connection
-		}, 
+	console.log("Getting data");
+	post_data = { 
+		endpoint: desc.endpoint, 
+		graph: desc.graph,
+		mainclass: chart.mainclass,
+		xvalues: chart.xvalues,
+		secondaryclass: chart.classes[classID].secondaryClass,
+		yvalues: chart.classes[classID].yvalues,
+		connection: chart.classes[classID].connection
+	};
+
+	console.log(post_data);
+
+	$.post("/endpoints/get_class_data", post_data, 
 		function(data) {
+			console.log(data);
 			chart.data[classID] = data.data;
 
 			drawChart('chart-div', chart);
