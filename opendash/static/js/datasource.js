@@ -46,29 +46,27 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 		$(this.parent).append(snippet);
 
 		if (removable) {
-			var that = this;
 			$("#remove-datasource-button-" + this.id).click(function(event) {
-				that.onRemove(that);
-			});
+				this.onRemove(this);
+			}.bind(this));
 		}
 	};
 
 	this.populateEndpoints = function() {
-		var that = this;
 		$.getJSON("/endpoints", function(data) {
-			updateSelectComponent("dataset-list-" + that.id, data.endpoints, 'url', that.updateGraphList)
-		});
+			updateSelectComponent("dataset-list-" + this.id, data.endpoints, 'url', this.updateGraphList)
+		}.bind(this));
 
-		$("#select-source-button-" + that.id).click(function(event) {
-			$("#dataset-list-" + that.id).prop("disabled", true);
-			$("#graph-list-" + that.id).prop("disabled", true);
-			$("#select-source-button-" + that.id).prop("disabled", true);
+		$("#select-source-button-" + this.id).click(function(event) {
+			$("#dataset-list-" + this.id).prop("disabled", true);
+			$("#graph-list-" + this.id).prop("disabled", true);
+			$("#select-source-button-" + this.id).prop("disabled", true);
 
-			that.endpointURL = $("#dataset-list-" + that.id + " :selected").text();
-			that.graphName = $("#graph-list-" + that.id + " :selected").text();
+			this.endpointURL = $("#dataset-list-" + this.id + " :selected").text();
+			this.graphName = $("#graph-list-" + this.id + " :selected").text();
 
-			that.process(that.endpointURL, that.graphName, "#" + that.child);
-		});
+			this.process(this.endpointURL, this.graphName, "#" + this.child);
+		}.bind(this));
 	};
 
 	this.getEndpoint = function() {
@@ -80,10 +78,9 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 	}
 
 	this.updateGraphList = function (componentID, endpoint, index) {
-		var that = this;
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-			updateSelectComponent("graph-list-" + that.id, data.graphs, 'id', function() {});
-		});
+			updateSelectComponent("graph-list-" + this.id, data.graphs, 'id', function() {});
+		}.bind(this));
 	};
 
 	this.getChild = function() {
