@@ -235,7 +235,8 @@ function updateXValues() {
 	}
 };
 
-function DataSourceComponent(name, parent, processSource) {
+function DataSourceComponent(title, name, parent, processSource) {
+	this.title = title;
 	this.name = name;
 	this.parent = parent;
 	this.processSource = processSource;
@@ -243,7 +244,7 @@ function DataSourceComponent(name, parent, processSource) {
 	this.addDataSource = function() {
 		var snippet =	'<div class="panel panel-default">' +
 						'<div class="panel-heading">' +
-							'Data source' +
+							title +
 						'</div>' +
 						'<div class="panel-body">' +
 							'<form class="form-horizontal" role="form">' +
@@ -426,7 +427,7 @@ function ConnectedLine(id, desc, parent) {
 		$(this.parent).append(snippet);
 
 		$("#remove-datasource-button-" + this.id).click(function(event) {
-			console.log("Remove datasource");
+			console.log("Remove");
 		});
 
 		updateSelectComponent("secondary-datasource-class-list-" + this.id, connections['connections'], 'classURI', this.updateSecondaryDataSourceClassList.bind(this));
@@ -444,7 +445,7 @@ function ConnectedLine(id, desc, parent) {
 		$.post("/endpoints/get_datasource_connections", post_data, this.processConnections.bind(this));
 	};
 
-	this.datasourceComponent = new DataSourceComponent("secondary-datasource-" + this.id, this.parent, this.processSecondarySource.bind(this));
+	this.datasourceComponent = new DataSourceComponent("Data source " + (this.id + 1), "secondary-datasource-" + this.id, this.parent, this.processSecondarySource.bind(this));
 };
 
 function saveChart(report_id, chart_id) {
@@ -470,7 +471,7 @@ function deleteChart(report_id, chart_id) {
 var mainDataSource;
 
 function init() {
-	mainDataSource = new DataSourceComponent("main", "#main-configuration", processSource);
+	mainDataSource = new DataSourceComponent("Main data source", "main", "#main-configuration", processSource);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
