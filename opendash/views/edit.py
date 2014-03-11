@@ -174,18 +174,12 @@ def get_connections(clazz, desc):
 	for c in desc['classes']:
 		if c['classURI'] == clazz['classURI']:
 			connections['classURI'] = c['classURI']
-			connections['properties'] = c['properties']
-
-		# if c['classURI'] != clazz['classURI']:
-		# 	for p1 in c['properties']:
-		# 		properties = []
-		# 		for p2 in get_class_properties(clazz, desc):
-		# 			if p1['uri'] == p2['uri']:
-		# 				p1['connection'] = p2['uri']
-		# 				properties.append(p1)
-
-		# 		if len(properties) > 0:
-		# 			connections.append({'classURI' : c['classURI'], 'properties': properties})
+			connections['pairs'] = []
+			for p in c['properties']:
+				entry = {}
+				entry['name'] = p['uri'] + ',' + p['uri']
+				entry['pair'] = (p['uri'], p['uri'])
+				connections['pairs'].append(entry)
 
 	return connections
 

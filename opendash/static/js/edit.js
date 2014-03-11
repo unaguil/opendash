@@ -59,11 +59,6 @@ function updateYSubProperty(componentID) {
 
 	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 	chart.lines[lineID].ysubproperty = $('#yvalues-list-' + lineID + ' :selected').text();
-
-	chart.lines[lineID].endpoint = desc.endpoint;
-	chart.lines[lineID].graph = desc.graph;
-
-	updateChartLine('chart-div', chart, lineID);
 };
 
 function updateYValues(componentID) {
@@ -88,9 +83,12 @@ function updateYValues(componentID) {
 	} else {
 		chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 		chart.lines[lineID].ysubproperty = '';
-
-		updateChartLine('chart-div', chart, lineID);
 	}
+
+	chart.lines[lineID].endpoint = desc.endpoint;
+	chart.lines[lineID].graph = desc.graph;
+
+	updateChartLine('chart-div', chart, lineID);
 };
 
 function yValuesObjectFilter(property) {
@@ -235,15 +233,26 @@ function updateXValues() {
 	}
 };
 
-function DataSourceComponent(name, parent, processSource) {
+function DataSourceComponent(title, name, parent, processSource, removable, removed) {
+	this.title = title;
 	this.name = name;
 	this.parent = parent;
 	this.processSource = processSource;
+	this.child = "child-" + this.name;
+	this.removable = removable || false;
+	this.removed = removed || null;
+
+	this.getTitle = function() {
+		if (this.removable)
+			return this.title + ' <button id="remove-datasource-button-' + this.name + '"type="button" class="btn btn-danger">X</button>';
+		else
+			return this.title;
+	}
 
 	this.addDataSource = function() {
-		var snippet =	'<div class="panel panel-default">' +
+		var snippet =	'<div id="' +  this.name + '"class="panel panel-default">' +
 						'<div class="panel-heading">' +
-							'Data source' +
+							this.getTitle() + 
 						'</div>' +
 						'<div class="panel-body">' +
 							'<form class="form-horizontal" role="form">' +
@@ -265,10 +274,18 @@ function DataSourceComponent(name, parent, processSource) {
 									'</div>' +
 								'</div>' +
 							'</form>' +
+							'<div id="' + this.child + '"></div>'
 						'</div>' +
 					'</div>';
 
 		$(this.parent).append(snippet);
+
+		if (removable) {
+			var that = this;
+			$("#remove-datasource-button-" + this.name).click(function(event) {
+				that.removed(that);
+			});
+		}
 	};
 
 	this.populateEndpoints = function() {
@@ -285,7 +302,7 @@ function DataSourceComponent(name, parent, processSource) {
 			that.endpointURL = $("#dataset-list-" + that.name + " :selected").text();
 			that.graphName = $("#graph-list-" + that.name + " :selected").text();
 
-			that.processSource(that.endpointURL, that.graphName, that.parent);
+			that.processSource(that.endpointURL, that.graphName, "#" + that.child);
 		});
 	};
 
@@ -302,6 +319,10 @@ function DataSourceComponent(name, parent, processSource) {
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
 			updateSelectComponent("graph-list-" + that.name, data.graphs, 'name', function() {});
 		});
+	};
+
+	this.getChild = function() {
+		return this.child;
 	};
 
 	this.addDataSource();
@@ -335,15 +356,15 @@ function processSource(endpointURL, graphName, parent) {
 						'</div>' +
 						'<div class="panel panel-default">' +
 							'<div class="panel-heading">' +
-								'<div class="panel-title">' +
-									'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
-								'</div>' +
+								'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
-						'</div>' + 
-						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Connect source</button>';
+						'</div>' +
+						'<button id="connect-source-button" type="button" class="btn btn-primary">Add data source<span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
 
 		$(parent).append(snippet);
+
+		$("#main-configuration").append();
 
 		updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
 
@@ -360,43 +381,39 @@ function processSource(endpointURL, graphName, parent) {
 			$("#main-class-list").prop("disabled", true);
 			$("#main-xvalues-list").prop("disabled", true);
 
-			new DataSourceComponent("secondary-datasource", "#main-configuration", processSecondarySource);
-
+			chart.lines[id] = new ConnectedLine(id, desc, "#main-configuration");
+			id++;
 		});
 	});
 };
 
-function updateSecondaryDatasourceYValueList(componentID, selectedObj, descID) {
-	
-};
+function ConnectedLine(id, desc, parent) {
+	this.id = id;
+	this.desc = desc;
+	this.parent = parent;
 
-function updateSecondaryDatasourcePropertyList(componentID, selectedObj, descID) {
-	var classURI = $('#secondary-datasource-class-list :selected').text();
-
-	var properties = []
-	for (var index = 0; index < connections.desc.classes.length; index++) {
-		if (connections.desc.classes[index].classURI == classURI) {
-			properties = connections.desc.classes[index].properties;
-			break;
-		}
-	}
-	updateSelectComponent("secondary-datasource-yvalues-list", properties, 'uri', updateSecondaryDatasourceYValueList);
-};
-
-function updateSecondaryDataSourceClassList(componentID, selectedObj, descID) {
-	updateSelectComponent("secondary-datasource-property-list", selectedObj.properties, 'uri', updateSecondaryDatasourcePropertyList);
-};
-
-function processSecondarySource(endpointURL, graphName, parent) {
-	var post_data = { 
-		first_endpoint: mainDataSource.getEndpoint(),
-		first_graph: mainDataSource.getGraph(),
-		mainclass: chart.mainclass,
-		second_endpoint: endpointURL, 
-		second_graph: graphName 
+	this.updateSecondaryDatasourceYValueList = function(componentID, selectedObj, descID) {
+		//updateChartLine('chart-div', chart, this.id);
 	};
 
-	$.post("/endpoints/get_datasource_connections", post_data, function(data) {
+	this.updateSecondaryDatasourcePropertyList = function(componentID, selectedObj, descID) {
+		var classURI = $('#secondary-datasource-class-list-' + this.id + ' :selected').text();
+
+		var properties = []
+		for (var index = 0; index < connections.desc.classes.length; index++) {
+			if (connections.desc.classes[index].classURI == classURI) {
+				properties = connections.desc.classes[index].properties;
+				break;
+			}
+		}
+		updateSelectComponent("secondary-datasource-yvalues-list-" + this.id, properties, 'uri', this.updateSecondaryDatasourceYValueList.bind(this));
+	};
+
+	this.updateSecondaryDataSourceClassList = function(componentID, selectedObj, descID) {
+		updateSelectComponent("secondary-datasource-property-list-" + this.id, selectedObj.pairs, 'name', this.updateSecondaryDatasourcePropertyList.bind(this));
+	};
+
+	this.processConnections = function(data) {
 		connections = data.data;
 		var snippet = 	'<div class="panel panel-default">' +
 							'<div class="panel-heading">Y axis</div>' +
@@ -405,29 +422,50 @@ function processSecondarySource(endpointURL, graphName, parent) {
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Class</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-class-list" class="form-control"></select>' + 
+											'<select id="secondary-datasource-class-list-' + this.id + '" class="form-control"></select>' + 
 										'</div>' + 
 									'</div>' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Property</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-property-list" class="form-control"></select>' +
+											'<select id="secondary-datasource-property-list-' + this.id + '" class="form-control"></select>' +
 										'</div>' +
 									'</div>' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Y</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-yvalues-list" class="form-control"></select>' +
+											'<select id="secondary-datasource-yvalues-list-' + this.id + '" class="form-control"></select>' +
 										'</div>' +
 									'</div>' +
 								'</form>' +
 							'</div>' +
 						'</div>';
 
-		$(parent).append(snippet);
+		$("#" + this.datasourceComponent.getChild()).append(snippet);
 
-		updateSelectComponent("secondary-datasource-class-list", connections['connections'], 'classURI', updateSecondaryDataSourceClassList);
-	});
+		updateSelectComponent("secondary-datasource-class-list-" + this.id, connections['connections'], 'classURI', this.updateSecondaryDataSourceClassList.bind(this));
+	};
+	
+	this.processSecondarySource = function(endpointURL, graphName, parent) {
+		var post_data = { 
+			first_endpoint: mainDataSource.getEndpoint(),
+			first_graph: mainDataSource.getGraph(),
+			mainclass: chart.mainclass,
+			second_endpoint: endpointURL, 
+			second_graph: graphName 
+		};
+
+		$.post("/endpoints/get_datasource_connections", post_data, this.processConnections.bind(this));
+	};
+
+	var that = this;
+	this.datasourceComponent = new DataSourceComponent("Data source " + (this.id + 1),
+		"secondary-datasource-" + this.id, 
+		this.parent, this.processSecondarySource.bind(this), true,
+		function(datasource) {
+			$("#secondary-datasource-" + that.id).remove();
+			delete chart.lines[id];
+		});
 };
 
 function saveChart(report_id, chart_id) {
@@ -453,7 +491,7 @@ function deleteChart(report_id, chart_id) {
 var mainDataSource;
 
 function init() {
-	mainDataSource = new DataSourceComponent("main", "#main-configuration", processSource);
+	mainDataSource = new DataSourceComponent("Main data source", "main", "#main-configuration", processSource);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
