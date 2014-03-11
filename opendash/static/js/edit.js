@@ -233,17 +233,26 @@ function updateXValues() {
 	}
 };
 
-function DataSourceComponent(title, name, parent, processSource) {
+function DataSourceComponent(title, name, parent, processSource, removable, removed) {
 	this.title = title;
 	this.name = name;
 	this.parent = parent;
 	this.processSource = processSource;
 	this.child = "child-" + this.name;
+	this.removable = removable || false;
+	this.removed = removed || null;
+
+	this.getTitle = function() {
+		if (this.removable)
+			return this.title + ' <button id="remove-datasource-button-' + this.name + '"type="button" class="btn btn-danger">X</button>';
+		else
+			return this.title;
+	}
 
 	this.addDataSource = function() {
-		var snippet =	'<div class="panel panel-default">' +
+		var snippet =	'<div id="' +  this.name + '"class="panel panel-default">' +
 						'<div class="panel-heading">' +
-							title +
+							this.getTitle() + 
 						'</div>' +
 						'<div class="panel-body">' +
 							'<form class="form-horizontal" role="form">' +
@@ -270,6 +279,13 @@ function DataSourceComponent(title, name, parent, processSource) {
 					'</div>';
 
 		$(this.parent).append(snippet);
+
+		if (removable) {
+			var that = this;
+			$("#remove-datasource-button-" + this.name).click(function(event) {
+				that.removed(that);
+			});
+		}
 	};
 
 	this.populateEndpoints = function() {
@@ -338,18 +354,17 @@ function processSource(endpointURL, graphName, parent) {
 								'</form>' +
 							'</div>' +
 						'</div>' +
-						'<button id="add-line-button" type="button" class="btn btn-primary btn-xs">Add internal Y</button>' +
-						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Add external Y</button>' + 
 						'<div class="panel panel-default">' +
 							'<div class="panel-heading">' +
-								'<div class="panel-title">' +
-									'Y value'  +
-								'</div>' +
+								'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
-						'</div>';
+						'</div>' +
+						'<button id="connect-source-button" type="button" class="btn btn-primary">Add data source<span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
 
 		$(parent).append(snippet);
+
+		$("#main-configuration").append();
 
 		updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
 
@@ -421,19 +436,12 @@ function ConnectedLine(id, desc, parent) {
 										'<div class="col-sm-10">' +
 											'<select id="secondary-datasource-yvalues-list-' + this.id + '" class="form-control"></select>' +
 										'</div>' +
-										'<div class="col-sm-2">' +
-											'<button id="remove-datasource-button-' + this.id + '"type="button" class="btn btn-danger">X</button>' +
-										'</div>' +
 									'</div>' +
 								'</form>' +
 							'</div>' +
 						'</div>';
 
 		$("#" + this.datasourceComponent.getChild()).append(snippet);
-
-		$("#remove-datasource-button-" + this.id).click(function(event) {
-			console.log("Remove");
-		});
 
 		updateSelectComponent("secondary-datasource-class-list-" + this.id, connections['connections'], 'classURI', this.updateSecondaryDataSourceClassList.bind(this));
 	};
@@ -450,7 +458,14 @@ function ConnectedLine(id, desc, parent) {
 		$.post("/endpoints/get_datasource_connections", post_data, this.processConnections.bind(this));
 	};
 
-	this.datasourceComponent = new DataSourceComponent("Data source " + (this.id + 1), "secondary-datasource-" + this.id, this.parent, this.processSecondarySource.bind(this));
+	var that = this;
+	this.datasourceComponent = new DataSourceComponent("Data source " + (this.id + 1),
+		"secondary-datasource-" + this.id, 
+		this.parent, this.processSecondarySource.bind(this), true,
+		function(datasource) {
+			$("#secondary-datasource-" + that.id).remove();
+			delete chart.lines[id];
+		});
 };
 
 function saveChart(report_id, chart_id) {
