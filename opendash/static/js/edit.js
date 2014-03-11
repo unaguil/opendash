@@ -59,11 +59,6 @@ function updateYSubProperty(componentID) {
 
 	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 	chart.lines[lineID].ysubproperty = $('#yvalues-list-' + lineID + ' :selected').text();
-
-	chart.lines[lineID].endpoint = desc.endpoint;
-	chart.lines[lineID].graph = desc.graph;
-
-	updateChartLine('chart-div', chart, lineID);
 };
 
 function updateYValues(componentID) {
@@ -88,9 +83,12 @@ function updateYValues(componentID) {
 	} else {
 		chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 		chart.lines[lineID].ysubproperty = '';
-
-		updateChartLine('chart-div', chart, lineID);
 	}
+
+	chart.lines[lineID].endpoint = desc.endpoint;
+	chart.lines[lineID].graph = desc.graph;
+
+	updateChartLine('chart-div', chart, lineID);
 };
 
 function yValuesObjectFilter(property) {
