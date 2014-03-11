@@ -186,82 +186,6 @@ function updateConnectionLabel(connections, id, clazz) {
 	$("#connection-label").text(property.connection);
 };
 
-function addClass(desc, id) {
-	var snippet = 	'<div id="class-configuration-' + id + '" class="well">' +
-						'<span id="connection-label" class="label label-default">Connection:</span>' + 
-						'<form class="form-horizontal" role="form">' +
-							'<div class="form-group">' +
-								'<label class="col-sm-2 control-label">Class</label>' + 
-								'<div class="col-sm-10">' +
-									'<select id="secondary-class-list-' + id + '" class="form-control"></select>' + 
-								'</div>' + 
-							'</div>' +
-							'<div class="form-group">' +
-								'<label class="col-sm-2 control-label">Y</label>' + 
-								'<div class="col-sm-10">' +
-									'<select id="secondary-yvalues-list-' + id + '" class="form-control"></select>' +
-								'</div>' +
-							'</div>' +
-							'<button id="remove-class-conf-button-' + id + '"type="button" class="btn btn-danger">Remove</button>' +
-						'</form>' +
-					'</div>';
-
-	$.post("/endpoints/get_connections", 
-		{ 	endpoint: desc.endpoint, 
-			graph: desc.graph, 
-			class: chart.mainclass,
-		}, 
-		function(data) {
-			connections = removeIncompatibleTypes(data.connections, getYValidDataTypes);
-
-			if (connections.length > 0) {
-				$('#classes-configuration').append(snippet);
-
-				$("#remove-class-conf-button-" + id).click(function(event) {
-					$('#class-configuration-' + id).remove();
-				});
-
-				$("#secondary-class-list-" + id).change(function() {
-					var clazz = connections[$(this).val()];
-					updateSecondaryYValues(connections, id, clazz);				
-				});
-
-				$("#secondary-yvalues-list-" + id).change(function() {
-					var clazz = connections[$(this).val()];
-					updateConnectionLabel(connections, id, clazz);
-
-					var classID = getObjectID(event);
-					var res = $(this).val().split(":");
-
-					property = connections[res[0]].properties[res[1]];
-					chart.classes[classID].yvalues = property.uri;
-					chart.classes[classID].connection = property.connection;
-					
-					updateChartClass('chart-div', desc, chart, classID);
-				});
-
-				for (var index = 0; index < connections.length; index++) {
-					var clazz = connections[index];
-					$("#secondary-class-list-" + id).append(new Option(clazz.classURI, index));
-				}
-
-				var clazz = connections[0];
-				updateSecondaryYValues(connections, id, clazz);
-				updateConnectionLabel(connections, id, clazz);
-
-				var classConf = {}
-				classConf.secondaryClass = clazz['classURI'];
-				classConf.yvalues = clazz.properties[0].uri;
-				classConf.connection = clazz.properties[0].connection;
-
-				chart.classes[id] = classConf;
-
-				updateChartClass(desc, chart, id);
-			}
-		}
-	);
-};
-
 function getValidDataTypes() {
 	return $.merge(getXValidDataTypes(), getYValidDataTypes());
 
@@ -369,13 +293,6 @@ function processSource() {
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
 						'</div>';
-						/*'<div class="panel panel-default">' +
-							'<div class="panel-heading">' +
-								'<div class="panel-title">' +
-									'Classes <button id="add-class-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
-								'</div>' +
-							'<div id="classes-configuration" class="panel-body"></div>' +
-						'</div>';*/
 
 		$('#main-configuration').append(snippet);
 
@@ -387,14 +304,6 @@ function processSource() {
 
 			addLine(desc, id);
 			updateChartLine('chart-div', chart, id);
-			id++;
-		});
-
-		$("#add-class-button").click(function(event) {
-			$("#main-class-list").prop("disabled", true);
-			$("#main-xvalues-list").prop("disabled", true);
-
-			addClass(desc, id);;
 			id++;
 		});
 	});
