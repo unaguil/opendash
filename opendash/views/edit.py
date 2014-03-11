@@ -256,9 +256,13 @@ def get_datasource_connections():
 	first_desc = get_description(first_endpoint, first_graph) 
 	second_desc = get_description(second_endpoint, second_graph)
 
-	data = []
+	data = {}
 
+	connections = []
 	for clazz in first_desc['classes']:
-		data.append(get_connections(clazz, second_desc))
+		connections.append(get_connections(clazz, second_desc))
 
-	return jsonify(connections=data)
+	data['desc'] = second_desc;
+	data['connections'] = connections
+
+	return jsonify(data=data)

@@ -49,6 +49,7 @@ var chart = {};
 chart.data = {};
 chart.lines = {};
 chart.classes = {};
+connections = {};
 
 var id = 0;
 
@@ -365,8 +366,25 @@ function processSource(endpointURL, graphName, parent) {
 	});
 };
 
-function updateSecondaryDataSourceClassList(componentID, selectedObj, descID) {
+function updateSecondaryDatasourceYValueList(componentID, selectedObj, descID) {
 	
+};
+
+function updateSecondaryDatasourcePropertyList(componentID, selectedObj, descID) {
+	var classURI = $('#secondary-datasource-class-list :selected').text();
+
+	var properties = []
+	for (var index = 0; index < connections.desc.classes.length; index++) {
+		if (connections.desc.classes[index].classURI == classURI) {
+			properties = connections.desc.classes[index].properties;
+			break;
+		}
+	}
+	updateSelectComponent("secondary-datasource-yvalues-list", properties, 'uri', updateSecondaryDatasourceYValueList);
+};
+
+function updateSecondaryDataSourceClassList(componentID, selectedObj, descID) {
+	updateSelectComponent("secondary-datasource-property-list", selectedObj.properties, 'uri', updateSecondaryDatasourcePropertyList);
 };
 
 function processSecondarySource(endpointURL, graphName, parent) {
@@ -379,7 +397,7 @@ function processSecondarySource(endpointURL, graphName, parent) {
 	};
 
 	$.post("/endpoints/get_datasource_connections", post_data, function(data) {
-		connections = data.connections;
+		connections = data.data;
 		var snippet = 	'<div class="panel panel-default">' +
 							'<div class="panel-heading">Y axis</div>' +
 							'<div class="panel-body">' +
@@ -408,7 +426,7 @@ function processSecondarySource(endpointURL, graphName, parent) {
 
 		$(parent).append(snippet);
 
-		updateSelectComponent("secondary-datasource-class-list", connections, 'classURI', updateSecondaryDataSourceClassList);
+		updateSelectComponent("secondary-datasource-class-list", connections['connections'], 'classURI', updateSecondaryDataSourceClassList);
 	});
 };
 
