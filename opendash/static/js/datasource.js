@@ -1,23 +1,21 @@
-
-
-function DataSourceComponent(title, name, parent, processSource, removable, removed) {
+function DataSourceComponent(title, id, parent, process, removable, onRemove) {
+	this.id = id;
 	this.title = title;
-	this.name = name;
 	this.parent = parent;
-	this.processSource = processSource;
-	this.child = "child-" + this.name;
+	this.process = process;
+	this.child = "child-" + this.id;
 	this.removable = removable || false;
-	this.removed = removed || null;
+	this.onRemove = onRemove || null;
 
 	this.getTitle = function() {
 		if (this.removable)
-			return this.title + ' <button id="remove-datasource-button-' + this.name + '"type="button" class="btn btn-danger">X</button>';
+			return this.title + ' <button id="remove-datasource-button-' + this.id + '"type="button" class="btn btn-danger">X</button>';
 		else
 			return this.title;
 	}
 
 	this.addDataSource = function() {
-		var snippet =	'<div id="' +  this.name + '"class="panel panel-default">' +
+		var snippet =	'<div id="' +  this.id + '"class="panel panel-default">' +
 						'<div class="panel-heading">' +
 							this.getTitle() + 
 						'</div>' +
@@ -26,18 +24,18 @@ function DataSourceComponent(title, name, parent, processSource, removable, remo
 								'<div class="form-group">' +
 									'<label class="col-sm-2 control-label">Dataset</label>' +
 									'<div class="col-sm-10">' +
-										'<select id="dataset-list-' + this.name + '" class="form-control"></select>' +
+										'<select id="dataset-list-' + this.id + '" class="form-control"></select>' +
 									'</div>' +
 								'</div>' +
 								'<div class="form-group">' +
 									'<label class="col-sm-2 control-label">Graph</label>' +
 									'<div class="col-sm-10">' +
-										'<select id ="graph-list-' + this.name + '" class="form-control"></select>' +
+										'<select id ="graph-list-' + this.id + '" class="form-control"></select>' +
 									'</div>' +
 								'</div>' +
 								'<div class="form-group">' +
 									'<div class="col-sm-offset-2 col-sm-10">' +
-										'<button id="select-source-button-' + this.name + '" type="button" class="btn btn-success">Apply</button>' +
+										'<button id="select-source-button-' + this.id + '" type="button" class="btn btn-success">Apply</button>' +
 									'</div>' +
 								'</div>' +
 							'</form>' +
@@ -49,8 +47,8 @@ function DataSourceComponent(title, name, parent, processSource, removable, remo
 
 		if (removable) {
 			var that = this;
-			$("#remove-datasource-button-" + this.name).click(function(event) {
-				that.removed(that);
+			$("#remove-datasource-button-" + this.id).click(function(event) {
+				that.onRemove(that);
 			});
 		}
 	};
@@ -58,18 +56,18 @@ function DataSourceComponent(title, name, parent, processSource, removable, remo
 	this.populateEndpoints = function() {
 		var that = this;
 		$.getJSON("/endpoints", function(data) {
-			updateSelectComponent("dataset-list-" + that.name, data.endpoints, 'url', that.updateGraphList)
+			updateSelectComponent("dataset-list-" + that.id, data.endpoints, 'url', that.updateGraphList)
 		});
 
-		$("#select-source-button-" + that.name).click(function(event) {
-			$("#dataset-list-" + that.name).prop("disabled", true);
-			$("#graph-list-" + that.name).prop("disabled", true);
-			$("#select-source-button-" + that.name).prop("disabled", true);
+		$("#select-source-button-" + that.id).click(function(event) {
+			$("#dataset-list-" + that.id).prop("disabled", true);
+			$("#graph-list-" + that.id).prop("disabled", true);
+			$("#select-source-button-" + that.id).prop("disabled", true);
 
-			that.endpointURL = $("#dataset-list-" + that.name + " :selected").text();
-			that.graphName = $("#graph-list-" + that.name + " :selected").text();
+			that.endpointURL = $("#dataset-list-" + that.id + " :selected").text();
+			that.graphName = $("#graph-list-" + that.id + " :selected").text();
 
-			that.processSource(that.endpointURL, that.graphName, "#" + that.child);
+			that.process(that.endpointURL, that.graphName, "#" + that.child);
 		});
 	};
 
@@ -84,7 +82,7 @@ function DataSourceComponent(title, name, parent, processSource, removable, remo
 	this.updateGraphList = function (componentID, endpoint, index) {
 		var that = this;
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-			updateSelectComponent("graph-list-" + that.name, data.graphs, 'name', function() {});
+			updateSelectComponent("graph-list-" + that.id, data.graphs, 'id', function() {});
 		});
 	};
 
