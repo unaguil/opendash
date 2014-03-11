@@ -164,7 +164,7 @@ def get_source_description():
 
 def get_class_properties(clazz, desc):
 	for c in desc['classes']:
-		if c['classURI'] == clazz:
+		if c['classURI'] == clazz['classURI']:
 			return c['properties']
 	return []
 
@@ -172,31 +172,21 @@ def get_connections(clazz, desc):
 	connections = []
 
 	for c in desc['classes']:
-		if c['classURI'] != clazz:
-			for p1 in c['properties']:
-				properties = []
-				for p2 in get_class_properties(clazz, desc):
-					if p1['uri'] == p2['uri']:
-						p1['connection'] = p2['uri']
-						properties.append(p1)
+		if c['classURI'] == clazz['classURI']:
+			connections.append({'classURI' : c['classURI'], 'properties': c['properties']})
 
-				if len(properties) > 0:
-					connections.append({'classURI' : c['classURI'], 'properties': properties})
+		# if c['classURI'] != clazz['classURI']:
+		# 	for p1 in c['properties']:
+		# 		properties = []
+		# 		for p2 in get_class_properties(clazz, desc):
+		# 			if p1['uri'] == p2['uri']:
+		# 				p1['connection'] = p2['uri']
+		# 				properties.append(p1)
+
+		# 		if len(properties) > 0:
+		# 			connections.append({'classURI' : c['classURI'], 'properties': properties})
 
 	return connections
-
-@app.route("/endpoints/get_connections", methods=['POST'])
-@login_required
-def get_compatible_classes():
-	endpoint = request.form['endpoint']
-	graph = request.form['graph']
-	clazz = request.form['class']
-
-	desc = get_description(endpoint, graph)
-
-	connections = get_connections(clazz, desc)
-
-	return jsonify(connections=connections)
 
 @app.route("/endpoints/get_data", methods=['POST'])
 def get_data():
@@ -250,5 +240,24 @@ def get_data():
 	data = []
 	for row in qres:
 		data.append({'x' : str(row[0]), 'y': str(row[1])})
+
+	return jsonify(data=data)
+
+@app.route("/endpoints/get_datasource_connections", methods=['POST'])
+def get_datasource_connections():
+	first_endpoint = request.form['first_endpoint']
+	first_graph = request.form['first_graph']
+	mainclass = request.form['mainclass']
+
+	second_endpoint = request.form['second_endpoint']
+	second_graph = request.form['second_graph']
+
+	first_desc = get_description(first_endpoint, first_graph) 
+	second_desc = get_description(second_endpoint, second_graph)
+
+	data = {}
+
+	for clazz in first_desc['classes']:
+		data[clazz['classURI']] = get_connections(clazz, second_desc)
 
 	return jsonify(data=data)

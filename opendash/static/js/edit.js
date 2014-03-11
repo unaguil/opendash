@@ -53,28 +53,6 @@ connections = null;
 
 var id = 0;
 
-function updateChartClass(desc, chart, classID) {
-	var post_data = { 
-		endpoint: desc.endpoint, 
-		graph: desc.graph,
-		mainclass: chart.mainclass,
-		xvalues: chart.xvalues,
-		secondaryclass: chart.classes[classID].secondaryClass,
-		yvalues: chart.classes[classID].yvalues,
-		connection: chart.classes[classID].connection
-	};
-
-	console.log(post_data);
-
-	$.post("/endpoints/get_class_data", post_data, 
-		function(data) {
-			console.log(data);
-			chart.data[classID] = data.data;
-
-			drawChart('chart-div', chart);
-	});
-};
-
 function updateYSubProperty(componentID) {
 	var tokens = componentID.split("-");
 	var lineID = tokens[tokens.length - 1];
@@ -304,12 +282,20 @@ function DataSourceComponent(name, parent, processSource) {
 			$("#graph-list-" + that.name).prop("disabled", true);
 			$("#select-source-button-" + that.name).prop("disabled", true);
 
-			var endpointURL = $("#dataset-list-" + that.name + " :selected").text();
-			var graphName = $("#graph-list-" + that.name + " :selected").text();
+			that.endpointURL = $("#dataset-list-" + that.name + " :selected").text();
+			that.graphName = $("#graph-list-" + that.name + " :selected").text();
 
-			processSource(endpointURL, graphName);
+			that.processSource(that.endpointURL, that.graphName);
 		});
 	};
+
+	this.getEndpoint = function() {
+		return this.endpointURL;
+	};
+
+	this.getGraph = function() {
+		return this.graphName;
+	}
 
 	this.addDataSource();
 	this.populateEndpoints();
@@ -373,7 +359,23 @@ function processSource(endpointURL, graphName) {
 			$("#main-class-list").prop("disabled", true);
 			$("#main-xvalues-list").prop("disabled", true);
 
+			new DataSourceComponent("secondary-datasource", "#main-configuration", processSecondarySource);
+
 		});
+	});
+};
+
+function processSecondarySource(endpointURL, graphName) {
+	var post_data = { 
+		first_endpoint: mainDataSource.getEndpoint(),
+		first_graph: mainDataSource.getGraph(),
+		mainclass: chart.mainclass,
+		second_endpoint: endpointURL, 
+		second_graph: graphName 
+	};
+
+	$.post("/endpoints/get_datasource_connections", post_data, function(data) {
+		connections = data.desc;
 	});
 };
 
@@ -395,14 +397,12 @@ function deleteChart(report_id, chart_id) {
 	});
 };
 
-///////////////////////////////// source management //////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////////////
-
 /////////////////////////////////// initialization /////////////////////////////////////
 
+var mainDataSource;
+
 function init() {
-	new DataSourceComponent("main", "#main-configuration", processSource);
+	mainDataSource = new DataSourceComponent("main", "#main-configuration", processSource);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
