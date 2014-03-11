@@ -264,7 +264,7 @@ function processSource(endpointURL, graphName, parent) {
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
 						'</div>' +
-						'<button id="connect-source-button" type="button" class="btn btn-primary">Add data source<span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
+						'<button id="connect-source-button" type="button" class="btn btn-primary">Add external data source <span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
 
 		$(parent).append(snippet);
 
