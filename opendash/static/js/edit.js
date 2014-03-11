@@ -240,6 +240,7 @@ function DataSourceComponent(title, name, parent, processSource) {
 	this.name = name;
 	this.parent = parent;
 	this.processSource = processSource;
+	this.child = "child-" + this.name;
 
 	this.addDataSource = function() {
 		var snippet =	'<div class="panel panel-default">' +
@@ -266,6 +267,7 @@ function DataSourceComponent(title, name, parent, processSource) {
 									'</div>' +
 								'</div>' +
 							'</form>' +
+							'<div id="' + this.child + '"></div>'
 						'</div>' +
 					'</div>';
 
@@ -286,7 +288,7 @@ function DataSourceComponent(title, name, parent, processSource) {
 			that.endpointURL = $("#dataset-list-" + that.name + " :selected").text();
 			that.graphName = $("#graph-list-" + that.name + " :selected").text();
 
-			that.processSource(that.endpointURL, that.graphName, that.parent);
+			that.processSource(that.endpointURL, that.graphName, "#" + that.child);
 		});
 	};
 
@@ -303,6 +305,10 @@ function DataSourceComponent(title, name, parent, processSource) {
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
 			updateSelectComponent("graph-list-" + that.name, data.graphs, 'name', function() {});
 		});
+	};
+
+	this.getChild = function() {
+		return this.child;
 	};
 
 	this.addDataSource();
@@ -334,15 +340,16 @@ function processSource(endpointURL, graphName, parent) {
 								'</form>' +
 							'</div>' +
 						'</div>' +
+						'<button id="add-line-button" type="button" class="btn btn-primary btn-xs">Add internal Y</button>' +
+						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Add external Y</button>' + 
 						'<div class="panel panel-default">' +
 							'<div class="panel-heading">' +
 								'<div class="panel-title">' +
-									'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
+									'Y value'  +
 								'</div>' +
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
-						'</div>' + 
-						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Connect source</button>';
+						'</div>';
 
 		$(parent).append(snippet);
 
@@ -424,7 +431,7 @@ function ConnectedLine(id, desc, parent) {
 							'</div>' +
 						'</div>';
 
-		$(this.parent).append(snippet);
+		$("#" + this.datasourceComponent.getChild()).append(snippet);
 
 		$("#remove-datasource-button-" + this.id).click(function(event) {
 			console.log("Remove");
