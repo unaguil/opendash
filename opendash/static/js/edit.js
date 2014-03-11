@@ -257,10 +257,71 @@ function updateXValues() {
 	}
 };
 
-function processSource() {
-	var endpointURL = $("#dataset-list :selected").text();
-	var graphName = $("#graph-list :selected").text();
+function DataSourceComponent(name, parent, processSource) {
+	this.name = name;
+	this.parent = parent;
+	this.processSource = processSource;
 
+	this.addDataSource = function() {
+		var snippet =	'<div class="panel panel-default">' +
+						'<div class="panel-heading">' +
+							'Data source' +
+						'</div>' +
+						'<div class="panel-body">' +
+							'<form class="form-horizontal" role="form">' +
+								'<div class="form-group">' +
+									'<label class="col-sm-2 control-label">Dataset</label>' +
+									'<div class="col-sm-10">' +
+										'<select id="dataset-list-' + this.name + '" class="form-control"></select>' +
+									'</div>' +
+								'</div>' +
+								'<div class="form-group">' +
+									'<label class="col-sm-2 control-label">Graph</label>' +
+									'<div class="col-sm-10">' +
+										'<select id ="graph-list-' + this.name + '" class="form-control"></select>' +
+									'</div>' +
+								'</div>' +
+								'<div class="form-group">' +
+									'<div class="col-sm-offset-2 col-sm-10">' +
+										'<button id="select-source-button-' + this.name + '" type="button" class="btn btn-success">Apply</button>' +
+									'</div>' +
+								'</div>' +
+							'</form>' +
+						'</div>' +
+					'</div>';
+
+		$(this.parent).append(snippet);
+	};
+
+	this.populateEndpoints = function() {
+		var that = this;
+		$.getJSON("/endpoints", function(data) {
+			updateSelectComponent("dataset-list-" + that.name, data.endpoints, 'url', updateGraphList)
+		});
+
+		$("#select-source-button-" + that.name).click(function(event) {
+			$("#dataset-list-" + that.name).prop("disabled", true);
+			$("#graph-list-" + that.name).prop("disabled", true);
+			$("#select-source-button-" + that.name).prop("disabled", true);
+
+			var endpointURL = $("#dataset-list-" + that.name + " :selected").text();
+			var graphName = $("#graph-list-" + that.name + " :selected").text();
+
+			processSource(endpointURL, graphName);
+		});
+	};
+
+	this.addDataSource();
+	this.populateEndpoints();
+};
+
+function updateGraphList(componentID, endpoint, index) {
+	$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
+		updateSelectComponent("graph-list", data.graphs, 'name', function() {});
+	});
+};
+
+function processSource(endpointURL, graphName) {
 	$.post("/endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 		desc = data.desc;
 
@@ -292,7 +353,8 @@ function processSource() {
 								'</div>' +
 							'</div>' +
 							'<div id="lines-configuration" class="panel-body"></div>' +
-						'</div>';
+						'</div>' + 
+						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Connect source</button>';
 
 		$('#main-configuration').append(snippet);
 
@@ -305,6 +367,12 @@ function processSource() {
 			addLine(desc, id);
 			updateChartLine('chart-div', chart, id);
 			id++;
+		});
+
+		$("#connect-source-button").click(function(event) {
+			$("#main-class-list").prop("disabled", true);
+			$("#main-xvalues-list").prop("disabled", true);
+
 		});
 	});
 };
@@ -329,32 +397,12 @@ function deleteChart(report_id, chart_id) {
 
 ///////////////////////////////// source management //////////////////////////////////////
 
-function populateEndpoints() {
-	$.getJSON("/endpoints", function(data) {
-		updateSelectComponent("dataset-list", data.endpoints, 'url', updateGraphList)
-	});
-
-	$("#select-source-button").click(function(event) {
-		$("#dataset-list").prop("disabled", true);
-		$("#graph-list").prop("disabled", true);
-		$(this).prop("disabled", true);
-
-		processSource();
-	});
-};
-
-function updateGraphList(componentID, endpoint, index) {
-	$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-		updateSelectComponent("graph-list", data.graphs, 'name', function() {});
-	});
-};
-
 //////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////// initialization /////////////////////////////////////
 
 function init() {
-	populateEndpoints();
+	new DataSourceComponent("main", "#main-configuration", processSource);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
