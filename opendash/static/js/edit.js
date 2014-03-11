@@ -49,6 +49,7 @@ var chart = {};
 chart.data = {};
 chart.lines = {};
 chart.classes = {};
+connections = {};
 
 var id = 0;
 
@@ -359,27 +360,40 @@ function processSource(endpointURL, graphName, parent) {
 			$("#main-class-list").prop("disabled", true);
 			$("#main-xvalues-list").prop("disabled", true);
 
-			new DataSourceComponent("secondary-datasource", "#main-configuration", processSecondarySource);
-
+			chart.lines[id] = new ConnectedLine(id, desc, "#main-configuration");
+			id++;
 		});
 	});
 };
 
-function updateSecondaryDataSourceClassList(componentID, selectedObj, descID) {
-	
-};
+function ConnectedLine(id, desc, parent) {
+	this.id = id;
+	this.desc = desc;
+	this.parent = parent;
 
-function processSecondarySource(endpointURL, graphName, parent) {
-	var post_data = { 
-		first_endpoint: mainDataSource.getEndpoint(),
-		first_graph: mainDataSource.getGraph(),
-		mainclass: chart.mainclass,
-		second_endpoint: endpointURL, 
-		second_graph: graphName 
+	this.updateSecondaryDatasourceYValueList = function(componentID, selectedObj, descID) {
+		//updateChartLine('chart-div', chart, this.id);
 	};
 
-	$.post("/endpoints/get_datasource_connections", post_data, function(data) {
-		connections = data.connections;
+	this.updateSecondaryDatasourcePropertyList = function(componentID, selectedObj, descID) {
+		var classURI = $('#secondary-datasource-class-list-' + this.id + ' :selected').text();
+
+		var properties = []
+		for (var index = 0; index < connections.desc.classes.length; index++) {
+			if (connections.desc.classes[index].classURI == classURI) {
+				properties = connections.desc.classes[index].properties;
+				break;
+			}
+		}
+		updateSelectComponent("secondary-datasource-yvalues-list-" + this.id, properties, 'uri', this.updateSecondaryDatasourceYValueList.bind(this));
+	};
+
+	this.updateSecondaryDataSourceClassList = function(componentID, selectedObj, descID) {
+		updateSelectComponent("secondary-datasource-property-list-" + this.id, selectedObj.pairs, 'name', this.updateSecondaryDatasourcePropertyList.bind(this));
+	};
+
+	this.processConnections = function(data) {
+		connections = data.data;
 		var snippet = 	'<div class="panel panel-default">' +
 							'<div class="panel-heading">Y axis</div>' +
 							'<div class="panel-body">' +
@@ -387,29 +401,50 @@ function processSecondarySource(endpointURL, graphName, parent) {
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Class</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-class-list" class="form-control"></select>' + 
+											'<select id="secondary-datasource-class-list-' + this.id + '" class="form-control"></select>' + 
 										'</div>' + 
 									'</div>' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Property</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-property-list" class="form-control"></select>' +
+											'<select id="secondary-datasource-property-list-' + this.id + '" class="form-control"></select>' +
 										'</div>' +
 									'</div>' +
 									'<div class="form-group">' +
 										'<label class="col-sm-2 control-label">Y</label>' + 
 										'<div class="col-sm-10">' +
-											'<select id="secondary-datasource-yvalues-list" class="form-control"></select>' +
+											'<select id="secondary-datasource-yvalues-list-' + this.id + '" class="form-control"></select>' +
+										'</div>' +
+										'<div class="col-sm-2">' +
+											'<button id="remove-datasource-button-' + this.id + '"type="button" class="btn btn-danger">X</button>' +
 										'</div>' +
 									'</div>' +
 								'</form>' +
 							'</div>' +
 						'</div>';
 
-		$(parent).append(snippet);
+		$(this.parent).append(snippet);
 
-		updateSelectComponent("secondary-datasource-class-list", connections, 'classURI', updateSecondaryDataSourceClassList);
-	});
+		$("#remove-datasource-button-" + this.id).click(function(event) {
+			console.log("Remove datasource");
+		});
+
+		updateSelectComponent("secondary-datasource-class-list-" + this.id, connections['connections'], 'classURI', this.updateSecondaryDataSourceClassList.bind(this));
+	};
+	
+	this.processSecondarySource = function(endpointURL, graphName, parent) {
+		var post_data = { 
+			first_endpoint: mainDataSource.getEndpoint(),
+			first_graph: mainDataSource.getGraph(),
+			mainclass: chart.mainclass,
+			second_endpoint: endpointURL, 
+			second_graph: graphName 
+		};
+
+		$.post("/endpoints/get_datasource_connections", post_data, this.processConnections.bind(this));
+	};
+
+	this.datasourceComponent = new DataSourceComponent("secondary-datasource-" + this.id, this.parent, this.processSecondarySource.bind(this));
 };
 
 function saveChart(report_id, chart_id) {
