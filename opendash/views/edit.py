@@ -169,11 +169,12 @@ def get_class_properties(clazz, desc):
 	return []
 
 def get_connections(clazz, desc):
-	connections = []
+	connections = {}
 
 	for c in desc['classes']:
 		if c['classURI'] == clazz['classURI']:
-			connections.append({'classURI' : c['classURI'], 'properties': c['properties']})
+			connections['classURI'] = c['classURI']
+			connections['properties'] = c['properties']
 
 		# if c['classURI'] != clazz['classURI']:
 		# 	for p1 in c['properties']:
@@ -255,9 +256,9 @@ def get_datasource_connections():
 	first_desc = get_description(first_endpoint, first_graph) 
 	second_desc = get_description(second_endpoint, second_graph)
 
-	data = {}
+	data = []
 
 	for clazz in first_desc['classes']:
-		data[clazz['classURI']] = get_connections(clazz, second_desc)
+		data.append(get_connections(clazz, second_desc))
 
-	return jsonify(data=data)
+	return jsonify(connections=data)

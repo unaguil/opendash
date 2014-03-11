@@ -49,7 +49,6 @@ var chart = {};
 chart.data = {};
 chart.lines = {};
 chart.classes = {};
-connections = null;
 
 var id = 0;
 
@@ -274,7 +273,7 @@ function DataSourceComponent(name, parent, processSource) {
 	this.populateEndpoints = function() {
 		var that = this;
 		$.getJSON("/endpoints", function(data) {
-			updateSelectComponent("dataset-list-" + that.name, data.endpoints, 'url', updateGraphList)
+			updateSelectComponent("dataset-list-" + that.name, data.endpoints, 'url', that.updateGraphList)
 		});
 
 		$("#select-source-button-" + that.name).click(function(event) {
@@ -285,7 +284,7 @@ function DataSourceComponent(name, parent, processSource) {
 			that.endpointURL = $("#dataset-list-" + that.name + " :selected").text();
 			that.graphName = $("#graph-list-" + that.name + " :selected").text();
 
-			that.processSource(that.endpointURL, that.graphName);
+			that.processSource(that.endpointURL, that.graphName, that.parent);
 		});
 	};
 
@@ -297,17 +296,18 @@ function DataSourceComponent(name, parent, processSource) {
 		return this.graphName;
 	}
 
+	this.updateGraphList = function (componentID, endpoint, index) {
+		var that = this;
+		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
+			updateSelectComponent("graph-list-" + that.name, data.graphs, 'name', function() {});
+		});
+	};
+
 	this.addDataSource();
 	this.populateEndpoints();
 };
 
-function updateGraphList(componentID, endpoint, index) {
-	$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-		updateSelectComponent("graph-list", data.graphs, 'name', function() {});
-	});
-};
-
-function processSource(endpointURL, graphName) {
+function processSource(endpointURL, graphName, parent) {
 	$.post("/endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
 		desc = data.desc;
 
@@ -342,7 +342,7 @@ function processSource(endpointURL, graphName) {
 						'</div>' + 
 						'<button id="connect-source-button" type="button" class="btn btn-primary btn-xs">Connect source</button>';
 
-		$('#main-configuration').append(snippet);
+		$(parent).append(snippet);
 
 		updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
 
@@ -365,7 +365,11 @@ function processSource(endpointURL, graphName) {
 	});
 };
 
-function processSecondarySource(endpointURL, graphName) {
+function updateSecondaryDataSourceClassList(componentID, selectedObj, descID) {
+	
+};
+
+function processSecondarySource(endpointURL, graphName, parent) {
 	var post_data = { 
 		first_endpoint: mainDataSource.getEndpoint(),
 		first_graph: mainDataSource.getGraph(),
@@ -375,7 +379,36 @@ function processSecondarySource(endpointURL, graphName) {
 	};
 
 	$.post("/endpoints/get_datasource_connections", post_data, function(data) {
-		connections = data.desc;
+		connections = data.connections;
+		var snippet = 	'<div class="panel panel-default">' +
+							'<div class="panel-heading">Y axis</div>' +
+							'<div class="panel-body">' +
+								'<form class="form-horizontal" role="form">' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Class</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="secondary-datasource-class-list" class="form-control"></select>' + 
+										'</div>' + 
+									'</div>' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Property</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="secondary-datasource-property-list" class="form-control"></select>' +
+										'</div>' +
+									'</div>' +
+									'<div class="form-group">' +
+										'<label class="col-sm-2 control-label">Y</label>' + 
+										'<div class="col-sm-10">' +
+											'<select id="secondary-datasource-yvalues-list" class="form-control"></select>' +
+										'</div>' +
+									'</div>' +
+								'</form>' +
+							'</div>' +
+						'</div>';
+
+		$(parent).append(snippet);
+
+		updateSelectComponent("secondary-datasource-class-list", connections, 'classURI', updateSecondaryDataSourceClassList);
 	});
 };
 
