@@ -69,12 +69,11 @@ function ConnectedLine(id, desc, parent) {
 		$.post("/endpoints/get_datasource_connections", post_data, this.processConnections.bind(this));
 	};
 
-	var that = this;
 	this.datasourceComponent = new DataSourceComponent("Data source " + (this.id + 1),
 		"secondary-datasource-" + this.id, 
 		this.parent, this.processSecondarySource.bind(this), true,
 		function(datasource) {
-			$("#secondary-datasource-" + that.id).remove();
+			$("#secondary-datasource-" + this.id).remove();
 			delete chart.lines[id];
-		});
+		}.bind(this));
 };
