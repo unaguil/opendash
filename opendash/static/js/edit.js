@@ -49,7 +49,6 @@ var chart = {};
 chart.data = {};
 chart.lines = {};
 chart.classes = {};
-connections = {};
 
 var id = 0;
 
@@ -85,8 +84,7 @@ function updateYValues(componentID) {
 		chart.lines[lineID].ysubproperty = '';
 	}
 
-	chart.lines[lineID].endpoint = desc.endpoint;
-	chart.lines[lineID].graph = desc.graph;
+	chart.lines[lineID].type = 'line';
 
 	updateChartLine('chart-div', chart, lineID);
 };
@@ -270,6 +268,9 @@ function processSource(endpointURL, graphName, parent) {
 
 		$("#main-configuration").append();
 
+		chart.endpoint = desc.endpoint;
+		chart.graph = desc.graph;
+
 		updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
 
 		$("#add-line-button").click(function(event) {
@@ -284,7 +285,8 @@ function processSource(endpointURL, graphName, parent) {
 			$("#main-class-list").prop("disabled", true);
 			$("#main-xvalues-list").prop("disabled", true);
 
-			chart.lines[id] = new ConnectedLine(id, desc, "#main-configuration");
+			chart.lines[id] = {};
+			new ConnectedLine(id, desc, "#main-configuration");
 			id++;
 		});
 	});

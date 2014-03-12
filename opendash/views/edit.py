@@ -6,6 +6,8 @@ from flask.ext.login import login_required, current_user
 import rdflib
 import json
 
+from collections import defaultdict
+
 from opendash import app, session
 from opendash.form.login import LoginForm
 
@@ -38,6 +40,8 @@ def get_endpoint_graphs():
 	graphs = []
 	for index, graph in enumerate(qres):
 		graphs.append({'id': index, 'name': graph[0]})
+
+	g.close()
 
 	return jsonify(graphs=graphs)
 
@@ -150,6 +154,8 @@ def get_description(endpoint, graph):
 
 	desc['classes'] = classes
 
+	g.close()
+
 	return desc
 
 @app.route("/endpoints/get_description", methods=['POST'])
@@ -183,15 +189,9 @@ def get_connections(clazz, desc):
 
 	return connections
 
-@app.route("/endpoints/get_data", methods=['POST'])
-def get_data():
-	mainclass = request.form['mainclass']
-	xvalues = request.form['xvalues']
-	xsubproperty = request.form['xsubproperty']
-	line = json.loads(request.form['line'])
-
+def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
-	g.open(line['endpoint'])
+	g.open(endpoint)
 
 	if len(xsubproperty) > 0 and len(line['ysubproperty']) > 0:
 		query = """SELECT ?x ?y FROM <%s> WHERE {
@@ -202,7 +202,7 @@ def get_data():
 					?p2 <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (line['graph'], mainclass, xsubproperty, xvalues, line['ysubproperty'], line['yvalues'])
+		query = query % (graph, mainclass, xsubproperty, xvalues, line['ysubproperty'], line['yvalues'])
 	elif len(xsubproperty) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -211,7 +211,7 @@ def get_data():
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (line['graph'], mainclass, xsubproperty, xvalues, line['yvalues'])
+		query = query % (graph, mainclass, xsubproperty, xvalues, line['yvalues'])
 	elif len(line['ysubproperty']) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -220,7 +220,7 @@ def get_data():
 					?p <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (line['graph'], mainclass, xvalues, line['ysubproperty'], line['yvalues'])
+		query = query % (graph, mainclass, xvalues, line['ysubproperty'], line['yvalues'])
 	else: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -228,13 +228,87 @@ def get_data():
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (line['graph'], mainclass, xvalues, line['yvalues'])
+		query = query % (graph, mainclass, xvalues, line['yvalues'])
 
 	qres = g.query(query)
 
 	data = []
 	for row in qres:
 		data.append({'x' : str(row[0]), 'y': str(row[1])})
+
+	g.close()
+
+	return data
+
+def get_pairs(qres):
+	data = []
+
+	for row in qres:
+		data.append((str(row[0]), str(row[1])))
+
+	return data
+
+def join_data(left_qres, right_qres):
+	data = []
+
+	right_dict = defaultdict(list)
+	for row in right_qres:
+		right_dict[str(row[0])].append(str(row[1]))
+
+	print right_dict
+
+	for row in left_qres:
+		x, z = str(row[0]), str(row[1])
+		print x, z
+		for y in right_dict[z]:
+			data.append({'x' : x, 'y': y})
+
+	return data
+
+def process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
+	left_g = rdflib.ConjunctiveGraph('SPARQLStore')
+	left_g.open(endpoint)
+
+	template = """SELECT ?x ?y FROM <%s> WHERE {
+				?s a <%s> .
+				?s <%s> ?x .
+				?s <%s> ?y .
+				} ORDER BY(?x)"""
+
+	query = template % (graph, mainclass, xvalues, line['pair'][0])
+
+	left_qres = left_g.query(query)
+
+	right_g = rdflib.ConjunctiveGraph('SPARQLStore')
+	right_g.open(line['endpoint'])
+
+	query = template % (line['graph'], line['secondclass'], line['pair'][1], line['yvalues'])
+
+	right_qres = right_g.query(query)
+
+	data = join_data(left_qres, right_qres)
+
+	left_g.close()
+	right_g.close()
+
+	return data
+
+@app.route("/endpoints/get_data", methods=['POST'])
+def get_data():
+	endpoint = request.form['endpoint']
+	graph = request.form['graph']
+	mainclass = request.form['mainclass']
+	xvalues = request.form['xvalues']
+	xsubproperty = request.form['xsubproperty']
+	line = json.loads(request.form['line'])
+
+	print line['type']
+
+	if line['type'] == 'line':
+		data = process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
+	elif line['type'] == 'connectedline':
+		print 'lalalalal'
+		data = process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
 
 	return jsonify(data=data)
 
