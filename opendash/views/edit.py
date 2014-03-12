@@ -178,14 +178,18 @@ def get_connections(clazz, desc):
 	connections = {}
 
 	for c in desc['classes']:
-		if c['classURI'] == clazz['classURI']:
+		entries = []
+		for p1 in clazz['properties']:
+			for p2 in c['properties']:
+				if p1['uri'] == p2['uri']:
+					entry = {}
+					entry['name'] = p1['uri'] + ',' + p2['uri']
+					entry['pair'] = (p2['uri'], p2['uri'])
+					entries.append(entry)
+
+		if len(entries) > 0:
 			connections['classURI'] = c['classURI']
-			connections['pairs'] = []
-			for p in c['properties']:
-				entry = {}
-				entry['name'] = p['uri'] + ',' + p['uri']
-				entry['pair'] = (p['uri'], p['uri'])
-				connections['pairs'].append(entry)
+			connections['pairs'] = entries
 
 	return connections
 
@@ -255,11 +259,8 @@ def join_data(left_qres, right_qres):
 	for row in right_qres:
 		right_dict[str(row[0])].append(str(row[1]))
 
-	print right_dict
-
 	for row in left_qres:
 		x, z = str(row[0]), str(row[1])
-		print x, z
 		for y in right_dict[z]:
 			data.append({'x' : x, 'y': y})
 
@@ -302,15 +303,18 @@ def get_data():
 	xsubproperty = request.form['xsubproperty']
 	line = json.loads(request.form['line'])
 
-	print line['type']
-
 	if line['type'] == 'line':
 		data = process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
 	elif line['type'] == 'connectedline':
-		print 'lalalalal'
 		data = process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
 
 	return jsonify(data=data)
+
+def get_class_desc(classURI, desc):
+	for c in desc['classes']:
+		if c['classURI'] == classURI:
+			return c
+	return None
 
 @app.route("/endpoints/get_datasource_connections", methods=['POST'])
 def get_datasource_connections():
@@ -326,11 +330,13 @@ def get_datasource_connections():
 
 	data = {}
 
-	connections = []
-	for clazz in first_desc['classes']:
-		connections.append(get_connections(clazz, second_desc))
-
 	data['desc'] = second_desc;
-	data['connections'] = connections
+	data['connections'] = []
+
+	clazz = get_class_desc(mainclass, first_desc)
+
+	connections = get_connections(clazz, second_desc)
+	if len(connections) > 0:
+		data['connections'].append(connections)
 
 	return jsonify(data=data)

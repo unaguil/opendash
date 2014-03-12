@@ -1,11 +1,10 @@
 function ConnectedLine(id, desc, parent) {
 	this.id = id;
-	this.desc = desc;
 	this.parent = parent;
 
 	this.updateSecondaryDatasourceYValueList = function(componentID, selectedObj, descID) {
-		chart.lines[this.id].endpoint = desc.endpoint;
-		chart.lines[this.id].graph = desc.graph;
+		chart.lines[this.id].endpoint = this.connections.desc.endpoint;
+		chart.lines[this.id].graph = this.connections.desc.graph;
 		chart.lines[this.id].type = 'connectedline';
 		chart.lines[this.id].secondclass = $('#secondary-datasource-class-list-' + this.id + ' :selected').text();
 

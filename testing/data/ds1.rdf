@@ -13,6 +13,7 @@
      <test:valueX>1</test:valueX>
      <test:valueY>1</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource1"/>
+     <test:connect>A</test:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource2">
@@ -20,6 +21,7 @@
      <test:valueX>2</test:valueX>
      <test:valueY>4</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource2"/>
+     <test:connect>B</test:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource3">
@@ -27,6 +29,7 @@
      <test:valueX>3</test:valueX>
      <test:valueY>9</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource3"/>
+     <test:connect>C</test:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource4">
@@ -34,6 +37,7 @@
      <test:valueX>4</test:valueX>
      <test:valueY>16</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource4"/>
+     <test:connect>D</test:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource5">
@@ -41,6 +45,7 @@
      <test:valueX>5</test:valueX>
      <test:valueY>25</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource5"/>
+     <test:connect>E</test:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://somedomain/resource/resource6">
@@ -48,6 +53,7 @@
      <test:valueX>6</test:valueX>
      <test:valueY>36</test:valueY>
      <test:subResource rdf:resource="http://somedomain/resource/subresource6"/>
+     <test:connect>F</test:connect>
   </test:Resource>
 
   <test:subResource rdf:about="http://somedomain/resource/subresource1">
