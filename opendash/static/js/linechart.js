@@ -7,6 +7,7 @@ function updateChartLine(componentID, chart, lineID) {
 		xsubproperty : chart.xsubproperty,
 		line : JSON.stringify(chart.lines[lineID]) 
 	};
+	
 	$.post("/endpoints/get_data", post_data, 
 		function(data) {
 			chart.data[lineID] = data.data;

@@ -277,7 +277,6 @@ function processSource(endpointURL, graphName, parent) {
 			$("#main-xvalues-list").prop("disabled", true);
 
 			addLine(desc, id);
-			updateChartLine('chart-div', chart, id);
 			id++;
 		});
 
