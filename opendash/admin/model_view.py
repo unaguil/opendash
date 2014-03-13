@@ -6,7 +6,7 @@ from flask.ext.admin import BaseView, expose
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import current_user, logout_user
 
-from opendash.model.opendash_model import User, Endpoint, Report, Chart
+from opendash.model.opendash_model import User, Endpoint, Report, Chart, Prefix
 
 from flask import request
 
@@ -38,6 +38,17 @@ class ChartView(ModelView):
 
 	def __init__(self, session, **kwargs):
 		super(ChartView, self).__init__(Chart, session, **kwargs)
+
+	def is_accessible(self):
+		return current_user.is_authenticated() and current_user.is_admin()
+
+class PrefixView(ModelView):
+
+	column_display_pk = True
+	form_columns = ('prefix', 'uri')
+
+	def __init__(self, session, **kwargs):
+		super(PrefixView, self).__init__(Prefix, session, **kwargs)
 
 	def is_accessible(self):
 		return current_user.is_authenticated() and current_user.is_admin()

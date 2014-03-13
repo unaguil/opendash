@@ -11,40 +11,10 @@ from collections import defaultdict
 from opendash import app, session
 from opendash.form.login import LoginForm
 
-from opendash.model.opendash_model import Endpoint
+from opendash.model.opendash_model import Endpoint, Prefix
 
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
-
-class PrefixTable():
-
-	def __init__(self):
-		self.table = {}
-
-	def create_prefix(self, uri):
-		prefix = ''
-		for e in uri.split('/'):
-			if len(e) > 0:
-				prefix += e[0]
-
-		return prefix
-
-	def convert(self, uri):
-		if '#' in uri:
-			index = uri.find('#')
-		else:
-			index = uri.rfind('/')
-			
-		long_prefix = uri[:index + 1]
-
-		prefix = self.create_prefix(long_prefix)
-
-		self.table[prefix] = long_prefix
-
-		return uri.replace(long_prefix, prefix + ':')
-
-	def getPrefixes(self):
-		return self.table
 
 @app.route("/endpoints")
 @login_required
@@ -74,7 +44,6 @@ def get_endpoint_graphs():
 	g.close()
 
 	return jsonify(graphs=graphs)
-
 
 def loadIgnoredPrefixes():
 	ignored = []
@@ -116,7 +85,7 @@ def get_properties(g, graph, clazz):
 	for p in qres:
 		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
 		property = {
-				'uri': str(p[0]),
+				'uri': shorten(str(p[0])),
 				'datatype': data_type,
 				'type': ref_type
 			}
@@ -159,7 +128,39 @@ def get_property_type(g, graph, clazz, property):
 			else:
 				return DATA_TYPE, infer_datatype(str(value[0]))
 
-		return OBJECT_TYPE, get_object_type(g, graph, str(value[0]))
+		return OBJECT_TYPE, get_object_type(g, graph, str(value[0]))	
+
+def get_long_prefix(uri):
+	if '#' in uri:
+		index = uri.find('#')
+	else:
+		index = uri.rfind('/')
+		
+	return uri[:index + 1]
+
+def get_short_prefix(uri):
+	index = uri.find(':')
+
+	return uri[:index]
+
+def shorten(uri):
+	long_prefix = get_long_prefix(uri)
+		
+	prefix = session.query(Prefix).filter_by(uri=long_prefix).first()
+	if prefix is None:
+		prefix = Prefix(get_long_prefix(uri))
+
+		session.add(prefix)
+		session.commit()
+
+	return uri.replace(prefix.uri, prefix.prefix + ':')
+
+def enlarge(uri):
+	short_prefix = get_short_prefix(uri)
+
+	prefix = session.query(Prefix).filter_by(prefix=short_prefix).first()
+
+	return uri.replace(prefix.prefix +':', prefix.uri)
 
 def get_description(endpoint, graph):
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
@@ -174,17 +175,15 @@ def get_description(endpoint, graph):
 	desc['endpoint'] = endpoint
 	desc['graph'] = graph
 
-	prefixTable = PrefixTable()
-
 	classes = []
 	for c in qres:
-		clazz = {}
-		clazz['classURI'] = prefixTable.convert(str(c[0]))
+		clazz = {}		
+
+		clazz['classURI'] = shorten(str(c[0]))
 
 		clazz['properties'] = get_properties(g, graph, str(c[0]))
 		classes.append(clazz)
 
-	desc['prefixes'] = prefixTable.getPrefixes()
 	desc['classes'] = classes
 
 	g.close()
@@ -239,7 +238,13 @@ def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 					?p2 <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xsubproperty, xvalues, line['ysubproperty'], line['yvalues'])
+		query = query % (graph, 
+					enlarge(mainclass),
+					enlarge(xsubproperty),
+					enlarge(xvalues),
+					enlarge(line['ysubproperty']),
+					enlarge(line['yvalues'])
+				)
 	elif len(xsubproperty) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -248,7 +253,12 @@ def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xsubproperty, xvalues, line['yvalues'])
+		query = query % (graph, 
+					enlarge(mainclass),
+					enlarge(xsubproperty),
+					enlarge(xvalues),
+					enlarge(line['yvalues'])
+				)
 	elif len(line['ysubproperty']) > 0: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -257,7 +267,12 @@ def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 					?p <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xvalues, line['ysubproperty'], line['yvalues'])
+		query = query % (graph, 
+					enlarge(mainclass),
+					enlarge(xvalues),
+					enlarge(line['ysubproperty']),
+					enlarge(line['yvalues'])
+				)
 	else: 
 		query = """SELECT ?x ?y FROM <%s> WHERE {
 					?s a <%s> .
@@ -265,7 +280,11 @@ def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 					?s <%s> ?y .
 					} ORDER BY(?x)"""
 
-		query = query % (graph, mainclass, xvalues, line['yvalues'])
+		query = query % (graph, 
+					enlarge(mainclass),
+					enlarge(xvalues),
+					enlarge(line['yvalues'])
+				)
 
 	qres = g.query(query)
 
@@ -309,14 +328,22 @@ def process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, li
 				?s <%s> ?y .
 				} ORDER BY(?x)"""
 
-	query = template % (graph, mainclass, xvalues, line['pair'][0])
+	query = template % (graph, 
+				enlarge(mainclass),
+				enlarge(xvalues), 
+				enlarge(line['pair'][0])
+			)
 
 	left_qres = left_g.query(query)
 
 	right_g = rdflib.ConjunctiveGraph('SPARQLStore')
 	right_g.open(line['endpoint'])
 
-	query = template % (line['graph'], line['secondclass'], line['pair'][1], line['yvalues'])
+	query = template % (line['graph'], 
+					enlarge(line['secondclass']),
+					enlarge(line['pair'][1]),
+					enlarge(line['yvalues'])
+				)
 
 	right_qres = right_g.query(query)
 

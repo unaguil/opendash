@@ -85,6 +85,27 @@ class Chart(Base):
 		self.name = name
 		self.json = json
 
+class Prefix(Base):
+	__tablename__ = 'prefix'
+
+	prefix = Column(String, primary_key=True)
+	uri = Column(String, nullable=False)
+
+	def __init__(self, uri, prefix = None):
+		self.uri = uri
+		self.prefix = prefix
+
+		if self.prefix is None:
+			self.prefix = self._get_short_prefix(self.uri)
+
+	def _get_short_prefix(self, uri):
+		prefix = ''
+		for e in uri.split('/'):
+			if len(e) > 0:
+				prefix += e[0]
+
+		return prefix
+
 if __name__ == '__main__':
 	engine = create_engine('sqlite:///opendash.db')
 	

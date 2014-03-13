@@ -8,7 +8,8 @@ from flask.ext.login import LoginManager, current_user
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from admin.model_view import UserView, EndpointView, LogoutView, ReportView, ChartView
+from admin.model_view import UserView, EndpointView, LogoutView
+from admin.model_view import ReportView, ChartView, PrefixView
 from form.login import LoginForm
 
 from opendash.model.opendash_model import User
@@ -29,6 +30,7 @@ admin.add_view(UserView(session))
 admin.add_view(EndpointView(session))
 admin.add_view(ReportView(session))
 admin.add_view(ChartView(session))
+admin.add_view(PrefixView(session))
 admin.add_view(LogoutView(name='Log out'))
 
 # Create user loader function
