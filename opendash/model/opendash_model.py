@@ -104,7 +104,7 @@ class Prefix(Base):
 			if len(e) > 0:
 				prefix += e[0]
 
-		return prefix
+		return prefix + str(uuid.uuid4())[:5]
 
 if __name__ == '__main__':
 	engine = create_engine('sqlite:///opendash.db')
