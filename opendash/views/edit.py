@@ -16,6 +16,36 @@ from opendash.model.opendash_model import Endpoint
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
 
+class PrefixTable():
+
+	def __init__(self):
+		self.table = {}
+
+	def create_prefix(self, uri):
+		prefix = ''
+		for e in uri.split('/'):
+			if len(e) > 0:
+				prefix += e[0]
+
+		return prefix
+
+	def convert(self, uri):
+		if '#' in uri:
+			index = uri.find('#')
+		else:
+			index = uri.rfind('/')
+			
+		long_prefix = uri[:index + 1]
+
+		prefix = self.create_prefix(long_prefix)
+
+		self.table[prefix] = long_prefix
+
+		return uri.replace(long_prefix, prefix + ':')
+
+	def getPrefixes(self):
+		return self.table
+
 @app.route("/endpoints")
 @login_required
 def get_endpoints():
@@ -48,7 +78,7 @@ def get_endpoint_graphs():
 
 def loadIgnoredPrefixes():
 	ignored = []
-	with open('opendash/views/ignored.txt') as f:
+	with open('opendash/files/ignored.txt') as f:
 		ignored = f.read().splitlines()
 
 	return ignored
@@ -144,14 +174,17 @@ def get_description(endpoint, graph):
 	desc['endpoint'] = endpoint
 	desc['graph'] = graph
 
+	prefixTable = PrefixTable()
+
 	classes = []
 	for c in qres:
 		clazz = {}
-		clazz['classURI'] = str(c[0])
+		clazz['classURI'] = prefixTable.convert(str(c[0]))
 
 		clazz['properties'] = get_properties(g, graph, str(c[0]))
 		classes.append(clazz)
 
+	desc['prefixes'] = prefixTable.getPrefixes()
 	desc['classes'] = classes
 
 	g.close()
