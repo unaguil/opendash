@@ -27,7 +27,7 @@ function ConnectedLine(id, desc, parent) {
 
 		chart.lines[this.id].yvalues = $('#secondary-datasource-yvalues-list-' + this.id + ' :selected').text();
 
-		updateChartLine('chart-div', chart, this.id);
+		updateChartLine('chart-div', chart, this.id, data);
 	};
 
 	this.updateSecondaryDatasourcePropertyList = function(componentID, selectedObj, descID) {

@@ -44,11 +44,6 @@ function updateSelectComponent(componentID, values, property, onChange, addFilte
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-
-var chart = {};
-chart.data = {};
-chart.lines = {};
-
 var id = 0;
 
 function updateYSubProperty(componentID) {
@@ -85,7 +80,7 @@ function updateYValues(componentID) {
 
 	chart.lines[lineID].type = 'line';
 
-	updateChartLine('chart-div', chart, lineID);
+	updateChartLine('chart-div', chart, lineID, data);
 };
 
 function yValuesObjectFilter(property) {
@@ -134,7 +129,7 @@ function addLine(desc, id) {
 		delete chart.lines[lineID];
 
 		if (Object.keys(chart.lines).length > 0)
-			drawChart('chart-div', chart);
+			drawChart('chart-div', chart, data);
 		else
 			$("#chart-div").empty();
 	});

@@ -47,6 +47,12 @@
 	<script>
 		google.load("visualization", "1", { packages:["corechart"] });
 
+		var chart = {{chart.json | safe}}
+		chart.name = '{{chart.name}}'
+		data = {}
+
+		console.log(chart)
+
 		window.onload = init();
 	</script>
 </body>

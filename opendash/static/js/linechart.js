@@ -1,6 +1,6 @@
 google.load("visualization", "1", { packages:["corechart"] });
 
-function updateChartLine(componentID, chart, lineID) {
+function updateChartLine(componentID, chart, lineID, chart_data) {
 	var post_data = { 	
 		endpoint: chart.endpoint,
 		graph: chart.graph,
@@ -12,27 +12,27 @@ function updateChartLine(componentID, chart, lineID) {
 
 	$.post("/endpoints/get_data", post_data, 
 		function(data) {
-			chart.data[lineID] = data.data;
+			chart_data[lineID] = data.data;
 
-			drawChart(componentID, chart);
+			drawChart(componentID, chart, chart_data);
 	});
 };
 
-function drawChart(elementID, chart) {
+function drawChart(elementID, chart, chart_data) {
 	var arrayData = []
 
 	titles = getTitles(chart);
 	arrayData.push(titles);
 
-	var someKey = Object.keys(chart.data)[0];
-	var data = chart.data[someKey];
-	for (var rowIndex = 0; rowIndex < data.length; rowIndex++) {
+	var someKey = Object.keys(chart_data)[0];
+	var someData = chart_data[someKey];
+	for (var rowIndex = 0; rowIndex < someData.length; rowIndex++) {
 		var row = [];
-		var xvalue = data[rowIndex]['x'];
+		var xvalue = someData[rowIndex]['x'];
 		row.push(xvalue);
 
-		for (var key in chart.data) {
-			var yvalue = parseInt(chart.data[key][rowIndex]['y']);
+		for (var key in chart_data) {
+			var yvalue = parseInt(chart_data[key][rowIndex]['y']);
 			row.push(yvalue);
 		}
 
@@ -42,7 +42,7 @@ function drawChart(elementID, chart) {
 	var data = google.visualization.arrayToDataTable(arrayData);
 
 	var options = {
-		title: 'Some title'
+		title: chart.name
 	};
 
 	var lineChart = new google.visualization.LineChart(document.getElementById(elementID));

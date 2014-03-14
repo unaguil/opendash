@@ -1,8 +1,10 @@
 
 function drawCharts(charts) {
 	for (var id in charts) {
+		data = {}
+
 		for (var lineID in charts[id].lines) {
-			updateChartLine('chart-' + id, charts[id], lineID);
+			updateChartLine('chart-' + id, charts[id], lineID, data);
 		}
 	}
 };

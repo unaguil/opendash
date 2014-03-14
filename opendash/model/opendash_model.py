@@ -81,7 +81,7 @@ class Chart(Base):
 
 	report = Column(String, ForeignKey('report.id'))
 
-	def __init__(self, name=None, json=None):
+	def __init__(self, name=None, json='{lines: {}}'):
 		self.name = name
 		self.json = json
 

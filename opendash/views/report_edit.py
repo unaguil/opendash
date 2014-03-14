@@ -64,7 +64,7 @@ def new_chart(report_id):
 	if not has_privileges(report):
 		return abort(401)
 
-	chart = Chart('unamed chart')
+	chart = Chart('Default title')
 	chart.id = -1
 
 	form = LoginForm(session)
