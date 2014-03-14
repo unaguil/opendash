@@ -10,37 +10,37 @@
 >	
   
   <test:Resource rdf:about="http://someotherdomain/resource/resource1">
-     <test:valueX>1</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">100</test:valueY>
      <external:connect>A</external:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://someotherdomain/resource/resource2">
-     <test:valueX>2</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1000</test:valueY>
      <external:connect>B</external:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://someotherdomain/resource/resource3">
-     <test:valueX>3</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">10000</test:valueY>
      <external:connect>C</external:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://someotherdomain/resource/resource4">
-     <test:valueX>4</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">5000</test:valueY>
      <external:connect>D</external:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://someotherdomain/resource/resource5">
-     <test:valueX>5</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">5</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">4000</test:valueY>
      <external:connect>E</external:connect>
   </test:Resource>
 
   <test:Resource rdf:about="http://someotherdomain/resource/resource6">
-     <test:valueX>6</test:valueX>
+     <test:valueX rdf:datatype="http://www.w3.org/2001/XMLSchema#int">6</test:valueX>
      <test:valueY rdf:datatype="http://www.w3.org/2001/XMLSchema#float">-8000</test:valueY>
      <external:connect>F</external:connect>
   </test:Resource>

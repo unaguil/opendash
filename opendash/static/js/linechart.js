@@ -64,8 +64,8 @@ function drawChart(elementID, chart, chart_data) {
 		case 'bars':	googleChart = new google.visualization.ColumnChart(document.getElementById(elementID));
 						break;
 
-		case 'scatter':	googleChart = new google.visualization.ScatterChart(document.getElementById(elementID));
-						break;
+/*		case 'scatter':	googleChart = new google.visualization.ScatterChart(document.getElementById(elementID));
+						break;*/
 
 		case 'area':	googleChart = new google.visualization.AreaChart(document.getElementById(elementID));
 						break;
@@ -91,7 +91,7 @@ function getSupportedCharts() {
 	var chart_types = {
 		'lines': 'Lines',
 		'bars': 'Bars',
-		'scatter': 'Scatter',
+//		'scatter': 'Scatter',
 		'area': 'Area'
 	};
 
