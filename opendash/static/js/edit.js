@@ -296,6 +296,12 @@ function saveChart(report_id, chart_id) {
 			window.location.href = "/report/" + report_id + "/edit";
 		}
 	);
+};
+
+function updateChartName() {
+	chart.name = $("#chart-name-input").val()
+
+	drawChart('chart-div', chart, data);
 }
 
 function deleteChart(report_id, chart_id) {
