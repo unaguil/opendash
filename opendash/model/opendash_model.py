@@ -127,4 +127,7 @@ if __name__ == '__main__':
 	session.add(Endpoint('http://localhost:3030/ds1/query'))
 	session.add(Endpoint('http://localhost:3030/ds2/query'))
 
+	session.add(Prefix('http://somedomain/resource/test-ds1#', 'test1'))
+	session.add(Prefix('http://someotherdomain/resource/test-ds2#', 'test2'))
+
 	session.commit()
