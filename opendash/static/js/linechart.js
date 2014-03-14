@@ -66,7 +66,7 @@ function getTitles(chart) {
 
 	var index = 0;
 	for (var key in chart.lines) {
-		titles.push("Title " + index);
+		titles.push(chart.lines[key].yvalues);
 		index++;
 	}
 
