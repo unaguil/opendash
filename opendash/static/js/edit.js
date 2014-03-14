@@ -128,11 +128,15 @@ function addLine(desc, id) {
 		var lineID = getObjectID(event);
 		delete chart.lines[lineID];
 
-		if (Object.keys(chart.lines).length > 0)
-			drawChart('chart-div', chart, data);
-		else
-			$("#chart-div").empty();
+		
 	});
+};
+
+function updateChart() {
+	if (Object.keys(chart.lines).length > 0)
+			drawChart('chart-div', chart, data);
+	else
+		$("#chart-div").empty();
 };
 
 function updateSecondaryYValues(connections, id, clazz) {
@@ -311,7 +315,13 @@ function saveChart(report_id, chart_id) {
 function updateChartName() {
 	chart.name = $("#chart-name-input").val()
 
-	drawChart('chart-div', chart, data);
+	updateChart();
+}
+
+function updateChartType() {
+	chart.type = $("#select-chart-type").val()
+
+	updateChart();
 }
 
 function deleteChart(report_id, chart_id) {

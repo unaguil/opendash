@@ -17,14 +17,22 @@
 					<div id="chart-div" style="height: 500px;" class="well"></div>
 
 					<div class="row">
-						<div class="col-lg-6">
+						<div class="col-lg-5">
 							<div class="input-group">
 								<span class="input-group-addon">Chart name</span>
 								<input id="chart-name-input" type="text" class="form-control" value="{{chart.name}}" onblur="updateChartName();" maxlength="25">
 							</div>
 						</div>
-						<div class="col-lg-6">
-							<a href="javascript:void(0);" onclick="saveChart('{{report.id}}', {{chart.id}});" class="btn btn-primary pull-right" role="button">Save</a>
+						<div class="col-lg-5">
+							<div class="input-group">
+								<span class="input-group-addon">Chart type</span>
+								<select id="select-chart-type" class="form-control" onchange="updateChartType();">
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<a href="javascript:void(0);" onclick="saveChart('{{report.id}}', {{chart.id}});" class="btn btn-primary pull-right" role="button">		Save
+							</a>
 						</div>
 					</div>
 				</div>
@@ -47,9 +55,17 @@
 	<script>
 		google.load("visualization", "1", { packages:["corechart"] });
 
-		var chart = {{chart.json | safe}}
-		chart.name = '{{chart.name}}'
+		var chart = {{chart.json | safe}};
+		chart.name = '{{chart.name}}';
+		chart.type = 'lines';
 		data = {}
+
+		var chart_types = getSupportedCharts();
+		var keys = Object.keys(chart_types);
+		for (var index = 0; index < keys.length; index++) {
+			var key = keys[index];
+			$('#select-chart-type').append(new Option(chart_types[key], key));
+		}
 
 		window.onload = init();
 	</script>

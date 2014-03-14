@@ -56,8 +56,19 @@ function drawChart(elementID, chart, chart_data) {
 		title: chart.name
 	};
 
-	var lineChart = new google.visualization.LineChart(document.getElementById(elementID));
-	lineChart.draw(data, options);
+	var googleChart = {};	
+	switch (chart.type) {
+		case 'lines': 	googleChart = new google.visualization.LineChart(document.getElementById(elementID));
+						break;
+
+		case 'bars':	googleChart = new google.visualization.ColumnChart(document.getElementById(elementID));
+						break;
+
+		case 'scatter':	googleChart = new google.visualization.ScatterChart(document.getElementById(elementID));
+						break;
+	}
+
+	googleChart.draw(data, options);
 };
 
 function getTitles(chart) {
@@ -72,3 +83,13 @@ function getTitles(chart) {
 
 	return titles;
 };
+
+function getSupportedCharts() {
+	var chart_types = {
+		'lines': 'Lines',
+		'bars': 'Bars',
+		'scatter': 'Scatter'
+	};
+
+	return chart_types;
+} 
