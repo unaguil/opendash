@@ -39,7 +39,7 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 									'</div>' +
 								'</div>' +
 							'</form>' +
-							'<div id="' + this.child + '"></div>'
+							'<div id="' + this.child + '"></div>' +
 						'</div>' +
 					'</div>';
 
@@ -78,8 +78,16 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 	}
 
 	this.updateGraphList = function (componentID, endpoint, index) {
+		$('#' + this.child).empty();
+
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-			updateSelectComponent("graph-list-" + this.id, data.graphs, 'name', function() {});
+			if (data.error) {
+				alert = '<div class="alert alert-danger">'+ data.error + '</div>';
+				$('#' + this.child).append(alert);
+				$('#' + "graph-list-" + this.id).empty();
+			}
+			else
+				updateSelectComponent("graph-list-" + this.id, data.graphs, 'name', function() {});
 		}.bind(this));
 	};
 

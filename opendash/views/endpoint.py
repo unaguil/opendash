@@ -7,6 +7,8 @@ from opendash.model.opendash_model import Endpoint
 
 import rdflib
 
+from urllib2 import URLError
+
 @app.route("/endpoints")
 @login_required
 def get_endpoints():
@@ -26,12 +28,14 @@ def get_endpoint_graphs():
 	g = rdflib.ConjunctiveGraph('SPARQLStore')
 	g.open(endpoint)
 
-	qres = g.query("select distinct ?g where { graph ?g {?s ?p ?o} }")
+	try:
+		qres = g.query("select distinct ?g where { graph ?g {?s ?p ?o} }")
 
-	graphs = []
-	for index, graph in enumerate(qres):
-		graphs.append({'id': index, 'name': graph[0]})
+		graphs = []
+		for index, graph in enumerate(qres):
+			graphs.append({'id': index, 'name': graph[0]})
 
-	g.close()
-
-	return jsonify(graphs=graphs)
+		g.close()
+		return jsonify(graphs=graphs)
+	except URLError:
+		return jsonify(error='Error getting endpoint graphs')
