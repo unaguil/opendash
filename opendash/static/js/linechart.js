@@ -69,6 +69,9 @@ function drawChart(elementID, chart, chart_data) {
 
 		case 'area':	googleChart = new google.visualization.AreaChart(document.getElementById(elementID));
 						break;
+
+		case 'pie':	googleChart = new google.visualization.PieChart(document.getElementById(elementID));
+						break;
 	}
 
 	googleChart.draw(data, options);
@@ -92,7 +95,8 @@ function getSupportedCharts() {
 		'lines': 'Lines',
 		'bars': 'Bars',
 //		'scatter': 'Scatter',
-		'area': 'Area'
+		'area': 'Area',
+		'pie': 'Pie'
 	};
 
 	return chart_types;
