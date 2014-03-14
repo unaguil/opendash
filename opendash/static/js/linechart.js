@@ -1,5 +1,12 @@
 google.load("visualization", "1", { packages:["corechart"] });
 
+function showAlert(componentID, msg) {
+	$('#' + componentID).empty();
+	
+	alert = '<div class="alert alert-danger">'+ msg + '</div>';
+	$('#' + componentID).append(alert);
+};
+
 function updateChartLine(componentID, chart, lineID, chart_data) {
 	var post_data = { 	
 		endpoint: chart.endpoint,
@@ -12,9 +19,13 @@ function updateChartLine(componentID, chart, lineID, chart_data) {
 
 	$.post("/endpoints/get_data", post_data, 
 		function(data) {
-			chart_data[lineID] = data.data;
+			if (data.error)
+				showAlert(componentID, data.error);
+			else {
+				chart_data[lineID] = data.data;
 
-			drawChart(componentID, chart, chart_data);
+				drawChart(componentID, chart, chart_data);
+			}
 	});
 };
 

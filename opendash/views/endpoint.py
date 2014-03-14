@@ -341,12 +341,15 @@ def get_data():
 	xsubproperty = request.form['xsubproperty']
 	line = json.loads(request.form['line'])
 
-	if line['type'] == 'line':
-		data = process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
-	elif line['type'] == 'connectedline':
-		data = process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
+	try:
+		if line['type'] == 'line':
+			data = process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
+		elif line['type'] == 'connectedline':
+			data = process_connected_line(endpoint, graph, mainclass, xvalues, xsubproperty, line)
 
-	return jsonify(data=data)
+		return jsonify(data=data)
+	except URLError:
+		return jsonify(error='Could not retrieve chart data')
 
 def get_class_desc(classURI, desc):
 	for c in desc['classes']:
