@@ -59,11 +59,5 @@ function getTitles(chart) {
 		index++;
 	}
 
-	var index = 0;
-	for (var key in chart.classes) {
-		titles.push("Title " + index);
-		index++;
-	}
-
 	return titles;
 };

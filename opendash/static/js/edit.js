@@ -48,7 +48,6 @@ function updateSelectComponent(componentID, values, property, onChange, addFilte
 var chart = {};
 chart.data = {};
 chart.lines = {};
-chart.classes = {};
 
 var id = 0;
 
