@@ -225,64 +225,74 @@ function updateXValues() {
 	}
 };
 
-function processSource(endpointURL, graphName, parent) {
+function processSource(endpointURL, graphName, dataSourceComponent) {
 	$.post("/endpoints/get_description", { endpoint: endpointURL, graph: graphName }, function(data) {
+		if (data.error) {
+			dataSourceComponent.showAlert(data.error);
+			return;
+		}
+
 		desc = data.desc;
 
-		desc.classes = removeIncompatibleTypes(desc.classes, getValidDataTypes);			
+		if (desc.classes.length > 0) {
+			desc.classes = removeIncompatibleTypes(desc.classes, getValidDataTypes);			
 
-		var snippet = 	'<div class="panel panel-default">' +
-							'<div class="panel-heading">X axis</div>' +
-							'<div class="panel-body">' +
-								'<form class="form-horizontal" role="form">' +
-									'<div class="form-group">' +
-										'<label class="col-sm-2 control-label">Class</label>' + 
-										'<div class="col-sm-10">' +
-											'<select id="main-class-list" class="form-control"></select>' + 
-										'</div>' + 
-									'</div>' +
-									'<div class="form-group">' +
-										'<label class="col-sm-2 control-label">X</label>' + 
-										'<div id="selected-property" class="col-sm-10">' +
-											'<select id="main-xvalues-list" class="form-control"></select>' +
+			var snippet = 	'<div class="panel panel-default">' +
+								'<div class="panel-heading">X axis</div>' +
+								'<div class="panel-body">' +
+									'<form class="form-horizontal" role="form">' +
+										'<div class="form-group">' +
+											'<label class="col-sm-2 control-label">Class</label>' + 
+											'<div class="col-sm-10">' +
+												'<select id="main-class-list" class="form-control"></select>' + 
+											'</div>' + 
 										'</div>' +
-									'</div>' +
-								'</form>' +
+										'<div class="form-group">' +
+											'<label class="col-sm-2 control-label">X</label>' + 
+											'<div id="selected-property" class="col-sm-10">' +
+												'<select id="main-xvalues-list" class="form-control"></select>' +
+											'</div>' +
+										'</div>' +
+									'</form>' +
+								'</div>' +
 							'</div>' +
-						'</div>' +
-						'<div class="panel panel-default">' +
-							'<div class="panel-heading">' +
-								'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
+							'<div class="panel panel-default">' +
+								'<div class="panel-heading">' +
+									'Y value <button id="add-line-button" type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-plus"></span></button>' +
+								'</div>' +
+								'<div id="lines-configuration" class="panel-body"></div>' +
 							'</div>' +
-							'<div id="lines-configuration" class="panel-body"></div>' +
-						'</div>' +
-						'<button id="connect-source-button" type="button" class="btn btn-primary">Add external data source <span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
+							'<button id="connect-source-button" type="button" class="btn btn-primary">Add external data source <span class="glyphicon glyphicon-circle-arrow-right"></span></button>';
 
-		$(parent).append(snippet);
+			$('#' + dataSourceComponent.getChild()).append(snippet);
 
-		$("#main-configuration").append();
+			dataSourceComponent.disable();
 
-		chart.endpoint = desc.endpoint;
-		chart.graph = desc.graph;
+			$("#main-configuration").append();
 
-		updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
+			chart.endpoint = desc.endpoint;
+			chart.graph = desc.graph;
 
-		$("#add-line-button").click(function(event) {
-			$("#main-class-list").prop("disabled", true);
-			$("#main-xvalues-list").prop("disabled", true);
+			updateSelectComponent("main-class-list", desc.classes, 'classURI', updateMainClass);
 
-			addLine(desc, id);
-			id++;
-		});
+			$("#add-line-button").click(function(event) {
+				$("#main-class-list").prop("disabled", true);
+				$("#main-xvalues-list").prop("disabled", true);
 
-		$("#connect-source-button").click(function(event) {
-			$("#main-class-list").prop("disabled", true);
-			$("#main-xvalues-list").prop("disabled", true);
+				addLine(desc, id);
+				id++;
+			});
 
-			chart.lines[id] = {};
-			new ConnectedLine(id, desc, "#main-configuration");
-			id++;
-		});
+			$("#connect-source-button").click(function(event) {
+				$("#main-class-list").prop("disabled", true);
+				$("#main-xvalues-list").prop("disabled", true);
+
+				chart.lines[id] = {};
+				new ConnectedLine(id, desc, "#main-configuration");
+				id++;
+			});
+		} else
+			dataSourceComponent.showAlert("Dataset description was empty. No classes found.");
 	});
 };
 

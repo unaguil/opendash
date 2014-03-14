@@ -58,15 +58,17 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 		}.bind(this));
 
 		$("#select-source-button-" + this.id).click(function(event) {
-			$("#dataset-list-" + this.id).prop("disabled", true);
-			$("#graph-list-" + this.id).prop("disabled", true);
-			$("#select-source-button-" + this.id).prop("disabled", true);
-
 			this.endpointURL = $("#dataset-list-" + this.id + " :selected").text();
 			this.graphName = $("#graph-list-" + this.id + " :selected").text();
 
-			this.process(this.endpointURL, this.graphName, "#" + this.child);
+			this.process(this.endpointURL, this.graphName, this);
 		}.bind(this));
+	};
+
+	this.disable = function() {
+		$("#dataset-list-" + this.id).prop("disabled", true);
+		$("#graph-list-" + this.id).prop("disabled", true);
+		$("#select-source-button-" + this.id).prop("disabled", true);
 	};
 
 	this.getEndpoint = function() {
@@ -77,13 +79,19 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 		return this.graphName;
 	}
 
+	this.showAlert = function(msg) {
+		$('#' + this.child).empty();
+		
+		alert = '<div class="alert alert-danger">'+ msg + '</div>';
+		$('#' + this.child).append(alert);
+	};
+
 	this.updateGraphList = function (componentID, endpoint, index) {
 		$('#' + this.child).empty();
 
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
 			if (data.error) {
-				alert = '<div class="alert alert-danger">'+ data.error + '</div>';
-				$('#' + this.child).append(alert);
+				this.showAlert(data.error);
 				$('#' + "graph-list-" + this.id).empty();
 			}
 			else

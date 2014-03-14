@@ -6,6 +6,8 @@ from flask.ext.login import login_required, current_user
 import rdflib
 import json
 
+from urllib2 import URLError
+
 from collections import defaultdict
 
 from opendash import app, session
@@ -160,6 +162,7 @@ def get_description(endpoint, graph):
 	g.close()
 
 	return desc
+	
 
 @app.route("/endpoints/get_description", methods=['POST'])
 @login_required
@@ -167,9 +170,13 @@ def get_source_description():
 	endpoint = request.form['endpoint']
 	graph = request.form['graph']
 
-	desc = get_description(endpoint, graph)
+	try :
+	
+		desc = get_description(endpoint, graph)
 
-	return jsonify(desc=desc)
+		return jsonify(desc=desc)
+	except URLError:
+		return jsonify(error='Problem obtaining dataset description')
 
 def get_class_properties(clazz, desc):
 	for c in desc['classes']:
