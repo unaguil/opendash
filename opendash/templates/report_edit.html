@@ -14,7 +14,7 @@
 		<div class="well">
 
 			<div class="row">
-				<div class="col-lg-4">
+				<div class="col-lg-3">
 					<div class="input-group">
 						<span class="input-group-addon">Report name</span>
 						<input id="report-name-input" type="text" class="form-control" value="{{report.name}}" maxlength="30" {% if not edit %} disabled {% endif %}>
@@ -34,6 +34,15 @@
 						<input id="report-name-input" type="text" class="form-control" value="{{ report.modified.strftime("%d/%m/%y %H:%M:%S") }}" disabled>
 					</div>
 				</div>
+
+				{% if not edit %}
+					<div class="col-lg-3">
+						<div class="input-group">
+							<span class="input-group-addon">Author</span>
+							<input id="report-name-input" type="text" class="form-control" value="{{ author }}" disabled>
+						</div>
+					</div>
+				{% endif %}
 			</div>
 
 			</br>

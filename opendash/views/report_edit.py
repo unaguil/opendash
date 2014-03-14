@@ -9,7 +9,7 @@ import datetime
 from opendash import app, session
 from opendash.form.login import LoginForm
 
-from opendash.model.opendash_model import Endpoint, Report, Chart
+from opendash.model.opendash_model import Endpoint, Report, Chart, User
 
 DATA_TYPE = 'data_type'
 OBJECT_TYPE = 'object_type'
@@ -35,8 +35,11 @@ def report_view(report_id):
 
 	report = session.query(Report).filter_by(id=report_id).first()
 
+	author = session.query(User).filter_by(id=report.user).first()
+
 	if report.public:
-		return render_template('report_edit.html', form=form, user=current_user, report=report, edit=False)
+		return render_template('report_edit.html', form=form, 
+			user=current_user, report=report, author=author.user, edit=False)
 	elif has_privileges(report):
 		 return redirect(url_for('report_edit', report_id=report_id))
 	else:
