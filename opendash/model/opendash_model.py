@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
 	session.add(user)
 
-#	session.add(Endpoint('http://helheim.deusto.es/sparql'))
+	session.add(Endpoint('http://helheim.deusto.es/sparql'))
 	session.add(Endpoint('http://localhost:3030/ds1/query'))
 	session.add(Endpoint('http://localhost:3030/ds2/query'))
 

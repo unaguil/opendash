@@ -54,7 +54,7 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 
 	this.populateEndpoints = function() {
 		$.getJSON("/endpoints", function(data) {
-			updateSelectComponent("dataset-list-" + this.id, data.endpoints, 'url', this.updateGraphList)
+			updateSelectComponent("dataset-list-" + this.id, data.endpoints, 'url', this.updateGraphList.bind(this))
 		}.bind(this));
 
 		$("#select-source-button-" + this.id).click(function(event) {
@@ -79,7 +79,7 @@ function DataSourceComponent(title, id, parent, process, removable, onRemove) {
 
 	this.updateGraphList = function (componentID, endpoint, index) {
 		$.post("/endpoints/get_graphs", { endpoint: endpoint.url }, function(data) {
-			updateSelectComponent("graph-list-" + this.id, data.graphs, 'id', function() {});
+			updateSelectComponent("graph-list-" + this.id, data.graphs, 'name', function() {});
 		}.bind(this));
 	};
 
