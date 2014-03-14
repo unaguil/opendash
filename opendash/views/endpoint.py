@@ -101,7 +101,7 @@ def get_property_type(g, graph, clazz, property):
 			else:
 				return DATA_TYPE, infer_datatype(str(value[0]))
 
-		return OBJECT_TYPE, get_object_type(g, graph, str(value[0]))	
+		return OBJECT_TYPE, shorten(get_object_type(g, graph, str(value[0])))	
 
 def get_long_prefix(uri):
 	if '#' in uri:
