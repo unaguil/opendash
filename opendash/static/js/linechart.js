@@ -53,7 +53,8 @@ function drawChart(elementID, chart, chart_data) {
 	var data = google.visualization.arrayToDataTable(arrayData);
 
 	var options = {
-		title: chart.name
+		title: chart.name,
+		legend: 'top'
 	};
 
 	var googleChart = {};	
