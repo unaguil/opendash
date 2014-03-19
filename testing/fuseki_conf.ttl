@@ -21,6 +21,7 @@
    fuseki:services (
      <#service1>
      <#service2>
+     <#service3>
    ) .
 
 <#service1> rdf:type fuseki:Service ;
@@ -52,5 +53,21 @@
       [ rdfs:label "books.ttl" ;
         a ja:MemoryModel ;
         ja:content [ja:externalContent <file:data/ds2.rdf> ] ;
+      ] ;
+    .
+
+<#service3> rdf:type fuseki:Service ;
+    fuseki:name                     "sepe" ;    # http://host:port/books
+    fuseki:serviceQuery             "query" ;    # SPARQL query service
+    fuseki:serviceReadGraphStore    "data" ;     # SPARQL Graph store protocol (read only)
+    fuseki:dataset           <#sepe> ;
+    .
+
+<#sepe>    rdf:type ja:RDFDataset ;
+    rdfs:label "Sepe" ;
+    ja:defaultGraph
+      [ rdfs:label "sepe.nt" ;
+        a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/sepe.rdf> ] ;
       ] ;
     .

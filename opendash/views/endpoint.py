@@ -54,6 +54,8 @@ def get_properties(g, graph, clazz):
 	query =  query % (graph, clazz, getFilter("?property"))
 	qres = g.query(query)
 
+	print query
+
 	properties = []
 	for p in qres:
 		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
@@ -268,7 +270,7 @@ def process_line(endpoint, graph, mainclass, xvalues, xsubproperty, line):
 
 	data = []
 	for row in qres:
-		data.append({'x' : str(row[0]), 'y': str(row[1])})
+		data.append({'x' : unicode(row[0]), 'y': unicode(row[1])})
 
 	g.close()
 
