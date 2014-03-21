@@ -7,5 +7,5 @@ from opendash.views import profile
 from opendash.views import report_edit
 from opendash.views import endpoint
 
-if __name__ = '__main__':
+if __name__ == '__main__':
 	app.run(debug=True)
