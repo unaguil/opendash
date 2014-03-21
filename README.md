@@ -22,7 +22,7 @@ Installation
 
 4. **Run OpenDASH server (in main directory)**
 
-		python runserver.py
+		python server.py
 		
 Usage
 -----
