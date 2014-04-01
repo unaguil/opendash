@@ -57,13 +57,15 @@ def get_properties(g, graph, clazz):
 	properties = []
 	for p in qres:
 		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
-		property = {
-				'uri': shorten(str(p[0])),
-				'datatype': data_type,
-				'type': ref_type
-			}
 
-		properties.append(property)
+		if data_type is not None:
+			property = {
+					'uri': shorten(str(p[0])),
+					'datatype': data_type,
+					'type': ref_type
+				}
+
+			properties.append(property)
 
 	return properties
 
@@ -85,6 +87,8 @@ def get_object_type(g, graph, value):
 	for value in qres:
 		return str(value[0])
 
+	return None
+
 def get_property_type(g, graph, clazz, property):
 	query = """SELECT ?value FROM <%s> WHERE {
 				?s a <%s> .
@@ -101,7 +105,12 @@ def get_property_type(g, graph, clazz, property):
 			else:
 				return DATA_TYPE, infer_datatype(str(value[0]))
 
-		return OBJECT_TYPE, shorten(get_object_type(g, graph, str(value[0])))	
+		property_type = get_object_type(g, graph, str(value[0]))
+
+		if property_type is not None:
+			return OBJECT_TYPE, shorten(property_type)
+		else:
+			return OBJECT_TYPE, None
 
 def get_long_prefix(uri):
 	if '#' in uri:
