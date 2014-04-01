@@ -54,8 +54,6 @@ def get_properties(g, graph, clazz):
 	query =  query % (graph, clazz, getFilter("?property"))
 	qres = g.query(query)
 
-	print query
-
 	properties = []
 	for p in qres:
 		ref_type, data_type = get_property_type(g, graph, clazz, str(p[0]))
