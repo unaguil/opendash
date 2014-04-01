@@ -52,6 +52,8 @@ function updateYSubProperty(componentID) {
 
 	chart.lines[lineID].yvalues = $('#' + componentID + ' :selected').text();
 	chart.lines[lineID].ysubproperty = $('#yvalues-list-' + lineID + ' :selected').text();
+
+	updateChartLine('chart-div', chart, lineID, data);
 };
 
 function updateYValues(componentID) {
